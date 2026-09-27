@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./command-center.css";
 
 :root {
   --background: #ffffff;

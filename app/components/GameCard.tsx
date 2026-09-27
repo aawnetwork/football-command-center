@@ -1,0 +1,66 @@
+import type { ReactNode } from "react";
+
+type GameCardProps = {
+  status: string;
+  awayTeam: string;
+  awayMeta: string;
+  awayScore: number | null;
+  homeTeam: string;
+  homeMeta: string;
+  homeScore: number | null;
+  time: string;
+  indicator?: {
+    label: string;
+    color: string;
+  } | null;
+  footer: ReactNode;
+};
+
+export function GameCard({
+  status,
+  awayTeam,
+  awayMeta,
+  awayScore,
+  homeTeam,
+  homeMeta,
+  homeScore,
+  time,
+  indicator,
+  footer,
+}: GameCardProps) {
+  return (
+    <article className="game-card">
+      <div className="game-card__status">{status}</div>
+
+      <div className="game-card__teams">
+        <div className="game-card__team-row">
+          <div>
+            <div className="game-card__team-name">{awayTeam}</div>
+            <div className="game-card__team-meta">{awayMeta}</div>
+          </div>
+          <div className="game-card__score">{awayScore ?? "—"}</div>
+        </div>
+
+        <div className="game-card__divider" />
+
+        <div className="game-card__team-row">
+          <div>
+            <div className="game-card__team-name">{homeTeam}</div>
+            <div className="game-card__team-meta">{homeMeta}</div>
+          </div>
+          <div className="game-card__score">{homeScore ?? "—"}</div>
+        </div>
+      </div>
+
+      <div className="game-card__footer">
+        {indicator && (
+          <div className="game-card__indicator" style={{ color: indicator.color }}>
+            {indicator.label}
+          </div>
+        )}
+        <div className="game-card__time">{time}</div>
+        {footer}
+      </div>
+    </article>
+  );
+}
