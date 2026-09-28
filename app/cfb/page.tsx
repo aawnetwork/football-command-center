@@ -1684,36 +1684,45 @@ export default function Home() {
               Week:
             </label>
 
-            <select
-              id="cfb-week-selector"
-              value={selectedWeek ?? currentWeek}
-              onChange={(event) =>
-                setSelectedWeek(
-                  Number(event.target.value)
-                )
-              }
+            <div
               style={{
-                padding: "9px 12px",
-                borderRadius: "8px",
-                border: "1px solid #334155",
-                background: "#0f172a",
-                color: "#f8fafc",
-                fontWeight: 700,
-                cursor: "pointer",
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
               }}
             >
               {Array.from(
                 { length: currentWeek + 1 },
                 (_, week) => (
-                  <option
+                  <button
                     key={week}
-                    value={week}
+                    type="button"
+                    onClick={() => setSelectedWeek(week)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid",
+                      borderColor:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#ef4444"
+                          : "#334155",
+                      background:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#3f0d12"
+                          : "#0f172a",
+                      color:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#fca5a5"
+                          : "#94a3b8",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
                   >
                     Week {week}
-                  </option>
+                  </button>
                 )
               )}
-            </select>
+            </div>
           </div>
         )}
             <div
@@ -2316,36 +2325,45 @@ export default function Home() {
               Week:
             </label>
 
-            <select
-              id="cfb-week-selector"
-              value={selectedWeek ?? currentWeek}
-              onChange={(event) =>
-                setSelectedWeek(
-                  Number(event.target.value)
-                )
-              }
+            <div
               style={{
-                padding: "9px 12px",
-                borderRadius: "8px",
-                border: "1px solid #334155",
-                background: "#0f172a",
-                color: "#f8fafc",
-                fontWeight: 700,
-                cursor: "pointer",
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
               }}
             >
               {Array.from(
                 { length: currentWeek + 1 },
                 (_, week) => (
-                  <option
+                  <button
                     key={week}
-                    value={week}
+                    type="button"
+                    onClick={() => setSelectedWeek(week)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid",
+                      borderColor:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#ef4444"
+                          : "#334155",
+                      background:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#3f0d12"
+                          : "#0f172a",
+                      color:
+                        (selectedWeek ?? currentWeek) === week
+                          ? "#fca5a5"
+                          : "#94a3b8",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
                   >
                     Week {week}
-                  </option>
+                  </button>
                 )
               )}
-            </select>
+            </div>
           </div>
         )}
             <div
@@ -2724,36 +2742,45 @@ export default function Home() {
                 Week:
               </label>
 
-              <select
-                id="cfb-week-selector"
-                value={selectedWeek ?? currentWeek}
-                onChange={(event) =>
-                  setSelectedWeek(
-                    Number(event.target.value)
-                  )
-                }
+              <div
                 style={{
-                  padding: "9px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid #334155",
-                  background: "#0f172a",
-                  color: "#f8fafc",
-                  fontWeight: 700,
-                  cursor: "pointer",
+                  display: "flex",
+                  gap: "8px",
+                  flexWrap: "wrap",
                 }}
               >
                 {Array.from(
                   { length: currentWeek + 1 },
                   (_, week) => (
-                    <option
+                    <button
                       key={week}
-                      value={week}
+                      type="button"
+                      onClick={() => setSelectedWeek(week)}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "8px",
+                        border: "1px solid",
+                        borderColor:
+                          (selectedWeek ?? currentWeek) === week
+                            ? "#ef4444"
+                            : "#334155",
+                        background:
+                          (selectedWeek ?? currentWeek) === week
+                            ? "#3f0d12"
+                            : "#0f172a",
+                        color:
+                          (selectedWeek ?? currentWeek) === week
+                            ? "#fca5a5"
+                            : "#94a3b8",
+                        fontWeight: 900,
+                        cursor: "pointer",
+                      }}
                     >
                       Week {week}
-                    </option>
+                    </button>
                   )
                 )}
-              </select>
+              </div>
             </div>
           )}
 
