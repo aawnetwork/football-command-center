@@ -7,90 +7,30 @@ import {
   nflAllTimeSeasonIndividual,
 } from "./data/nfl-all-time-career";
 
-type NFLGame = {
-  id: number;
-  startDate: string;
-  homeTeam: string;
-  awayTeam: string;
-  homePoints: number | null;
-  awayPoints: number | null;
-  homeRecord: string | null;
-  awayRecord: string | null;
-  completed: boolean;
-  status: string;
+import {
+  tierInfo,
+  formatGameTime,
+  getTeamName,
+  getGameImportance,
+  getContentAngle,
+  getPerformanceScore,
+  getRecordWinPercentage,
+  isStatementWin,
+} from "../lib/nfl-helpers";
 
-  importance?: "S" | "A" | "B" | "C";
-  importanceReasons?: string[];
-};
-
-type NFLPlayerStat = {
-  player_id: string;
-  player_display_name: string;
-  recent_team: string;
-  passing_yards: number;
-  passing_tds: number;
-  rushing_yards: number;
-  rushing_tds: number;
-  receiving_yards: number;
-  receiving_tds: number;
-  tackles: number;
-  sacks: number;
-};
-
-type NFLPerformance = NFLPlayerStat & {
-  week: number;
-  opponent_team: string;
-  game_id: string;
-  result: string;
-  game_score: string;
-  team_record: string | null;
-  opponent_record: string | null;
-};
-
-type NFLTeamStat = Record<string, string>;
-
-type StatCategory =
-  | "passing"
-  | "passing-td"
-  | "rushing"
-  | "rushing-td"
-  | "receiving"
-  | "receiving-td"
-  | "tackles"
-  | "sacks";
-
-type TeamStatCategory =
-  | "total-offense"
-  | "passing"
-  | "rushing"
-  | "points"
-  | "defense"
-  | "sacks"
-  | "turnover-margin";
-
-type StatsView = "players" | "teams";
-
-type Tab =
-  | "games"
-  | "stats"
-  | "performances"
-  | "all-time";
-
-type PerformanceWeek =
-  | "all"
-  | number;
-
-type StatsMode = "weekly" | "season";
-
-type NFLTier = "S" | "A" | "B" | "C" | "D";
-
-const tierInfo: Record<NFLTier, { name: string; emoji: string }> = {
-  S: { name: "Must Watch", emoji: "🔥" },
-  A: { name: "High Interest", emoji: "👀" },
-  B: { name: "Worth Watching", emoji: "📺" },
-  C: { name: "Background", emoji: "🟢" },
-  D: { name: "Skip", emoji: "⚪" },
-};
+import type {
+  NFLGame,
+  NFLPlayerStat,
+  NFLPerformance,
+  NFLTeamStat,
+  StatCategory,
+  TeamStatCategory,
+  StatsView,
+  Tab,
+  PerformanceWeek,
+  StatsMode,
+  NFLTier,
+} from "../lib/nfl-helpers";
 
 export default function NFLPage() {
   const [games, setGames] =
