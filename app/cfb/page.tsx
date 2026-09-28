@@ -6,6 +6,7 @@ import {
   cfbAllTimeCareerIndividual,
   cfbAllTimeSeasonIndividual,
 } from "./data/cfb-all-time-career";
+import { formatGameTime } from "../lib/cfb-helpers";
 
 type Game = {
   id: number;
@@ -529,7 +530,7 @@ function getGameStatus(game: Game) {
     : "SCHEDULED";
 }
 
-function formatGameTime(dateString: string) {
+function formatGameTimeOLD(dateString: string) {
   return new Date(dateString).toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
