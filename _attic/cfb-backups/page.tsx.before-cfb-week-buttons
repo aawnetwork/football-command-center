@@ -2,10 +2,6 @@
 
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { GameCard } from "../components/GameCard";
-import {
-  cfbAllTimeCareerIndividual,
-  cfbAllTimeSeasonIndividual,
-} from "./data/cfb-all-time-career";
 
 type Game = {
   id: number;
@@ -945,14 +941,6 @@ export default function Home() {
   const [selectedTier, setSelectedTier] =
     useState("ALL");
 
-    const [allTimeView, setAllTimeView] = useState<"individual" | "team">(
-  "individual"
-);
-
-const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
-  "career"
-);
-
   const [statsMode, setStatsMode] =
     useState<StatsMode>("season");
 
@@ -1696,45 +1684,36 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
               Week:
             </label>
 
-            <div
+            <select
+              id="cfb-week-selector"
+              value={selectedWeek ?? currentWeek}
+              onChange={(event) =>
+                setSelectedWeek(
+                  Number(event.target.value)
+                )
+              }
               style={{
-                display: "flex",
-                gap: "8px",
-                flexWrap: "wrap",
+                padding: "9px 12px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#0f172a",
+                color: "#f8fafc",
+                fontWeight: 700,
+                cursor: "pointer",
               }}
             >
               {Array.from(
                 { length: currentWeek + 1 },
                 (_, week) => (
-                  <button
+                  <option
                     key={week}
-                    type="button"
-                    onClick={() => setSelectedWeek(week)}
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      border: "1px solid",
-                      borderColor:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#ef4444"
-                          : "#334155",
-                      background:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#3f0d12"
-                          : "#0f172a",
-                      color:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#fca5a5"
-                          : "#94a3b8",
-                      fontWeight: 900,
-                      cursor: "pointer",
-                    }}
+                    value={week}
                   >
                     Week {week}
-                  </button>
+                  </option>
                 )
               )}
-            </div>
+            </select>
           </div>
         )}
             <div
@@ -2337,45 +2316,36 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
               Week:
             </label>
 
-            <div
+            <select
+              id="cfb-week-selector"
+              value={selectedWeek ?? currentWeek}
+              onChange={(event) =>
+                setSelectedWeek(
+                  Number(event.target.value)
+                )
+              }
               style={{
-                display: "flex",
-                gap: "8px",
-                flexWrap: "wrap",
+                padding: "9px 12px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#0f172a",
+                color: "#f8fafc",
+                fontWeight: 700,
+                cursor: "pointer",
               }}
             >
               {Array.from(
                 { length: currentWeek + 1 },
                 (_, week) => (
-                  <button
+                  <option
                     key={week}
-                    type="button"
-                    onClick={() => setSelectedWeek(week)}
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      border: "1px solid",
-                      borderColor:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#ef4444"
-                          : "#334155",
-                      background:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#3f0d12"
-                          : "#0f172a",
-                      color:
-                        (selectedWeek ?? currentWeek) === week
-                          ? "#fca5a5"
-                          : "#94a3b8",
-                      fontWeight: 900,
-                      cursor: "pointer",
-                    }}
+                    value={week}
                   >
                     Week {week}
-                  </button>
+                  </option>
                 )
               )}
-            </div>
+            </select>
           </div>
         )}
             <div
@@ -2754,45 +2724,36 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                 Week:
               </label>
 
-              <div
+              <select
+                id="cfb-week-selector"
+                value={selectedWeek ?? currentWeek}
+                onChange={(event) =>
+                  setSelectedWeek(
+                    Number(event.target.value)
+                  )
+                }
                 style={{
-                  display: "flex",
-                  gap: "8px",
-                  flexWrap: "wrap",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  fontWeight: 700,
+                  cursor: "pointer",
                 }}
               >
                 {Array.from(
                   { length: currentWeek + 1 },
                   (_, week) => (
-                    <button
+                    <option
                       key={week}
-                      type="button"
-                      onClick={() => setSelectedWeek(week)}
-                      style={{
-                        padding: "10px 16px",
-                        borderRadius: "8px",
-                        border: "1px solid",
-                        borderColor:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#ef4444"
-                            : "#334155",
-                        background:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#3f0d12"
-                            : "#0f172a",
-                        color:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#fca5a5"
-                            : "#94a3b8",
-                        fontWeight: 900,
-                        cursor: "pointer",
-                      }}
+                      value={week}
                     >
                       Week {week}
-                    </button>
+                    </option>
                   )
                 )}
-              </div>
+              </select>
             </div>
           )}
 
@@ -3237,271 +3198,134 @@ selectedCategory === "scoring-defense"
           </section>
         )}
 
-               {activeTab === "all-time" && (
-          <section>
+        {activeTab === "all-time" && (
+  <section>
+    <div
+      style={{
+        background: "#0f172a",
+        border: "1px solid #1e293b",
+        borderRadius: "12px",
+        padding: "24px",
+      }}
+    >
+      <h2 style={{ marginTop: 0, marginBottom: "8px" }}>
+        🏆 All-Time
+      </h2>
+
+      <p style={{ color: "#94a3b8", marginTop: 0, lineHeight: 1.6 }}>
+        FBS career leaders from the NCAA football record book. This is a historical record-book view,
+        not a current-season leaderboard.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "16px",
+          marginTop: "20px",
+        }}
+      >
+        {[
+          {
+            title: "🏈 Career Passing Yards",
+            rows: [
+              ["Case Keenum", "Houston", 19217],
+              ["Dillon Gabriel", "UCF / Oklahoma / Oregon", 18722],
+              ["Sam Hartman", "Wake Forest / Notre Dame", 15656],
+              ["Bo Nix", "Auburn / Oregon", 15351],
+              ["Ty Detmer", "BYU", 15031],
+            ],
+          },
+          {
+            title: "🏃 Career Rushing Yards",
+            rows: [
+              ["Donnel Pumphrey", "San Diego State", 6405],
+              ["Ron Dayne", "Wisconsin", 6397],
+              ["Ricky Williams", "Texas", 6279],
+              ["Jonathan Taylor", "Wisconsin", 6174],
+              ["Tony Dorsett", "Pittsburgh", 6082],
+            ],
+          },
+          {
+            title: "🙌 Career Receiving Yards",
+            rows: [
+              ["Corey Davis", "Western Michigan", 5285],
+              ["Trevor Insley", "Nevada", 5005],
+              ["Ryan Broyles", "Oklahoma", 4586],
+              ["Justin Hardy", "East Carolina", 4541],
+              ["Marcus Harris", "Wyoming", 4518],
+            ],
+          },
+        ].map((record) => (
+          <div
+            key={record.title}
+            style={{
+              background: "#111827",
+              border: "1px solid #334155",
+              borderRadius: "10px",
+              padding: "18px",
+            }}
+          >
             <div
               style={{
-                background: "#0f172a",
-                border: "1px solid #1e293b",
-                borderRadius: "12px",
-                padding: "24px",
+                fontSize: "16px",
+                fontWeight: 800,
+                marginBottom: "14px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <h2 style={{ margin: 0 }}>🏆 All-Time</h2>
-                  <p
-                    style={{
-                      color: "#94a3b8",
-                      margin: "8px 0 0",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Historical FBS career and season leaders.
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "20px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {(["individual", "team"] as const).map((view) => (
-  <button
-    key={view}
-    type="button"
-    onClick={() => setAllTimeView(view)}
-    style={{
-      padding: "10px 16px",
-      borderRadius: "8px",
-      border: "1px solid #334155",
-      background:
-        view === allTimeView ? "#1e293b" : "#111827",
-      color:
-        view === allTimeView ? "#f8fafc" : "#94a3b8",
-      fontWeight: 800,
-      cursor: "pointer",
-    }}
-  >
-    {view === "individual" ? "Individual" : "Team"}
-  </button>
-))}
-
-                <div
-                  style={{
-                    width: "1px",
-                    background: "#334155",
-                    margin: "0 4px",
-                  }}
-                />
-
-                {(["season", "career"] as const).map((period) => (
-  <button
-    key={period}
-    type="button"
-    onClick={() => setAllTimePeriod(period)}
-    style={{
-      padding: "10px 16px",
-      borderRadius: "8px",
-      border: "1px solid #334155",
-      background:
-        period === allTimePeriod ? "#1e293b" : "#111827",
-      color:
-        period === allTimePeriod ? "#f8fafc" : "#94a3b8",
-      fontWeight: 800,
-      cursor: "pointer",
-    }}
-  >
-    {period === "season" ? "Season" : "Career"}
-  </button>
-))}
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(420px, 1fr))",
-                  gap: "16px",
-                  marginTop: "20px",
-                }}
-              >
-                {[
-  [
-    `🏈 ${allTimePeriod === "career" ? "Career" : "Season"} Passing Yards`,
-    "passing-yards",
-    "yards",
-  ],
-  [
-    `🎯 ${allTimePeriod === "career" ? "Career" : "Season"} Passing TDs`,
-    "passing-td",
-    "TD",
-  ],
-  [
-    `🏃 ${allTimePeriod === "career" ? "Career" : "Season"} Rushing Yards`,
-    "rushing-yards",
-    "yards",
-  ],
-  [
-    `🔥 ${allTimePeriod === "career" ? "Career" : "Season"} Rushing TDs`,
-    "rushing-td",
-    "TD",
-  ],
-  [
-    `🙌 ${allTimePeriod === "career" ? "Career" : "Season"} Receiving Yards`,
-    "receiving-yards",
-    "yards",
-  ],
-  [
-    `🎯 ${allTimePeriod === "career" ? "Career" : "Season"} Receiving TDs`,
-    "receiving-td",
-    "TD",
-  ],
-  [
-    `🛡️ ${allTimePeriod === "career" ? "Career" : "Season"} Tackles`,
-    "tackles",
-    "tackles",
-  ],
-  [
-    `💥 ${allTimePeriod === "career" ? "Career" : "Season"} Sacks`,
-    "sacks",
-    "sacks",
-  ],
-  [
-    `🖐️ ${allTimePeriod === "career" ? "Career" : "Season"} Interceptions`,
-    "interceptions",
-    "INT",
-  ],
-].map(([title, category, unit]) => {
-const records =
-  allTimePeriod === "career"
-    ? cfbAllTimeCareerIndividual[
-        category as keyof typeof cfbAllTimeCareerIndividual
-      ]
-    : cfbAllTimeSeasonIndividual[
-        category as keyof typeof cfbAllTimeSeasonIndividual
-      ];
-
-  return (
-                    <article
-                      key={String(category)}
-                      style={{
-                        background: "#111827",
-                        border: "1px solid #334155",
-                        borderRadius: "10px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          padding: "16px 18px",
-                          borderBottom: "1px solid #334155",
-                          fontSize: "16px",
-                          fontWeight: 900,
-                        }}
-                      >
-                        {title}
-                      </div>
-
-                      <div>
-                        {records.slice(0, 10).map((record) => (
-                          <div
-                            key={`${category}-${record.rank}-${record.player}`}
-                            style={{
-                              display: "grid",
-                              gridTemplateColumns:
-                                "36px minmax(0, 1fr) auto",
-                              gap: "12px",
-                              alignItems: "center",
-                              padding: "13px 18px",
-                              borderBottom: "1px solid #1e293b",
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: "#64748b",
-                                fontWeight: 900,
-                                fontSize: "14px",
-                              }}
-                            >
-                              {record.rank}
-                            </span>
-
-                            <div style={{ minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontWeight: 800,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {record.player}
-                              </div>
-
-                              <div
-                                style={{
-                                  color: "#64748b",
-                                  fontSize: "12px",
-                                  marginTop: "3px",
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                {record.team}
-                                {record.years ? ` • ${record.years}` : ""}
-                              </div>
-                            </div>
-
-                            <strong
-                              style={{
-                                fontSize: "16px",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {record.value.toLocaleString()} {unit}
-                            </strong>
-                          </div>
-                        ))}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-
-              <div
-                style={{
-                  marginTop: "20px",
-                  padding: "14px 16px",
-                  background: "#111827",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  color: "#94a3b8",
-                  lineHeight: 1.6,
-                  fontSize: "13px",
-                }}
-              >
-                <strong style={{ color: "#f8fafc" }}>
-                  Historical data:
-                </strong>{" "}
-                NCAA FBS football record book. The complete Top 25 for each
-                category is retained in the underlying data; this view
-                displays ranks 1–10.
-              </div>
+              {record.title}
             </div>
-          </section>
-        )}
+
+            <div style={{ display: "grid", gap: "8px" }}>
+              {record.rows.map(([player, team, value], index) => (
+                <div
+                  key={`${record.title}-${player}`}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "28px 1fr auto",
+                    gap: "10px",
+                    alignItems: "center",
+                    padding: "10px 0",
+                    borderTop: index === 0 ? "none" : "1px solid #1e293b",
+                  }}
+                >
+                  <span style={{ color: "#64748b", fontWeight: 800 }}>
+                    {index + 1}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{player}</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>
+                      {team}
+                    </div>
+                  </div>
+                  <strong>{Number(value).toLocaleString()}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          marginTop: "20px",
+          padding: "14px 16px",
+          background: "#111827",
+          border: "1px solid #334155",
+          borderRadius: "10px",
+          color: "#cbd5e1",
+          lineHeight: 1.6,
+          fontSize: "13px",
+        }}
+      >
+        <strong style={{ color: "#f8fafc" }}>Historical source:</strong>{" "}
+        NCAA FBS football record book, supplemented for the current career leaderboard with
+        College Football at Sports-Reference where the NCAA record-book presentation does not expose
+        the complete ranking table.
+      </div>
+    </div>
+  </section>
+)}
       </div>
     </main>
   );

@@ -2,6 +2,10 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { GameCard } from "../components/GameCard";
+import {
+  nflAllTimeCareerIndividual,
+  nflAllTimeSeasonIndividual,
+} from "./data/nfl-all-time-career";
 
 type NFLGame = {
   id: number;
@@ -140,6 +144,14 @@ export default function NFLPage() {
     useState<TeamStatCategory>(
       "total-offense"
     );
+
+  const [allTimeView, setAllTimeView] = useState<"individual" | "team">(
+    "individual"
+  );
+
+  const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
+    "career"
+  );
 
   useEffect(() => {
     const savedTiers = localStorage.getItem("nfl-game-tiers");
@@ -2361,45 +2373,127 @@ function getPerformanceReason(
           </section>
         )} */}
 
-        {activeTab === "all-time" && (
-          <section>
+       {activeTab === "all-time" && (
+  <section>
+    <div
+      style={{
+        background: "#0f172a",
+        border: "1px solid #1e293b",
+        borderRadius: "12px",
+        padding: "24px",
+      }}
+    >
+      <h2 style={{ marginTop: 0, marginBottom: "8px" }}>
+        🏆 All-Time
+      </h2>
+
+      <p
+        style={{
+          color: "#94a3b8",
+          marginTop: 0,
+          lineHeight: 1.6,
+        }}
+      >
+        NFL career and single-season leaders from the official NFL
+        Record &amp; Fact Book. This is a historical record-book
+        snapshot, separate from the live and 2026 season stats above.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gap: "16px",
+          marginTop: "20px",
+        }}
+      >
+        {[
+          ["🏈 Career Passing Yards", nflAllTimeCareerIndividual, "passing-yards"],
+          ["🏈 Career Passing TDs", nflAllTimeCareerIndividual, "passing-td"],
+          ["🏃 Career Rushing Yards", nflAllTimeCareerIndividual, "rushing-yards"],
+          ["🏃 Career Rushing TDs", nflAllTimeCareerIndividual, "rushing-td"],
+          ["🙌 Career Receiving Yards", nflAllTimeCareerIndividual, "receiving-yards"],
+          ["🙌 Career Receiving TDs", nflAllTimeCareerIndividual, "receiving-td"],
+          ["🛡️ Career Tackles", nflAllTimeCareerIndividual, "tackles"],
+          ["🔥 Career Sacks", nflAllTimeCareerIndividual, "sacks"],
+                    ["🎯 Career Interceptions", nflAllTimeCareerIndividual, "interceptions"],
+        ].map((item) => {
+          const title = item[0] as string;
+          const data = item[1] as typeof nflAllTimeCareerIndividual;
+          const category = item[2] as keyof typeof nflAllTimeCareerIndividual;
+
+          const records = data[category].slice(0, 10);
+
+          return (
             <div
+              key={title}
               style={{
-                background: "#0f172a",
-                border: "1px solid #1e293b",
-                borderRadius: "12px",
-                padding: "24px",
+                background: "#111827",
+                border: "1px solid #334155",
+                borderRadius: "10px",
+                padding: "18px",
               }}
             >
-              <h2 style={{ marginTop: 0, marginBottom: "8px" }}>🏆 All-Time</h2>
-              <p style={{ color: "#94a3b8", marginTop: 0, lineHeight: 1.6 }}>
-                NFL career leaders from the official NFL Record &amp; Fact Book. This is a historical
-                record-book snapshot, separate from the live and 2026 season stats above.
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px", marginTop: "20px" }}>
-                {[
-                  { title: "🏈 Career Passing Yards", rows: [["Tom Brady", "New England / Tampa Bay", 89214], ["Drew Brees", "San Diego / New Orleans", 80358], ["Peyton Manning", "Indianapolis / Denver", 71940]] },
-                  { title: "🏃 Career Rushing Yards", rows: [["Emmitt Smith", "Dallas / Arizona", 18355], ["Walter Payton", "Chicago", 16726], ["Frank Gore", "San Francisco / Indianapolis / Miami / Buffalo / NY Jets", 16000]] },
-                  { title: "🙌 Career Receptions", rows: [["Jerry Rice", "San Francisco / Oakland / Seattle", 1549], ["Larry Fitzgerald", "Arizona", 1432], ["Tony Gonzalez", "Kansas City / Atlanta", 1325]] },
-                  { title: "🔥 Career Touchdowns", rows: [["Jerry Rice", "San Francisco / Oakland / Seattle", 208], ["Emmitt Smith", "Dallas / Arizona", 175], ["LaDainian Tomlinson", "San Diego / NY Jets", 162]] },
-                  { title: "🎯 Career Points", rows: [["Adam Vinatieri", "New England / Indianapolis", 2673], ["Morten Andersen", "New Orleans / Atlanta / NY Giants / Kansas City / Minnesota", 2544], ["Gary Anderson", "Pittsburgh / Philadelphia / San Francisco / Minnesota / Tennessee", 2434]] },
-                ].map((record) => (
-                  <div key={record.title} style={{ background: "#111827", border: "1px solid #334155", borderRadius: "10px", padding: "18px" }}>
-                    <div style={{ fontSize: "16px", fontWeight: 800, marginBottom: "14px" }}>{record.title}</div>
-                    <div style={{ display: "grid", gap: "8px" }}>
-                      {record.rows.map(([player, team, value], index) => (
-                        <div key={`${record.title}-${player}`} style={{ display: "grid", gridTemplateColumns: "28px 1fr auto", gap: "10px", alignItems: "center", padding: "10px 0", borderTop: index === 0 ? "none" : "1px solid #1e293b" }}>
-                          <span style={{ color: "#64748b", fontWeight: 800 }}>{index + 1}</span>
-                          <div>
-                            <div style={{ fontWeight: 800 }}>{player}</div>
-                            <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>{team}</div>
-                          </div>
-                          <strong>{Number(value).toLocaleString()}</strong>
-                        </div>
-                      ))}
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 800,
+                  marginBottom: "14px",
+                }}
+              >
+                {title}
+              </div>
+
+              <div style={{ display: "grid", gap: "8px" }}>
+                {records.map((record) => (
+                  <div
+                    key={`${title}-${record.rank}-${record.player}`}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "28px 1fr auto",
+                      gap: "10px",
+                      alignItems: "center",
+                      padding: "10px 0",
+                      borderTop:
+                        record.rank === 1
+                          ? "none"
+                          : "1px solid #1e293b",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "#64748b",
+                        fontWeight: 800,
+                      }}
+                    >
+                      {record.rank}
+                    </span>
+
+                    <div>
+                      <div style={{ fontWeight: 800 }}>
+                        {record.player}
+                      </div>
+
+                      <div
+                        style={{
+                          color: "#64748b",
+                          fontSize: "12px",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {record.team} · {record.years}
+                      </div>
                     </div>
+
+                    <strong>
+                      {record.value.toLocaleString()}
+                    </strong>
                   </div>
                 ))}
+              </div>
+            </div>
+          );
+        })}
               </div>
               <div style={{ marginTop: "20px", padding: "14px 16px", background: "#111827", border: "1px solid #334155", borderRadius: "10px", color: "#cbd5e1", lineHeight: 1.6, fontSize: "13px" }}>
                 <strong style={{ color: "#f8fafc" }}>Historical source:</strong>{" "}
