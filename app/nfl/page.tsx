@@ -69,7 +69,8 @@ type StatsView = "players" | "teams";
 type Tab =
   | "games"
   | "stats"
-  | "performances";
+  | "performances"
+  | "all-time";
 
 type PerformanceWeek =
   | "all"
@@ -993,6 +994,7 @@ function getPerformanceReason(
               ["games", "🏈 Games"],
 ["performances", "🔥 Performances"],
 ["stats", "📊 Stats"],
+["all-time", "🏆 All-Time"],
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (
@@ -2358,6 +2360,54 @@ function getPerformanceReason(
             )}
           </section>
         )} */}
+
+        {activeTab === "all-time" && (
+          <section>
+            <div
+              style={{
+                background: "#0f172a",
+                border: "1px solid #1e293b",
+                borderRadius: "12px",
+                padding: "24px",
+              }}
+            >
+              <h2 style={{ marginTop: 0, marginBottom: "8px" }}>🏆 All-Time</h2>
+              <p style={{ color: "#94a3b8", marginTop: 0, lineHeight: 1.6 }}>
+                NFL career leaders from the official NFL Record &amp; Fact Book. This is a historical
+                record-book snapshot, separate from the live and 2026 season stats above.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px", marginTop: "20px" }}>
+                {[
+                  { title: "🏈 Career Passing Yards", rows: [["Tom Brady", "New England / Tampa Bay", 89214], ["Drew Brees", "San Diego / New Orleans", 80358], ["Peyton Manning", "Indianapolis / Denver", 71940]] },
+                  { title: "🏃 Career Rushing Yards", rows: [["Emmitt Smith", "Dallas / Arizona", 18355], ["Walter Payton", "Chicago", 16726], ["Frank Gore", "San Francisco / Indianapolis / Miami / Buffalo / NY Jets", 16000]] },
+                  { title: "🙌 Career Receptions", rows: [["Jerry Rice", "San Francisco / Oakland / Seattle", 1549], ["Larry Fitzgerald", "Arizona", 1432], ["Tony Gonzalez", "Kansas City / Atlanta", 1325]] },
+                  { title: "🔥 Career Touchdowns", rows: [["Jerry Rice", "San Francisco / Oakland / Seattle", 208], ["Emmitt Smith", "Dallas / Arizona", 175], ["LaDainian Tomlinson", "San Diego / NY Jets", 162]] },
+                  { title: "🎯 Career Points", rows: [["Adam Vinatieri", "New England / Indianapolis", 2673], ["Morten Andersen", "New Orleans / Atlanta / NY Giants / Kansas City / Minnesota", 2544], ["Gary Anderson", "Pittsburgh / Philadelphia / San Francisco / Minnesota / Tennessee", 2434]] },
+                ].map((record) => (
+                  <div key={record.title} style={{ background: "#111827", border: "1px solid #334155", borderRadius: "10px", padding: "18px" }}>
+                    <div style={{ fontSize: "16px", fontWeight: 800, marginBottom: "14px" }}>{record.title}</div>
+                    <div style={{ display: "grid", gap: "8px" }}>
+                      {record.rows.map(([player, team, value], index) => (
+                        <div key={`${record.title}-${player}`} style={{ display: "grid", gridTemplateColumns: "28px 1fr auto", gap: "10px", alignItems: "center", padding: "10px 0", borderTop: index === 0 ? "none" : "1px solid #1e293b" }}>
+                          <span style={{ color: "#64748b", fontWeight: 800 }}>{index + 1}</span>
+                          <div>
+                            <div style={{ fontWeight: 800 }}>{player}</div>
+                            <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>{team}</div>
+                          </div>
+                          <strong>{Number(value).toLocaleString()}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: "20px", padding: "14px 16px", background: "#111827", border: "1px solid #334155", borderRadius: "10px", color: "#cbd5e1", lineHeight: 1.6, fontSize: "13px" }}>
+                <strong style={{ color: "#f8fafc" }}>Historical source:</strong>{" "}
+                NFL 2024 Record &amp; Fact Book, compiled by the Elias Sports Bureau. The book states that its records reflect available official NFL information from the league's formation in 1920, including applicable AFL records from 1960–69.
+              </div>
+            </div>
+          </section>
+        )}
 
         {activeTab === "stats" && (
           <section>

@@ -3018,65 +3018,53 @@ selectedCategory === "scoring-defense"
         padding: "24px",
       }}
     >
-      <h2
-        style={{
-          marginTop: 0,
-          marginBottom: "8px",
-        }}
-      >
+      <h2 style={{ marginTop: 0, marginBottom: "8px" }}>
         🏆 All-Time
       </h2>
 
-      <p
-        style={{
-          color: "#94a3b8",
-          marginTop: 0,
-          lineHeight: 1.6,
-        }}
-      >
-        NCAA historical football records and career
-        milestones.
+      <p style={{ color: "#94a3b8", marginTop: 0, lineHeight: 1.6 }}>
+        FBS career leaders from the NCAA football record book. This is a historical record-book view,
+        not a current-season leaderboard.
       </p>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "12px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "16px",
           marginTop: "20px",
         }}
       >
         {[
           {
-            title: "🏃 Career Rushing",
-            description:
-              "All-time career rushing-yard records.",
+            title: "🏈 Career Passing Yards",
+            rows: [
+              ["Case Keenum", "Houston", 19217],
+              ["Dillon Gabriel", "UCF / Oklahoma / Oregon", 18722],
+              ["Sam Hartman", "Wake Forest / Notre Dame", 15656],
+              ["Bo Nix", "Auburn / Oregon", 15351],
+              ["Ty Detmer", "BYU", 15031],
+            ],
           },
           {
-            title: "🏈 Career Passing",
-            description:
-              "All-time career passing-yard records.",
+            title: "🏃 Career Rushing Yards",
+            rows: [
+              ["Donnel Pumphrey", "San Diego State", 6405],
+              ["Ron Dayne", "Wisconsin", 6397],
+              ["Ricky Williams", "Texas", 6279],
+              ["Jonathan Taylor", "Wisconsin", 6174],
+              ["Tony Dorsett", "Pittsburgh", 6082],
+            ],
           },
           {
-            title: "🙌 Career Receiving",
-            description:
-              "All-time career receiving-yard records.",
-          },
-          {
-            title: "🔥 Career Touchdowns",
-            description:
-              "Historical career touchdown records.",
-          },
-          {
-            title: "🎯 Career Scoring",
-            description:
-              "Historical career scoring records.",
-          },
-          {
-            title: "📚 NCAA Records",
-            description:
-              "Official NCAA football record-book context.",
+            title: "🙌 Career Receiving Yards",
+            rows: [
+              ["Corey Davis", "Western Michigan", 5285],
+              ["Trevor Insley", "Nevada", 5005],
+              ["Ryan Broyles", "Oklahoma", 4586],
+              ["Justin Hardy", "East Carolina", 4541],
+              ["Marcus Harris", "Wyoming", 4518],
+            ],
           },
         ].map((record) => (
           <div
@@ -3092,20 +3080,37 @@ selectedCategory === "scoring-defense"
               style={{
                 fontSize: "16px",
                 fontWeight: 800,
-                marginBottom: "8px",
+                marginBottom: "14px",
               }}
             >
               {record.title}
             </div>
 
-            <div
-              style={{
-                color: "#94a3b8",
-                fontSize: "14px",
-                lineHeight: 1.5,
-              }}
-            >
-              {record.description}
+            <div style={{ display: "grid", gap: "8px" }}>
+              {record.rows.map(([player, team, value], index) => (
+                <div
+                  key={`${record.title}-${player}`}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "28px 1fr auto",
+                    gap: "10px",
+                    alignItems: "center",
+                    padding: "10px 0",
+                    borderTop: index === 0 ? "none" : "1px solid #1e293b",
+                  }}
+                >
+                  <span style={{ color: "#64748b", fontWeight: 800 }}>
+                    {index + 1}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{player}</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>
+                      {team}
+                    </div>
+                  </div>
+                  <strong>{Number(value).toLocaleString()}</strong>
+                </div>
+              ))}
             </div>
           </div>
         ))}
@@ -3120,15 +3125,13 @@ selectedCategory === "scoring-defense"
           borderRadius: "10px",
           color: "#cbd5e1",
           lineHeight: 1.6,
-          fontSize: "14px",
+          fontSize: "13px",
         }}
       >
-        <strong style={{ color: "#f8fafc" }}>
-          Data source:
-        </strong>{" "}
-        NCAA official football records and record books.
-        The NCAA maintains historical individual and team
-        records across college football divisions.
+        <strong style={{ color: "#f8fafc" }}>Historical source:</strong>{" "}
+        NCAA FBS football record book, supplemented for the current career leaderboard with
+        College Football at Sports-Reference where the NCAA record-book presentation does not expose
+        the complete ranking table.
       </div>
     </div>
   </section>
