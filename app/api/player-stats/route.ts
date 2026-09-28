@@ -8,11 +8,21 @@ const ESPN_SCOREBOARD_URL =
 const ESPN_SUMMARY_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const week = searchParams.get("week");
   try {
     // Get this week's FBS games from ESPN.
+    const scoreboardUrl = new URL(ESPN_SCOREBOARD_URL);
+    scoreboardUrl.searchParams.set("seasontype", "2");
+    scoreboardUrl.searchParams.set("groups", "80");
+
+    if (week !== null && week !== "") {
+      scoreboardUrl.searchParams.set("week", week);
+    }
+
     const scoreboardResponse = await fetch(
-      `${ESPN_SCOREBOARD_URL}?seasontype=2&groups=80`,
+      scoreboardUrl.toString(),
       {
         cache: "no-store",
       }
@@ -35,31 +45,53 @@ export async function GET() {
     const playerStats: any[] = [];
     const teamStats: any[] = [];
 
-    // Fetch each game's full box score.
-    for (const event of events) {
-      const gameId = Number(event.id);
+    // Fetch all game's full box scores in parallel.
+    const summaries = await Promise.all(
+      events.map(async (event: any) => {
+        const gameId = Number(event.id);
 
-      if (!gameId) {
-        continue;
-      }
-
-      const summaryResponse = await fetch(
-        `${ESPN_SUMMARY_URL}?event=${gameId}`,
-        {
-          cache: "no-store",
+        if (!gameId) {
+          return null;
         }
-      );
 
-      if (!summaryResponse.ok) {
-        console.error(
-          `ESPN summary failed for game ${gameId}:`,
-          summaryResponse.status
-        );
+        try {
+          const summaryResponse = await fetch(
+            `${ESPN_SUMMARY_URL}?event=${gameId}`,
+            {
+              cache: "no-store",
+            }
+          );
 
+          if (!summaryResponse.ok) {
+            console.error(
+              `ESPN summary failed for game ${gameId}:`,
+              summaryResponse.status
+            );
+
+            return null;
+          }
+
+          return {
+            gameId,
+            summary: await summaryResponse.json(),
+          };
+        } catch (error) {
+          console.error(
+            `ESPN summary request failed for game ${gameId}:`,
+            error
+          );
+
+          return null;
+        }
+      })
+    );
+
+    for (const result of summaries) {
+      if (!result) {
         continue;
       }
 
-      const summary = await summaryResponse.json();
+      const { gameId, summary } = result;
 
       const competition =
         summary.header?.competitions?.[0];

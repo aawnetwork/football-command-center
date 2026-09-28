@@ -2,10 +2,22 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 30;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const week = searchParams.get("week");
   try {
+    const scoreboardUrl = new URL(
+      "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
+    );
+    scoreboardUrl.searchParams.set("seasontype", "2");
+    scoreboardUrl.searchParams.set("groups", "80");
+
+    if (week !== null && week !== "") {
+      scoreboardUrl.searchParams.set("week", week);
+    }
+
     const response = await fetch(
-      "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&groups=80",
+      scoreboardUrl.toString(),
       {
         cache: "no-store",
       }
@@ -72,7 +84,10 @@ export async function GET() {
       }
     );
 
-    return NextResponse.json(games);
+    return NextResponse.json({
+      games,
+      week: data.week?.number ?? null,
+    });
   } catch (error) {
     console.error(
       "Scoreboard error:",

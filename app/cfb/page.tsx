@@ -944,6 +944,12 @@ export default function Home() {
   const [statsMode, setStatsMode] =
     useState<StatsMode>("season");
 
+  const [selectedWeek, setSelectedWeek] =
+    useState<number | null>(null);
+
+  const [currentWeek, setCurrentWeek] =
+    useState<number | null>(null);
+
   const [statsView, setStatsView] =
     useState<"individual" | "team">(
       "individual"
@@ -1120,7 +1126,9 @@ export default function Home() {
     async function loadGames() {
       try {
         const response = await fetch(
-          "/api/scoreboard"
+          selectedWeek === null
+            ? "/api/scoreboard"
+            : `/api/scoreboard?week=${selectedWeek}`
         );
 
         if (!response.ok) {
@@ -1131,10 +1139,23 @@ export default function Home() {
 
         const data = await response.json();
 
-        setGames(data);
+        const gamesData = Array.isArray(data)
+          ? data
+          : data.games ?? [];
+
+        if (
+          !Array.isArray(data) &&
+          data.week != null &&
+          selectedWeek === null
+        ) {
+          setCurrentWeek(data.week);
+          setSelectedWeek(data.week);
+        }
+
+        setGames(gamesData);
 
         setRivalryGames(
-          data
+          gamesData
             .map((game: Game): {
   game: Game;
   rivalry: (typeof rivalries)[number];
@@ -1166,7 +1187,7 @@ export default function Home() {
 )
         );
 
-        setUpsets(detectUpsets(data));
+        setUpsets(detectUpsets(gamesData));
       } catch (error) {
         console.error(error);
       } finally {
@@ -1183,7 +1204,7 @@ export default function Home() {
 
     return () =>
       clearInterval(interval);
-  }, []);
+  }, [selectedWeek]);
 
   useEffect(() => {
     async function loadSeasonStats() {
@@ -1211,10 +1232,21 @@ export default function Home() {
 }, [statsMode]);
 
   useEffect(() => {
+    const needsPlayerStats =
+      activeTab === "performances" ||
+      (activeTab === "stats" &&
+        statsMode === "weekly");
+
+    if (!needsPlayerStats) {
+      return;
+    }
+
     async function loadPlayerStats() {
       try {
         const response = await fetch(
-          "/api/player-stats"
+          selectedWeek === null
+            ? "/api/player-stats"
+            : `/api/player-stats?week=${selectedWeek}`
         );
 
         if (!response.ok) {
@@ -1245,7 +1277,11 @@ export default function Home() {
 
     return () =>
       clearInterval(interval);
-  }, []);
+  }, [
+    activeTab,
+    statsMode,
+    selectedWeek,
+  ]);
 
   const gamesWithSignals = useMemo(() => {
     return games.map((game) => {
@@ -1629,6 +1665,57 @@ export default function Home() {
 
         {activeTab === "games" && (
           <section>
+        {currentWeek !== null && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <label
+              htmlFor="cfb-week-selector"
+              style={{
+                fontWeight: 700,
+                color: "#f8fafc",
+              }}
+            >
+              Week:
+            </label>
+
+            <select
+              id="cfb-week-selector"
+              value={selectedWeek ?? currentWeek}
+              onChange={(event) =>
+                setSelectedWeek(
+                  Number(event.target.value)
+                )
+              }
+              style={{
+                padding: "9px 12px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#0f172a",
+                color: "#f8fafc",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {Array.from(
+                { length: currentWeek + 1 },
+                (_, week) => (
+                  <option
+                    key={week}
+                    value={week}
+                  >
+                    Week {week}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+        )}
             <div
               style={{
                 display: "flex",
@@ -2210,6 +2297,57 @@ export default function Home() {
 
         {activeTab === "performances" && (
           <section>
+        {currentWeek !== null && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <label
+              htmlFor="cfb-week-selector"
+              style={{
+                fontWeight: 700,
+                color: "#f8fafc",
+              }}
+            >
+              Week:
+            </label>
+
+            <select
+              id="cfb-week-selector"
+              value={selectedWeek ?? currentWeek}
+              onChange={(event) =>
+                setSelectedWeek(
+                  Number(event.target.value)
+                )
+              }
+              style={{
+                padding: "9px 12px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#0f172a",
+                color: "#f8fafc",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {Array.from(
+                { length: currentWeek + 1 },
+                (_, week) => (
+                  <option
+                    key={week}
+                    value={week}
+                  >
+                    Week {week}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+        )}
             <div
               style={{
                 background:
@@ -2567,6 +2705,58 @@ export default function Home() {
 
         {activeTab === "stats" && (
           <section>
+          {statsMode === "weekly" && currentWeek !== null && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "20px",
+              }}
+            >
+              <label
+                htmlFor="cfb-week-selector"
+                style={{
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                }}
+              >
+                Week:
+              </label>
+
+              <select
+                id="cfb-week-selector"
+                value={selectedWeek ?? currentWeek}
+                onChange={(event) =>
+                  setSelectedWeek(
+                    Number(event.target.value)
+                  )
+                }
+                style={{
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #334155",
+                  background: "#0f172a",
+                  color: "#f8fafc",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {Array.from(
+                  { length: currentWeek + 1 },
+                  (_, week) => (
+                    <option
+                      key={week}
+                      value={week}
+                    >
+                      Week {week}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+          )}
+
             <div
               style={{
                 display:
@@ -2801,7 +2991,7 @@ export default function Home() {
                   {statsMode ===
                   "season"
                     ? "2026 season leaders"
-                    : "Current ESPN week leaders"}
+                    : `Week ${selectedWeek ?? "—"} leaders`}
                 </p>
               </div>
 
