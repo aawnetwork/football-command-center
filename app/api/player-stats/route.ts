@@ -12,7 +12,7 @@ export async function GET() {
   try {
     // Get this week's FBS games from ESPN.
     const scoreboardResponse = await fetch(
-      `${ESPN_SCOREBOARD_URL}?week=4&seasontype=2&groups=80`,
+      `${ESPN_SCOREBOARD_URL}?seasontype=2&groups=80`,
       {
         cache: "no-store",
       }

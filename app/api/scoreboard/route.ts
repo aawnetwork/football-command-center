@@ -5,7 +5,7 @@ export const revalidate = 30;
 export async function GET() {
   try {
     const response = await fetch(
-      "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?week=4&seasontype=2&groups=80",
+      "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?seasontype=2&groups=80",
       {
         cache: "no-store",
       }

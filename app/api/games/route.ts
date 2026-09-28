@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   const response = await fetch(
-    "https://api.collegefootballdata.com/games?year=2026&week=4&seasonType=regular&classification=fbs",
+    "https://api.collegefootballdata.com/games?year=2026&seasonType=regular&classification=fbs",
     {
       headers: {
         Authorization: `Bearer ${apiKey}`,
