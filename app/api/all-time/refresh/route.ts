@@ -43,6 +43,14 @@ export async function POST(request: Request) {
     return NextResponse.json(await refreshAllTimeMonitor(league));
   } catch (error) {
     console.error("All-time monitor refresh failed", error);
-    return NextResponse.json({ error: "Unable to refresh all-time monitor." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Unable to refresh all-time monitor.",
+        ...(process.env.NODE_ENV !== "production" && {
+          detail: error instanceof Error ? error.message : "Unknown source error.",
+        }),
+      },
+      { status: 500 },
+    );
   }
 }

@@ -12,9 +12,14 @@ import {
   nflAllTimeCareerIndividual,
   nflAllTimeSeasonIndividual,
   nflAllTimeSingleGameIndividual,
+  type NflAllTimeCategory,
   type NflAllTimeRecord,
 } from "../nfl/data/nfl-all-time-career";
 import { nflAllTimeCareerTeam } from "../nfl/data/nfl-all-time-team";
+import {
+  loadNflActiveCareerSource,
+  type NflLiveCareerSource,
+} from "./all-time-live-sources";
 
 export type AllTimeLeague = "CFB" | "NFL";
 export type AllTimePeriod = "career" | "season" | "single-game";
@@ -64,10 +69,13 @@ export type AllTimeSignal = {
 
 type MonitorStore = {
   version: 1;
+  catalogVersion?: string;
   snapshots: AllTimeSnapshot[];
   signals: AllTimeSignal[];
   lastCheckedAt?: string;
 };
+
+const monitorCatalogVersion = "nflverse-active-career-v1";
 
 const storePath = path.join(process.cwd(), "data", "all-time-monitor.json");
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -139,16 +147,81 @@ const snapshotsFromRecordSet = (
       : [],
   );
 
-export const buildAllTimeCatalog = (checkedAt = new Date().toISOString()): AllTimeSnapshot[] => [
+export const buildAllTimeCatalog = (
+  checkedAt = new Date().toISOString(),
+  nflCareerRecords: Record<NflAllTimeCategory, CatalogRecord[]> = nflAllTimeCareerIndividual,
+): AllTimeSnapshot[] => [
   ...snapshotsFromRecordSet("CFB", "individual", "career", cfbAllTimeCareerIndividual, checkedAt),
   ...snapshotsFromRecordSet("CFB", "individual", "season", cfbAllTimeSeasonIndividual, checkedAt),
   ...snapshotsFromRecordSet("CFB", "individual", "single-game", cfbAllTimeSingleGameIndividual, checkedAt),
   ...snapshotsFromRecordSet("CFB", "team", "career", cfbAllTimeCareerProgram, checkedAt),
-  ...snapshotsFromRecordSet("NFL", "individual", "career", nflAllTimeCareerIndividual, checkedAt),
+  ...snapshotsFromRecordSet("NFL", "individual", "career", nflCareerRecords, checkedAt),
   ...snapshotsFromRecordSet("NFL", "individual", "season", nflAllTimeSeasonIndividual, checkedAt),
   ...snapshotsFromRecordSet("NFL", "individual", "single-game", nflAllTimeSingleGameIndividual, checkedAt),
   ...snapshotsFromRecordSet("NFL", "team", "career", nflAllTimeCareerTeam, checkedAt),
 ];
+
+const normalizePlayer = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+
+const buildNflCareerRecords = (
+  liveSource: NflLiveCareerSource,
+): Record<NflAllTimeCategory, CatalogRecord[]> =>
+  Object.entries(nflAllTimeCareerIndividual).reduce<Record<NflAllTimeCategory, CatalogRecord[]>>(
+    (recordSets, [category, staticRecords]) => {
+      const typedCategory = category as NflAllTimeCategory;
+      const staticByPlayer = new Map(
+        staticRecords.map((record) => [normalizePlayer(record.player), record]),
+      );
+      const livePlayers = new Set(
+        liveSource.categories[typedCategory].map((record) => normalizePlayer(record.player)),
+      );
+      const merged = staticRecords
+        .filter((record) => !livePlayers.has(normalizePlayer(record.player)))
+        .map((record) => ({ ...record }));
+
+      for (const liveRecord of liveSource.categories[typedCategory]) {
+        const staticRecord = staticByPlayer.get(normalizePlayer(liveRecord.player));
+        // The record-book value is retained if the public live feed has not yet
+        // published a newer season. This prevents a source lag from moving a
+        // player backwards in the all-time table.
+        const value = Math.max(staticRecord?.value ?? 0, liveRecord.value);
+        merged.push({
+          rank: 0,
+          player: liveRecord.player,
+          team: liveRecord.team,
+          years: liveRecord.years,
+          value,
+          isActive: true,
+        });
+      }
+
+      recordSets[typedCategory] = merged
+        .sort((left, right) => right.value - left.value || left.player.localeCompare(right.player))
+        .slice(0, 25)
+        .map((record, index) => ({ ...record, rank: index + 1 }));
+      return recordSets;
+    },
+    {} as Record<NflAllTimeCategory, CatalogRecord[]>,
+  );
+
+const buildLatestAllTimeCatalog = async (checkedAt: string, league?: AllTimeLeague) => {
+  if (league === "CFB") {
+    return { snapshots: buildAllTimeCatalog(checkedAt).filter((snapshot) => snapshot.league === "CFB") };
+  }
+
+  const liveNflSource = await loadNflActiveCareerSource();
+  const nflCareerRecords = buildNflCareerRecords(liveNflSource);
+  const snapshots = buildAllTimeCatalog(checkedAt, nflCareerRecords).filter(
+    (snapshot) => !league || snapshot.league === league,
+  );
+
+  return { snapshots, liveNflSource };
+};
 
 const readStore = async (): Promise<MonitorStore> => {
   assertStoreConfiguration();
@@ -268,6 +341,16 @@ export async function getAllTimeMonitorStatus() {
   };
 }
 
+export async function getAllTimeLeaderboards(league: AllTimeLeague) {
+  const store = await readStore();
+  return store.snapshots
+    .filter((snapshot) => snapshot.league === league)
+    .reduce<Record<string, AllTimeSnapshotEntry[]>>((leaderboards, snapshot) => {
+      leaderboards[snapshot.id] = snapshot.entries.map((entry) => ({ ...entry }));
+      return leaderboards;
+    }, {});
+}
+
 export async function resetAllTimeMonitor() {
   await writeStore(emptyStore());
 }
@@ -275,13 +358,18 @@ export async function resetAllTimeMonitor() {
 export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
   const checkedAt = new Date().toISOString();
   const store = await readStore();
-  const currentSnapshots = buildAllTimeCatalog(checkedAt).filter(
-    (snapshot) => !league || snapshot.league === league,
+  const { snapshots: currentSnapshots, liveNflSource } = await buildLatestAllTimeCatalog(
+    checkedAt,
+    league,
   );
   const previousSnapshots = new Map(store.snapshots.map((snapshot) => [snapshot.id, snapshot]));
-  const signals = currentSnapshots.flatMap((snapshot) =>
-    compareSnapshot(previousSnapshots.get(snapshot.id), snapshot),
-  );
+  const needsNflRebaseline =
+    (league === undefined || league === "NFL") && store.catalogVersion !== monitorCatalogVersion;
+  const signals = needsNflRebaseline
+    ? []
+    : currentSnapshots.flatMap((snapshot) =>
+        compareSnapshot(previousSnapshots.get(snapshot.id), snapshot),
+      );
   const retainedSnapshots = league
     ? store.snapshots.filter((snapshot) => snapshot.league !== league)
     : [];
@@ -291,6 +379,8 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
 
   const updatedStore: MonitorStore = {
     version: 1,
+    catalogVersion:
+      league === "CFB" ? store.catalogVersion : monitorCatalogVersion,
     snapshots: [...retainedSnapshots, ...currentSnapshots],
     signals: [...signals, ...retainedSignals].slice(0, 250),
     lastCheckedAt: checkedAt,
@@ -302,6 +392,14 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
     league: league ?? "all",
     snapshots: currentSnapshots.length,
     signals,
+    source: liveNflSource
+      ? {
+          provider: "nflverse",
+          checkedAt: liveNflSource.checkedAt,
+          coverage: "Active NFL career leaders",
+        }
+      : null,
+    rebaselined: needsNflRebaseline,
     activeEntries: currentSnapshots.reduce(
       (total, snapshot) => total + snapshot.entries.filter((entry) => entry.isActive).length,
       0,

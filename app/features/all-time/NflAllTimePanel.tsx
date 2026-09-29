@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import {
   nflAllTimeCareerIndividual,
   nflAllTimeSeasonIndividual,
@@ -46,6 +50,54 @@ export function NflAllTimePanel({
   onViewChange,
   onPeriodChange,
 }: NflAllTimePanelProps) {
+  const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/all-time/leaderboards?league=NFL")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load NFL all-time updates.");
+        return response.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+
+        const leaderboards = Object.entries(data.leaderboards ?? {}).reduce<Record<string, AllTimeRecord[]>>(
+          (records, [key, entries]) => {
+            records[key] = (entries as {
+              rank: number;
+              name: string;
+              context: string;
+              years: string;
+              value: number;
+              isActive: boolean;
+            }[]).map((entry) => ({
+              rank: entry.rank,
+              player: entry.name,
+              team: entry.context,
+              years: entry.years,
+              value: entry.value,
+              isActive: entry.isActive,
+            }));
+            return records;
+          },
+          {},
+        );
+        setLiveLeaderboards(leaderboards);
+      })
+      .catch(() => {
+        // The bundled record book remains the reliable fallback while offline.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const recordsFor = (audience: "individual" | "team", recordPeriod: "career" | "season" | "single-game", category: string, fallback: AllTimeRecord[]) =>
+    liveLeaderboards[`NFL:${audience}:${recordPeriod}:${category}`] ?? fallback;
+
   const individualRecords =
     view === "individual" && period === "career"
       ? nflAllTimeCareerIndividual
@@ -108,13 +160,15 @@ export function NflAllTimePanel({
           individualRecords
             ? activeCategories.flatMap(([title, category]) => {
                 const categoryRecords = individualRecords[category as NflAllTimeCategory];
-                return categoryRecords ? [{ title, records: categoryRecords }] : [];
+                return categoryRecords
+                  ? [{ title, records: recordsFor("individual", period, category, categoryRecords) }]
+                  : [];
               })
             : teamRecords
               ? teamCareerCategories.map(([title, category, unit]) => ({
                   title,
                   unit,
-                  records: teamRecords[category] as AllTimeRecord[],
+                  records: recordsFor("team", "career", category, teamRecords[category] as AllTimeRecord[]),
                 }))
             : undefined
         }
@@ -122,7 +176,8 @@ export function NflAllTimePanel({
 
       <p className="all-time-panel__source">
         <strong>Historical source:</strong> NFL Record &amp; Fact Book,
-        compiled by the Elias Sports Bureau.
+        compiled by the Elias Sports Bureau. <strong>Active-player updates:</strong>{" "}
+        nflverse.
       </p>
     </section>
   );

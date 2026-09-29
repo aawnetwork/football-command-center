@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import {
   cfbAllTimeCareerIndividual,
   cfbAllTimeSeasonIndividual,
@@ -42,6 +46,54 @@ export function CfbAllTimePanel({
   onViewChange,
   onPeriodChange,
 }: CfbAllTimePanelProps) {
+  const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/all-time/leaderboards?league=CFB")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load CFB all-time updates.");
+        return response.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+
+        const leaderboards = Object.entries(data.leaderboards ?? {}).reduce<Record<string, AllTimeRecord[]>>(
+          (records, [key, entries]) => {
+            records[key] = (entries as {
+              rank: number;
+              name: string;
+              context: string;
+              years: string;
+              value: number;
+              isActive: boolean;
+            }[]).map((entry) => ({
+              rank: entry.rank,
+              player: entry.name,
+              team: entry.context,
+              years: entry.years,
+              value: entry.value,
+              isActive: entry.isActive,
+            }));
+            return records;
+          },
+          {},
+        );
+        setLiveLeaderboards(leaderboards);
+      })
+      .catch(() => {
+        // The bundled NCAA record-book snapshot remains available offline.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const recordsFor = (audience: "individual" | "team", recordPeriod: "career" | "season" | "single-game", category: string, fallback: AllTimeRecord[]) =>
+    liveLeaderboards[`CFB:${audience}:${recordPeriod}:${category}`] ?? fallback;
+
   const individualRecords =
     view === "individual" && period === "career"
       ? cfbAllTimeCareerIndividual
@@ -106,7 +158,7 @@ export function CfbAllTimePanel({
                 return [{
                   title: label,
                   unit,
-                  records: categoryRecords as AllTimeRecord[],
+                  records: recordsFor("individual", period, category, categoryRecords as AllTimeRecord[]),
                 }];
               })
             : programRecords
@@ -114,11 +166,11 @@ export function CfbAllTimePanel({
                   const categoryRecords = programRecords[category];
                   if (!categoryRecords) return [];
 
-                  return [{
-                    title: label,
-                    unit,
-                    records: categoryRecords as AllTimeRecord[],
-                  }];
+                return [{
+                  title: label,
+                  unit,
+                  records: recordsFor("team", "career", category, categoryRecords as AllTimeRecord[]),
+                }];
                 })
             : undefined
         }
