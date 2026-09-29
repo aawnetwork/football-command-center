@@ -63,6 +63,9 @@ export async function GET(request: Request) {
           competition?.broadcasts?.flatMap(
             (broadcast: any) => broadcast.names ?? []
           ) ?? [],
+        venue: competition?.venue?.fullName ?? null,
+        venueCity: competition?.venue?.address?.city ?? null,
+        venueCountry: competition?.venue?.address?.country ?? null,
         completed:
           competition?.status?.type?.completed ?? false,
         status:

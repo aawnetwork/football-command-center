@@ -17,6 +17,9 @@ export type NFLGame = {
   homeRecord: string | null;
   awayRecord: string | null;
   broadcasts: string[];
+  venue: string | null;
+  venueCity: string | null;
+  venueCountry: string | null;
   completed: boolean;
   status: string;
 
@@ -152,6 +155,19 @@ export function getNflPrimeTimeIndicator(game: NFLGame) {
   }
 
   return null;
+}
+
+export function getNflInternationalIndicator(game: NFLGame) {
+  const country = game.venueCountry?.trim().toLowerCase();
+  if (!country || ["united states", "usa", "us", "u.s."].includes(country)) {
+    return null;
+  }
+
+  const location = [game.venueCity, game.venueCountry].filter(Boolean).join(", ");
+  return {
+    label: `🌍 INTERNATIONAL GAME${location ? ` · ${location.toUpperCase()}` : ""}`,
+    color: "#34d399",
+  };
 }
 
 export function getNflDivisionalIndicator(game: NFLGame) {
