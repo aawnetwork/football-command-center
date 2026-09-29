@@ -3,6 +3,10 @@ export type Game = {
   startDate: string;
   homeTeam: string;
   awayTeam: string;
+  homeRecord: string | null;
+  awayRecord: string | null;
+  homeConferenceRecord: string | null;
+  awayConferenceRecord: string | null;
   homePoints: number | null;
   awayPoints: number | null;
   homeRank: number | null;
@@ -44,7 +48,16 @@ export type PlayerStat = {
   player: string;
   team: string;
   category: "passing" | "rushing" | "receiving" | "defensive";
-  stat: "YDS" | "TD" | "INT" | "TOT" | "SACKS" | "TFL" | "PD";
+  stat:
+    | "YDS"
+    | "TD"
+    | "INT"
+    | "TOT"
+    | "SACKS"
+    | "TFL"
+    | "PD"
+    | "FF"
+    | "FR";
   value: number;
   gameId: number;
   opponent: string;
@@ -86,13 +99,13 @@ export const tierInfo: Record<Tier, { name: string; emoji: string }> = {
 };
 
 export const individualCategories = [
-  { id: "rushing", name: "Rushing Yards" },
-  { id: "rushing-td", name: "Rushing TDs" },
   { id: "passing", name: "Passing Yards" },
   { id: "passing-td", name: "Passing TDs" },
+  { id: "rushing", name: "Rushing Yards" },
+  { id: "rushing-td", name: "Rushing TDs" },
   { id: "receiving", name: "Receiving Yards" },
   { id: "receiving-td", name: "Receiving TDs" },
-  { id: "tackles", name: "Total Tackles" },
+  { id: "tackles", name: "Tackles" },
   { id: "sacks", name: "Sacks" },
 ];
 
@@ -110,20 +123,16 @@ export const teamCategories = [
 ];
 
 export const weeklyIndividualCategories: WeeklyCategory[] = [
-  { id: "rushing", name: "Rushing" },
-  { id: "passing", name: "Passing" },
-  { id: "receiving", name: "Receiving" },
+  ...individualCategories,
+  { id: "interceptions", name: "Interceptions" },
 ];
 
 export const weeklyTeamCategories: WeeklyCategory[] = [
-  { id: "rushing", name: "Rushing Yards" },
-  { id: "passing", name: "Passing Yards" },
-  { id: "receiving", name: "Receiving Yards" },
-  { id: "tackles", name: "Total Tackles" },
+  { id: "total-offense", name: "Total Offense" },
+  { id: "rushing-offense", name: "Rushing Offense" },
+  { id: "passing-offense", name: "Passing Offense" },
+  { id: "total-defense", name: "Total Defense" },
   { id: "sacks", name: "Sacks" },
-  { id: "tfl", name: "Tackles For Loss" },
-  { id: "passes-defended", name: "Passes Defended" },
-  { id: "defensive-td", name: "Defensive TDs" },
 ];
 
 export const defensiveCategories = new Set([
@@ -144,9 +153,13 @@ export function getGameStatus(game: Game) {
 }
 
 export function formatGameTime(dateString: string) {
-  return new Date(dateString).toLocaleTimeString([], {
-    hour: "numeric",
+  return new Date(dateString).toLocaleString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/London",
   });
 }
 
@@ -215,9 +228,32 @@ export function buildWeeklyIndividualLeaders(
   stats: PlayerStat[],
   category: string
 ): Leader[] {
+  const categoryMap: Record<
+    string,
+    { sourceCategory: PlayerStat["category"]; stat: PlayerStat["stat"] }
+  > = {
+    passing: { sourceCategory: "passing", stat: "YDS" },
+    "passing-td": { sourceCategory: "passing", stat: "TD" },
+    rushing: { sourceCategory: "rushing", stat: "YDS" },
+    "rushing-td": { sourceCategory: "rushing", stat: "TD" },
+    receiving: { sourceCategory: "receiving", stat: "YDS" },
+    "receiving-td": { sourceCategory: "receiving", stat: "TD" },
+    tackles: { sourceCategory: "defensive", stat: "TOT" },
+    sacks: { sourceCategory: "defensive", stat: "SACKS" },
+    interceptions: { sourceCategory: "defensive", stat: "INT" },
+  };
+
+  const selected = categoryMap[category];
+
+  if (!selected) {
+    return [];
+  }
+
   return stats
     .filter(
-      (stat) => stat.category === category && stat.stat === "YDS"
+      (stat) =>
+        stat.category === selected.sourceCategory &&
+        stat.stat === selected.stat
     )
     .map((stat) => ({
       playerId: `${stat.playerId}-${stat.gameId}`,
@@ -235,7 +271,7 @@ export function buildWeeklyTeamLeaders(
   const totals = new Map<string, number>();
 
   const defensiveStatMap: Record<string, string> = {
-    tackles: "TOT",
+    "total-defense": "TOT",
     sacks: "SACKS",
     tfl: "TFL",
     "passes-defended": "PD",
@@ -243,13 +279,29 @@ export function buildWeeklyTeamLeaders(
   };
 
   for (const stat of stats) {
-    const isOffensive =
-      category === "rushing" ||
-      category === "passing" ||
-      category === "receiving";
+    const isOffensive = [
+      "total-offense",
+      "rushing-offense",
+      "passing-offense",
+    ].includes(category);
 
     if (isOffensive) {
-      if (stat.category !== category || stat.stat !== "YDS") {
+      const matchesTotalOffense =
+        category === "total-offense" &&
+        ["passing", "rushing"].includes(stat.category);
+      const matchesRushingOffense =
+        category === "rushing-offense" && stat.category === "rushing";
+      const matchesPassingOffense =
+        category === "passing-offense" && stat.category === "passing";
+
+      if (
+        stat.stat !== "YDS" ||
+        !(
+          matchesTotalOffense ||
+          matchesRushingOffense ||
+          matchesPassingOffense
+        )
+      ) {
         continue;
       }
     } else {
@@ -289,8 +341,12 @@ export function formatStatValue(category: string, value: number) {
     return `${value.toLocaleString()} sacks`;
   }
 
-  if (category === "tackles") {
+  if (category === "tackles" || category === "total-defense") {
     return `${value.toLocaleString()} tackles`;
+  }
+
+  if (category === "interceptions") {
+    return `${value.toLocaleString()} INT`;
   }
 
   if (category === "tfl") {
@@ -360,6 +416,38 @@ export function getBigPerformanceReason(stats: PlayerStat[]): string | null {
     (stat) => stat.category === "receiving" && stat.stat === "TD"
   );
 
+  const totalTackles = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "TOT"
+  );
+
+  const sacks = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "SACKS"
+  );
+
+  const tacklesForLoss = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "TFL"
+  );
+
+  const passesDefended = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "PD"
+  );
+
+  const interceptions = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "INT"
+  );
+
+  const forcedFumbles = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "FF"
+  );
+
+  const fumbleRecoveries = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "FR"
+  );
+
+  const defensiveTouchdowns = stats.find(
+    (stat) => stat.category === "defensive" && stat.stat === "TD"
+  );
+
   const totalTDs =
     (passingTDs?.value ?? 0) +
     (rushingTDs?.value ?? 0) +
@@ -379,6 +467,66 @@ export function getBigPerformanceReason(stats: PlayerStat[]): string | null {
 
   if (totalTDs >= 4) {
     return `${totalTDs} total touchdowns`;
+  }
+
+  if ((defensiveTouchdowns?.value ?? 0) >= 1) {
+    return `${defensiveTouchdowns?.value} defensive touchdown`;
+  }
+
+  if ((interceptions?.value ?? 0) >= 2) {
+    return `${interceptions?.value} interceptions`;
+  }
+
+  if ((forcedFumbles?.value ?? 0) >= 2) {
+    return `${forcedFumbles?.value} forced fumbles`;
+  }
+
+  if ((fumbleRecoveries?.value ?? 0) >= 2) {
+    return `${fumbleRecoveries?.value} fumble recoveries`;
+  }
+
+  if ((totalTackles?.value ?? 0) >= 10) {
+    return `${totalTackles?.value} total tackles`;
+  }
+
+  if ((sacks?.value ?? 0) >= 2) {
+    return `${sacks?.value} sacks`;
+  }
+
+  if ((tacklesForLoss?.value ?? 0) >= 4) {
+    return `${tacklesForLoss?.value} tackles for loss`;
+  }
+
+  if ((passesDefended?.value ?? 0) >= 4) {
+    return `${passesDefended?.value} passes defended`;
+  }
+
+  if (
+    (totalTackles?.value ?? 0) >= 12 &&
+    (tacklesForLoss?.value ?? 0) >= 2
+  ) {
+    return `${totalTackles?.value} tackles and ${tacklesForLoss?.value} TFL`;
+  }
+
+  if (
+    (totalTackles?.value ?? 0) >= 10 &&
+    (interceptions?.value ?? 0) >= 1
+  ) {
+    return `${totalTackles?.value} tackles and an interception`;
+  }
+
+  if (
+    (sacks?.value ?? 0) >= 2 &&
+    (tacklesForLoss?.value ?? 0) >= 2
+  ) {
+    return `${sacks?.value} sacks and ${tacklesForLoss?.value} TFL`;
+  }
+
+  if (
+    (passesDefended?.value ?? 0) >= 3 &&
+    (tacklesForLoss?.value ?? 0) >= 2
+  ) {
+    return `${passesDefended?.value} passes defended and ${tacklesForLoss?.value} TFL`;
   }
 
   return null;
@@ -435,6 +583,30 @@ export function formatPlayerStat(stat: PlayerStat) {
     return `${stat.value} INT`;
   }
 
+  if (stat.stat === "TOT") {
+    return `${stat.value} tackles`;
+  }
+
+  if (stat.stat === "SACKS") {
+    return `${stat.value} sacks`;
+  }
+
+  if (stat.stat === "TFL") {
+    return `${stat.value} TFL`;
+  }
+
+  if (stat.stat === "PD") {
+    return `${stat.value} PD`;
+  }
+
+  if (stat.stat === "FF") {
+    return `${stat.value} FF`;
+  }
+
+  if (stat.stat === "FR") {
+    return `${stat.value} FR`;
+  }
+
   return String(stat.value);
 }
 
@@ -454,30 +626,29 @@ export function getStatLabel(stat: PlayerStat) {
     return `${category} INT`;
   }
 
+  if (stat.stat === "TOT") {
+    return "Total Tackles";
+  }
+
+  if (stat.stat === "SACKS") {
+    return "Sacks";
+  }
+
+  if (stat.stat === "TFL") {
+    return "Tackles For Loss";
+  }
+
+  if (stat.stat === "PD") {
+    return "Passes Defended";
+  }
+
+  if (stat.stat === "FF") {
+    return "Forced Fumbles";
+  }
+
+  if (stat.stat === "FR") {
+    return "Fumble Recoveries";
+  }
+
   return `${category} ${stat.stat}`;
-}
-export function isRivalryGame(game: Game) {
-  const normalizeTeam = (team: string) =>
-    team
-      .toLowerCase()
-      .replace(
-        /\b(wildcats|buckeyes|wolverines|spartans|fighting irish|trojans|bruins|ducks|huskies|tigers|bulldogs|gators|crimson tide|longhorns|sooners|cowboys|aggies|volunteers|seminoles|hurricanes|tar heels|blue devils|hokies|panthers|orange|eagles|cardinals|knights|owls|pirates|mountaineers|wolfpack|cavaliers|razorbacks|rebels|commodores|volunteers|gamecocks|golden bears|cardinal|beavers|buffaloes|utes|cougars|broncos|bulldogs|red raiders|jayhawks|cyclones|cornhuskers|hawkeyes|badgers|gophers|boilermakers|hoosiers|terrapins|nittany lions)\b/g,
-        ""
-      )
-      .trim();
-
-  const home = normalizeTeam(game.homeTeam);
-  const away = normalizeTeam(game.awayTeam);
-
-  return rivalries.find((rivalry) => {
-    const [teamA, teamB] = rivalry.teams;
-
-    const a = normalizeTeam(teamA);
-    const b = normalizeTeam(teamB);
-
-    return (
-      (home === a && away === b) ||
-      (home === b && away === a)
-    );
-  });
 }

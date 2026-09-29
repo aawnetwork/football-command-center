@@ -18,6 +18,7 @@ type LivePlayer = {
   receiving_tds: number;
   tackles: number;
   sacks: number;
+  interceptions: number;
 };
 
 export async function loadLiveNflStats() {
@@ -51,7 +52,7 @@ export async function loadLiveNflStats() {
             player_display_name: athleteInfo.displayName ?? "",
             recent_team: team,
             passing_yards: 0, passing_tds: 0, rushing_yards: 0, rushing_tds: 0,
-            receiving_yards: 0, receiving_tds: 0, tackles: 0, sacks: 0,
+            receiving_yards: 0, receiving_tds: 0, tackles: 0, sacks: 0, interceptions: 0,
           };
           (athlete.stats ?? []).forEach((stat: unknown, index: number) => {
             const label = labels[index];
@@ -63,6 +64,7 @@ export async function loadLiveNflStats() {
             if (categoryName === "receiving" && label === "TD") player.receiving_tds += value(stat);
             if (categoryName === "defensive" && label === "TOT") player.tackles += value(stat);
             if (categoryName === "defensive" && label === "SACKS") player.sacks += value(stat);
+            if (categoryName === "defensive" && label === "INT") player.interceptions += value(stat);
           });
           players.set(athleteInfo.id, player);
         }

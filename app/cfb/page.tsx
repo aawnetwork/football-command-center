@@ -1,927 +1,42 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { GameCard } from "../components/GameCard";
+import { useEffect, useMemo, useState } from "react";
+import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
+import { ContentPanel } from "../features/content/ContentPanel";
+import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
 import {
-  cfbAllTimeCareerIndividual,
-  cfbAllTimeSeasonIndividual,
-} from "./data/cfb-all-time-career";
-import { formatGameTime } from "../lib/cfb-helpers";
-
-type Game = {
-  id: number;
-  startDate: string;
-  homeTeam: string;
-  awayTeam: string;
-  homePoints: number | null;
-  awayPoints: number | null;
-  homeRank: number | null;
-  awayRank: number | null;
-  completed: boolean;
-};
-
-type Milestone = {
-  player: string;
-  team: string;
-  category: string;
-  stat: string;
-  value: number;
-  gameId: number;
-  opponent: string;
-  message: string;
-};
-
-type UpsetSignal = {
-  gameId: number;
-  rank: number;
-  rankedTeam: string;
-  opponent: string;
-  result: string;
-};
-
-const rivalries = [
-  {
-    teams: ["Michigan", "Ohio State"],
-    name: "The Game",
-    trophy: null,
-  },
-  {
-    teams: ["Illinois", "Ohio State"],
-    name: "Illibuck",
-    trophy: "Illibuck",
-  },
-  {
-    teams: ["Minnesota", "Wisconsin"],
-    name: "Paul Bunyan's Axe",
-    trophy: "Paul Bunyan's Axe",
-  },
-  {
-    teams: ["Iowa", "Minnesota"],
-    name: "Floyd of Rosedale",
-    trophy: "Floyd of Rosedale",
-  },
-  {
-    teams: ["Indiana", "Purdue"],
-    name: "Old Oaken Bucket",
-    trophy: "Old Oaken Bucket",
-  },
-  {
-    teams: ["Michigan", "Michigan State"],
-    name: "Paul Bunyan Trophy",
-    trophy: "Paul Bunyan Trophy",
-  },
-  {
-    teams: ["Iowa", "Iowa State"],
-    name: "Cy-Hawk Series",
-    trophy: "Cy-Hawk Trophy",
-  },
-  {
-    teams: ["Nebraska", "Iowa"],
-    name: "Heroes Game",
-    trophy: "Heroes Trophy",
-  },
-  {
-    teams: ["Penn State", "Michigan State"],
-    name: "Land Grant Trophy",
-    trophy: "Land Grant Trophy",
-  },
-  {
-    teams: ["Penn State", "Pittsburgh"],
-    name: "Keystone Classic",
-    trophy: null,
-  },
-  {
-    teams: ["Wisconsin", "Nebraska"],
-    name: "Freedom Trophy",
-    trophy: "Freedom Trophy",
-  },
-  {
-    teams: ["Oregon", "Oregon State"],
-    name: "Civil War",
-    trophy: null,
-  },
-  {
-    teams: ["Oregon", "Washington"],
-    name: "Border War",
-    trophy: null,
-  },
-  {
-    teams: ["Washington", "Washington State"],
-    name: "Apple Cup",
-    trophy: "Apple Cup",
-  },
-  {
-    teams: ["USC", "UCLA"],
-    name: "Crosstown Showdown",
-    trophy: "Victory Bell",
-  },
-  {
-    teams: ["USC", "Notre Dame"],
-    name: "Notre Dame–USC Rivalry",
-    trophy: "Jeweled Shillelagh",
-  },
-  {
-    teams: ["Stanford", "California"],
-    name: "The Big Game",
-    trophy: "Stanford Axe",
-  },
-  {
-    teams: ["UCLA", "California"],
-    name: "UCLA–Cal Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Oregon", "Stanford"],
-    name: "Northwest Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Utah", "BYU"],
-    name: "Holy War",
-    trophy: null,
-  },
-  {
-    teams: ["Arizona", "Arizona State"],
-    name: "Territorial Cup",
-    trophy: "Territorial Cup",
-  },
-  {
-    teams: ["Colorado", "Colorado State"],
-    name: "Rocky Mountain Showdown",
-    trophy: "Centennial Cup",
-  },
-  {
-    teams: ["Colorado", "Nebraska"],
-    name: "Colorado–Nebraska Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Alabama", "Auburn"],
-    name: "Iron Bowl",
-    trophy: null,
-  },
-  {
-    teams: ["Alabama", "Tennessee"],
-    name: "Third Saturday in October",
-    trophy: "Third Saturday in October Trophy",
-  },
-  {
-    teams: ["Alabama", "LSU"],
-    name: "Alabama–LSU Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Auburn", "Georgia"],
-    name: "Deep South's Oldest Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Georgia", "Florida"],
-    name: "World's Largest Outdoor Cocktail Party",
-    trophy: null,
-  },
-  {
-    teams: ["Georgia", "Georgia Tech"],
-    name: "Clean, Old-Fashioned Hate",
-    trophy: null,
-  },
-  {
-    teams: ["Florida", "Florida State"],
-    name: "Sunshine Showdown",
-    trophy: null,
-  },
-  {
-    teams: ["Florida", "Tennessee"],
-    name: "Florida–Tennessee Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["LSU", "Arkansas"],
-    name: "Battle for the Golden Boot",
-    trophy: "Golden Boot",
-  },
-  {
-    teams: ["LSU", "Texas A&M"],
-    name: "Texas A&M–LSU Rivalry",
-    trophy: "The Boot",
-  },
-  {
-    teams: ["Ole Miss", "Mississippi State"],
-    name: "Egg Bowl",
-    trophy: "Golden Egg",
-  },
-  {
-    teams: ["Missouri", "Arkansas"],
-    name: "Battle Line Rivalry",
-    trophy: "Battle Line Trophy",
-  },
-  {
-    teams: ["Texas", "Oklahoma"],
-    name: "Red River Rivalry",
-    trophy: "Golden Hat",
-  },
-  {
-    teams: ["Oklahoma", "Oklahoma State"],
-    name: "Bedlam",
-    trophy: null,
-  },
-  {
-    teams: ["Texas", "Texas A&M"],
-    name: "Lone Star Showdown",
-    trophy: null,
-  },
-  {
-    teams: ["Texas", "Texas Tech"],
-    name: "Texas–Texas Tech Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Texas A&M", "LSU"],
-    name: "Texas A&M–LSU Rivalry",
-    trophy: "The Boot",
-  },
-  {
-    teams: ["Kansas", "Kansas State"],
-    name: "Sunflower Showdown",
-    trophy: null,
-  },
-  {
-    teams: ["Kansas", "Missouri"],
-    name: "Border War",
-    trophy: null,
-  },
-  {
-    teams: ["Kansas State", "Iowa State"],
-    name: "Farmageddon",
-    trophy: null,
-  },
-  {
-    teams: ["Nebraska", "Oklahoma"],
-    name: "Nebraska–Oklahoma Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Florida State", "Miami"],
-    name: "Miami–Florida State Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Florida State", "Clemson"],
-    name: "Florida State–Clemson Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Clemson", "South Carolina"],
-    name: "Palmetto Bowl",
-    trophy: "Palmetto Bowl Trophy",
-  },
-  {
-    teams: ["North Carolina", "Duke"],
-    name: "Carolina–Duke Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["North Carolina", "NC State"],
-    name: "Carolina–NC State Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Virginia", "Virginia Tech"],
-    name: "Commonwealth Clash",
-    trophy: null,
-  },
-  {
-    teams: ["Virginia Tech", "West Virginia"],
-    name: "Black Diamond Trophy",
-    trophy: "Black Diamond Trophy",
-  },
-  {
-    teams: ["Pittsburgh", "West Virginia"],
-    name: "Backyard Brawl",
-    trophy: null,
-  },
-  {
-    teams: ["Pittsburgh", "Syracuse"],
-    name: "Pittsburgh–Syracuse Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Boston College", "Notre Dame"],
-    name: "Franklin Trophy",
-    trophy: "Franklin Trophy",
-  },
-  {
-    teams: ["Army", "Navy"],
-    name: "Army–Navy Game",
-    trophy: null,
-  },
-  {
-    teams: ["Notre Dame", "Navy"],
-    name: "Notre Dame–Navy Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Harvard", "Yale"],
-    name: "The Game",
-    trophy: null,
-  },
-  {
-    teams: ["Princeton", "Yale"],
-    name: "Princeton–Yale Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Boise State", "Fresno State"],
-    name: "Battle for the Milk Can",
-    trophy: "Milk Can",
-  },
-  {
-    teams: ["Boise State", "Nevada"],
-    name: "Boise State–Nevada Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Fresno State", "San Diego State"],
-    name: "Oil Can",
-    trophy: "Oil Can",
-  },
-  {
-    teams: ["Air Force", "Colorado State"],
-    name: "Ram–Falcon Trophy",
-    trophy: "Ram–Falcon Trophy",
-  },
-  {
-    teams: ["Wyoming", "Colorado State"],
-    name: "Border War",
-    trophy: "Bronze Boot",
-  },
-  {
-    teams: ["BYU", "Utah"],
-    name: "Holy War",
-    trophy: null,
-  },
-  {
-    teams: ["Cincinnati", "Louisville"],
-    name: "Keg of Nails",
-    trophy: "Keg of Nails",
-  },
-  {
-    teams: ["Cincinnati", "Pittsburgh"],
-    name: "River City Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["UCF", "South Florida"],
-    name: "War on I-4",
-    trophy: null,
-  },
-  {
-    teams: ["Houston", "Rice"],
-    name: "Bayou Bucket",
-    trophy: "Bayou Bucket",
-  },
-  {
-    teams: ["Memphis", "Southern Methodist"],
-    name: "Battle for the Iron Skillet",
-    trophy: "Iron Skillet",
-  },
-  {
-    teams: ["Appalachian State", "Georgia Southern"],
-    name: "Appalachian State–Georgia Southern Rivalry",
-    trophy: null,
-  },
-  {
-    teams: ["Marshall", "Western Kentucky"],
-    name: "The Moonshine Throwdown",
-    trophy: null,
-  },
-  {
-    teams: ["East Carolina", "NC State"],
-    name: "Textile Bowl",
-    trophy: null,
-  },
-];
-
-type SeasonStat = {
-  id: string;
-  name: string;
-  team: string;
-  category: string;
-  statType: string;
-  stat: number;
-  type: "individual" | "team";
-};
-
-type PlayerStat = {
-  playerId: number;
-  player: string;
-  team: string;
-  category:
-    | "passing"
-    | "rushing"
-    | "receiving"
-    | "defensive";
-  stat:
-    | "YDS"
-    | "TD"
-    | "INT"
-    | "TOT"
-    | "SACKS"
-    | "TFL"
-    | "PD";
-  value: number;
-  gameId: number;
-  opponent: string;
-};
-
-type Tier = "S" | "A" | "B" | "C" | "D";
-
-type Leader = {
-  playerId: string;
-  player: string;
-  team: string;
-  value: number;
-};
-
-type BigPerformance = {
-  id: string;
-  playerId: number;
-  player: string;
-  team: string;
-  reason: string;
-  gameId: number;
-  opponent: string;
-  stats: PlayerStat[];
-};
-
-type StatsMode = "season" | "weekly";
-
-type WeeklyCategory = {
-  id: string;
-  name: string;
-};
-
-const tierInfo: Record<
+  PerformancePositionControls,
+  type PerformancePosition,
+} from "../features/performances/PerformancePositionControls";
+import { StatsPanelControls } from "../features/stats/StatsPanelControls";
+import {
+  buildBigPerformances,
+  buildIndividualLeaders,
+  buildTeamLeaders,
+  buildWeeklyIndividualLeaders,
+  buildWeeklyTeamLeaders,
+  formatPlayerStat,
+  formatStatValue,
+  getGameStatus,
+  getStatLabel,
+  individualCategories,
+  teamCategories,
+  tierInfo,
+  weeklyIndividualCategories,
+  weeklyTeamCategories,
+} from "../lib/cfb-helpers";
+import type {
+  BigPerformance,
+  Game,
+  Leader,
+  Milestone,
+  PlayerStat,
+  SeasonStat,
+  StatsMode,
   Tier,
-  { name: string; emoji: string }
-> = {
-  S: { name: "Must Watch", emoji: "🔥" },
-  A: { name: "High Interest", emoji: "👀" },
-  B: { name: "Worth Watching", emoji: "📺" },
-  C: { name: "Background", emoji: "🟢" },
-  D: { name: "Skip", emoji: "⚪" },
-};
-
-const individualCategories = [
-  { id: "rushing", name: "Rushing Yards" },
-  { id: "rushing-td", name: "Rushing TDs" },
-  { id: "passing", name: "Passing Yards" },
-  { id: "passing-td", name: "Passing TDs" },
-  { id: "receiving", name: "Receiving Yards" },
-  { id: "receiving-td", name: "Receiving TDs" },
-  { id: "tackles", name: "Total Tackles" },
-  { id: "sacks", name: "Sacks" },
-];
-
-const teamCategories = [
-  { id: "total-offense", name: "Total Offense" },
-  { id: "rushing-offense", name: "Rushing Offense" },
-  { id: "passing-offense", name: "Passing Offense" },
-  { id: "scoring-offense", name: "Scoring Offense" },
-  { id: "total-defense", name: "Total Defense" },
-  { id: "rushing-defense", name: "Rushing Defense" },
-  { id: "passing-defense", name: "Passing Defense" },
-  { id: "scoring-defense", name: "Scoring Defense" },
-  { id: "sacks", name: "Sacks" },
-  { id: "turnover-margin", name: "Turnover Margin" },
-];
-
-const weeklyIndividualCategories: WeeklyCategory[] = [
-  { id: "rushing", name: "Rushing" },
-  { id: "passing", name: "Passing" },
-  { id: "receiving", name: "Receiving" },
-];
-
-const weeklyTeamCategories: WeeklyCategory[] = [
-  { id: "rushing", name: "Rushing Yards" },
-  { id: "passing", name: "Passing Yards" },
-  { id: "receiving", name: "Receiving Yards" },
-  { id: "tackles", name: "Total Tackles" },
-  { id: "sacks", name: "Sacks" },
-  { id: "tfl", name: "Tackles For Loss" },
-  { id: "passes-defended", name: "Passes Defended" },
-  { id: "defensive-td", name: "Defensive TDs" },
-];
-
-const defensiveCategories = new Set([
-  "total-defense",
-  "rushing-defense",
-  "passing-defense",
-  "scoring-defense",
-]);
-
-function getGameStatus(game: Game) {
-  if (game.completed) {
-    return "FINAL";
-  }
-
-  return new Date() >= new Date(game.startDate)
-    ? "LIVE"
-    : "SCHEDULED";
-}
-
-function formatGameTimeOLD(dateString: string) {
-  return new Date(dateString).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function buildIndividualLeaders(
-  stats: SeasonStat[],
-  category: string
-): Leader[] {
-  const categoryMap: Record<
-  string,
-  {
-    sourceCategory: string;
-    statType: string;
-  }
-> = {
-  rushing: {
-    sourceCategory: "rushing",
-    statType: "YDS",
-  },
-  "rushing-td": {
-    sourceCategory: "rushing",
-    statType: "TD",
-  },
-  passing: {
-    sourceCategory: "passing",
-    statType: "YDS",
-  },
-  "passing-td": {
-    sourceCategory: "passing",
-    statType: "TD",
-  },
-  receiving: {
-    sourceCategory: "receiving",
-    statType: "YDS",
-  },
-  "receiving-td": {
-    sourceCategory: "receiving",
-    statType: "TD",
-  },
-  tackles: {
-    sourceCategory: "tackles",
-    statType: "TACKLES",
-  },
-  sacks: {
-    sourceCategory: "sacks",
-    statType: "SACKS",
-  },
-};
-
-  const selected =
-    categoryMap[category];
-
-  if (!selected) {
-    return [];
-  }
-
-  return stats
-    .filter(
-      (stat) =>
-        stat.type === "individual" &&
-        stat.category ===
-          selected.sourceCategory &&
-        stat.statType ===
-          selected.statType
-    )
-    .map((stat) => ({
-      playerId: String(stat.id),
-      player: stat.name,
-      team: stat.team,
-      value: Number(stat.stat) || 0,
-    }))
-    .sort((a, b) => b.value - a.value);
-}
-
-function buildTeamLeaders(
-  stats: SeasonStat[],
-  category: string
-): Leader[] {
-  const leaders = stats
-    .filter(
-      (stat) =>
-        stat.type === "team" &&
-        stat.category === category
-    )
-    .map((stat) => ({
-      playerId: String(stat.id ?? stat.team),
-      player: stat.team,
-      team: stat.team,
-      value: Number(stat.stat) || 0,
-    }));
-
-  return leaders.sort((a, b) => {
-    if (defensiveCategories.has(category)) {
-      return a.value - b.value;
-    }
-
-    return b.value - a.value;
-  });
-}
-
-function buildWeeklyIndividualLeaders(
-  stats: PlayerStat[],
-  category: string
-): Leader[] {
-  return stats
-    .filter(
-      (stat) =>
-        stat.category === category &&
-        stat.stat === "YDS"
-    )
-    .map((stat) => ({
-      playerId: `${stat.playerId}-${stat.gameId}`,
-      player: stat.player,
-      team: stat.team,
-      value: Number(stat.value) || 0,
-    }))
-    .sort((a, b) => b.value - a.value);
-}
-
-function buildWeeklyTeamLeaders(
-  stats: PlayerStat[],
-  category: string
-): Leader[] {
-  const totals = new Map<string, number>();
-
-  const defensiveStatMap: Record<string, string> = {
-    tackles: "TOT",
-    sacks: "SACKS",
-    tfl: "TFL",
-    "passes-defended": "PD",
-    "defensive-td": "TD",
-  };
-
-  for (const stat of stats) {
-    const isOffensive =
-      category === "rushing" ||
-      category === "passing" ||
-      category === "receiving";
-
-    if (isOffensive) {
-      if (
-        stat.category !== category ||
-        stat.stat !== "YDS"
-      ) {
-        continue;
-      }
-    } else {
-      if (
-        stat.category !== "defensive" ||
-        stat.stat !== defensiveStatMap[category]
-      ) {
-        continue;
-      }
-    }
-
-    totals.set(
-      stat.team,
-      (totals.get(stat.team) ?? 0) +
-        Number(stat.value || 0)
-    );
-  }
-
-  return Array.from(totals.entries())
-    .map(([team, value]) => ({
-      playerId: `weekly-${category}-${team}`,
-      player: team,
-      team,
-      value,
-    }))
-    .sort((a, b) => b.value - a.value);
-}
-
-function formatStatValue(
-  category: string,
-  value: number
-) {
-  if (
-    category === "scoring-offense" ||
-    category === "scoring-defense"
-  ) {
-    return `${value.toFixed(1)} PPG`;
-  }
-
-  if (category === "turnover-margin") {
-    return value > 0
-      ? `+${value}`
-      : String(value);
-  }
-
-  if (category === "sacks") {
-    return `${value.toLocaleString()} sacks`;
-  }
-
-  if (category === "tackles") {
-    return `${value.toLocaleString()} tackles`;
-  }
-
-  if (category === "tfl") {
-    return `${value.toLocaleString()} TFL`;
-  }
-
-  if (category === "passes-defended") {
-    return `${value.toLocaleString()} passes defended`;
-  }
-
-  if (category === "defensive-td") {
-    return `${value.toLocaleString()} TD`;
-  }
-
-  if (
-    category === "total-defense" ||
-    category === "rushing-defense" ||
-    category === "passing-defense"
-  ) {
-    return `${value.toLocaleString()} YPG`;
-  }
-
-  if (
-    category === "rushing" ||
-    category === "passing" ||
-    category === "receiving" ||
-    category === "total-offense" ||
-    category === "rushing-offense" ||
-    category === "passing-offense"
-  ) {
-    return `${value.toLocaleString()} yards`;
-  }
-
-  if (
-    category === "rushing-td" ||
-    category === "passing-td" ||
-    category === "receiving-td"
-  ) {
-    return `${value.toLocaleString()} TD`;
-  }
-
-  return value.toLocaleString();
-}
-
-function getBigPerformanceReason(
-  stats: PlayerStat[]
-): string | null {
-  const passingYards = stats.find(
-    (stat) =>
-      stat.category === "passing" &&
-      stat.stat === "YDS"
-  );
-
-  const rushingYards = stats.find(
-    (stat) =>
-      stat.category === "rushing" &&
-      stat.stat === "YDS"
-  );
-
-  const receivingYards = stats.find(
-    (stat) =>
-      stat.category === "receiving" &&
-      stat.stat === "YDS"
-  );
-
-  const passingTDs = stats.find(
-    (stat) =>
-      stat.category === "passing" &&
-      stat.stat === "TD"
-  );
-
-  const rushingTDs = stats.find(
-    (stat) =>
-      stat.category === "rushing" &&
-      stat.stat === "TD"
-  );
-
-  const receivingTDs = stats.find(
-    (stat) =>
-      stat.category === "receiving" &&
-      stat.stat === "TD"
-  );
-
-  const totalTDs =
-    (passingTDs?.value ?? 0) +
-    (rushingTDs?.value ?? 0) +
-    (receivingTDs?.value ?? 0);
-
-  if ((passingYards?.value ?? 0) >= 400) {
-    return `${passingYards?.value} passing yards`;
-  }
-
-  if ((rushingYards?.value ?? 0) >= 200) {
-    return `${rushingYards?.value} rushing yards`;
-  }
-
-  if ((receivingYards?.value ?? 0) >= 200) {
-    return `${receivingYards?.value} receiving yards`;
-  }
-
-  if (totalTDs >= 4) {
-    return `${totalTDs} total touchdowns`;
-  }
-
-  return null;
-}
-
-function buildBigPerformances(
-  stats: PlayerStat[]
-): BigPerformance[] {
-  const players = new Map<
-    string,
-    PlayerStat[]
-  >();
-
-  for (const stat of stats) {
-    const key = `${stat.playerId}-${stat.player}-${stat.team}-${stat.gameId}`;
-
-    if (!players.has(key)) {
-      players.set(key, []);
-    }
-
-    players.get(key)!.push(stat);
-  }
-
-  return Array.from(players.entries())
-    .map(([key, playerStats]) => {
-      const reason =
-        getBigPerformanceReason(playerStats);
-
-      if (!reason) {
-        return null;
-      }
-
-      const first = playerStats[0];
-
-      return {
-        id: key,
-        playerId: first.playerId,
-        player: first.player,
-        team: first.team,
-        reason,
-        gameId: first.gameId,
-        opponent: first.opponent,
-        stats: playerStats,
-      };
-    })
-    .filter(
-      (
-        performance
-      ): performance is BigPerformance =>
-        performance !== null
-    );
-}
-
-function formatPlayerStat(
-  stat: PlayerStat
-) {
-  if (stat.stat === "YDS") {
-    return `${stat.value} yards`;
-  }
-
-  if (stat.stat === "TD") {
-    return `${stat.value} TD`;
-  }
-
-  if (stat.stat === "INT") {
-    return `${stat.value} INT`;
-  }
-
-  return String(stat.value);
-}
-
-function getStatLabel(
-  stat: PlayerStat
-) {
-  const category =
-    stat.category.charAt(0).toUpperCase() +
-    stat.category.slice(1);
-
-  if (stat.stat === "YDS") {
-    return `${category} Yards`;
-  }
-
-  if (stat.stat === "TD") {
-    return `${category} TD`;
-  }
-
-  if (stat.stat === "INT") {
-    return `${category} INT`;
-  }
-
-  return `${category} ${stat.stat}`;
-}
+  UpsetSignal,
+} from "../lib/cfb-helpers";
+import { rivalries } from "./data/rivalries";
 
 export default function Home() {
   const [activeTab, setActiveTab] =
@@ -938,6 +53,7 @@ export default function Home() {
   >([]);
   const [gamesLoading, setGamesLoading] =
     useState(true);
+  const [gamesError, setGamesError] = useState<string | null>(null);
 
   const [tiers, setTiers] =
     useState<Record<number, Tier>>({});
@@ -950,7 +66,7 @@ export default function Home() {
   "individual"
 );
 
-const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
+const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single-game">(
   "career"
 );
 
@@ -970,6 +86,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
 
   const [selectedCategory, setSelectedCategory] =
     useState("rushing");
+  const [performancePosition, setPerformancePosition] =
+    useState<PerformancePosition>("all");
 
   const [seasonStats, setSeasonStats] =
     useState<SeasonStat[]>([]);
@@ -1064,40 +182,54 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
       });
   }
 
+  function isUpsetLoss(
+    losingTeamRank: number | null,
+    winningTeamRank: number | null
+  ) {
+    return (
+      losingTeamRank !== null &&
+      losingTeamRank <= 25 &&
+      (winningTeamRank === null ||
+        winningTeamRank > losingTeamRank)
+    );
+  }
+
   function detectUpsets(games: Game[]) {
     return games
-      .filter(
-        (game) =>
-          ((game.homeRank &&
-            game.homeRank < 26 &&
-            game.homePoints !== null &&
-            game.awayPoints !== null &&
-            game.awayPoints > game.homePoints) ||
-            (game.awayRank &&
-              game.awayRank < 26 &&
-              game.homePoints !== null &&
-              game.awayPoints !== null &&
-              game.homePoints > game.awayPoints))
-      )
-      .map((game) => {
-        const homeLost =
-          game.homeRank &&
-          game.homeRank < 26 &&
-          game.homePoints! < game.awayPoints!;
+      .filter((game) => {
+        if (
+          !game.completed ||
+          game.homePoints === null ||
+          game.awayPoints === null
+        ) {
+          return false;
+        }
 
-        const rank = homeLost
+        return (
+          (game.homePoints < game.awayPoints &&
+            isUpsetLoss(game.homeRank, game.awayRank)) ||
+          (game.awayPoints < game.homePoints &&
+            isUpsetLoss(game.awayRank, game.homeRank))
+        );
+      })
+      .map((game) => {
+        const homeUpset =
+          game.homePoints! < game.awayPoints! &&
+          isUpsetLoss(game.homeRank, game.awayRank);
+
+        const rank = homeUpset
           ? game.homeRank!
           : game.awayRank!;
 
-        const rankedTeam = homeLost
+        const rankedTeam = homeUpset
           ? game.homeTeam
           : game.awayTeam;
 
-        const opponent = homeLost
+        const opponent = homeUpset
           ? game.awayTeam
           : game.homeTeam;
 
-        const result = homeLost
+        const result = homeUpset
           ? `${game.awayPoints}-${game.homePoints}`
           : `${game.homePoints}-${game.awayPoints}`;
 
@@ -1116,12 +248,29 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
       localStorage.getItem(
         "cfb-game-tiers"
       );
+    let restoreTimer: number | undefined;
 
     if (savedTiers) {
-      setTiers(JSON.parse(savedTiers));
+      try {
+        const parsedTiers: unknown = JSON.parse(savedTiers);
+
+        if (parsedTiers && typeof parsedTiers === "object") {
+          restoreTimer = window.setTimeout(() => {
+            setTiers(parsedTiers as Record<number, Tier>);
+          }, 0);
+        }
+      } catch {
+        localStorage.removeItem("cfb-game-tiers");
+      }
     }
 
     setTiersLoaded(true);
+
+    return () => {
+      if (restoreTimer !== undefined) {
+        window.clearTimeout(restoreTimer);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -1136,7 +285,12 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
   }, [tiers, tiersLoaded]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadGames() {
+      setGamesLoading(true);
+      setGamesError(null);
+
       try {
         const response = await fetch(
           selectedWeek === null
@@ -1155,6 +309,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
         const gamesData = Array.isArray(data)
           ? data
           : data.games ?? [];
+
+        if (cancelled) {
+          return;
+        }
 
         if (
           !Array.isArray(data) &&
@@ -1202,9 +360,16 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
 
         setUpsets(detectUpsets(gamesData));
       } catch (error) {
-        console.error(error);
+        if (!cancelled) {
+          console.error(error);
+          setGamesError(
+            "Live college football games are temporarily unavailable. We’ll retry automatically."
+          );
+        }
       } finally {
-        setGamesLoading(false);
+        if (!cancelled) {
+          setGamesLoading(false);
+        }
       }
     }
 
@@ -1215,8 +380,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
       30000
     );
 
-    return () =>
+    return () => {
+      cancelled = true;
       clearInterval(interval);
+    };
   }, [selectedWeek]);
 
   useEffect(() => {
@@ -1259,7 +426,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
         const response = await fetch(
           selectedWeek === null
             ? "/api/player-stats"
-            : `/api/player-stats?week=${selectedWeek}`
+            : `/api/player-stats?week=${selectedWeek === 0 ? 1 : selectedWeek}`
         );
 
         if (!response.ok) {
@@ -1311,8 +478,16 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
         game.awayPoints < game.homePoints;
 
       const rankedTeamLost =
-        (homeLost && game.homeRank !== null) ||
-        (awayLost && game.awayRank !== null);
+        (homeLost &&
+          isUpsetLoss(
+            game.homeRank,
+            game.awayRank
+          )) ||
+        (awayLost &&
+          isUpsetLoss(
+            game.awayRank,
+            game.homeRank
+          ));
 
       const rankedMatchup =
         game.homeRank !== null &&
@@ -1414,6 +589,40 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
       playerStats
     );
   }, [playerStats]);
+
+  const filteredBigPerformances = useMemo(() => {
+    if (performancePosition === "all") {
+      return bigPerformances;
+    }
+
+    const categoryByPosition = {
+      qb: "passing",
+      rb: "rushing",
+      wr: "receiving",
+      def: "defensive",
+    } as const;
+
+    return bigPerformances.filter((performance) => {
+      const hasOffensiveStats = performance.stats.some((stat) =>
+        ["passing", "rushing", "receiving"].includes(stat.category)
+      );
+
+      if (performancePosition === "def") {
+        return (
+          !hasOffensiveStats &&
+          performance.stats.some(
+            (stat) => stat.category === "defensive"
+          )
+        );
+      }
+
+      return performance.stats.some(
+        (stat) =>
+          stat.category ===
+          categoryByPosition[performancePosition]
+      );
+    });
+  }, [bigPerformances, performancePosition]);
 
   const currentCategories =
     statsMode === "weekly"
@@ -1521,8 +730,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
     if (statsMode === "weekly") {
       setSelectedCategory(
         view === "team"
-          ? "rushing"
-          : "rushing"
+          ? "total-offense"
+          : "passing"
       );
       return;
     }
@@ -1530,7 +739,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
     setSelectedCategory(
       view === "team"
         ? "total-offense"
-        : "rushing"
+        : "passing"
     );
   }
 
@@ -1540,12 +749,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
     setStatsMode(mode);
 
     if (mode === "weekly") {
-      setSelectedCategory("rushing");
+      setSelectedCategory(
+        statsView === "team" ? "total-offense" : "passing"
+      );
     } else {
       setSelectedCategory(
         statsView === "team"
           ? "total-offense"
-          : "rushing"
+          : "passing"
       );
     }
   }
@@ -1561,8 +772,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
         background: "#020617",
         color: "#f8fafc",
         padding: "32px",
-        fontFamily:
-          "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
       }}
     >
       <div
@@ -1592,7 +801,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
           >
             <div>
               <div className="command-center__eyebrow">
-                FOOTBALL COMMAND CENTER
+                FOOTBALL COMMAND CENTRE
               </div>
               <h1
                 className="command-center__title"
@@ -1602,7 +811,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                   margin: 0,
                 }}
               >
-                CFB Command Center
+                CFB Command Centre
               </h1>
 
               <p
@@ -1618,19 +827,26 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
               </p>
             </div>
 
-            <div
-              className="command-center__source"
-              style={{
-                padding: "10px 14px",
-                borderRadius: "10px",
-                background: "#0f172a",
-                border:
-                  "1px solid #1e293b",
-                color: "#94a3b8",
-                fontSize: "14px",
-              }}
-            >
-              Live data powered by ESPN
+            <div className="command-center__header-brand">
+              <div
+                className="command-center__brand-logo"
+                role="img"
+                aria-label="AAW Network"
+              />
+              <div
+                className="command-center__source"
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "10px",
+                  background: "#0f172a",
+                  border:
+                    "1px solid #1e293b",
+                  color: "#94a3b8",
+                  fontSize: "14px",
+                }}
+              >
+                Live data powered by ESPN
+              </div>
             </div>
           </div>
         </header>
@@ -1649,6 +865,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
   ["performances", "🔥 Performances"],
   ["stats", "📊 Stats"],
   ["all-time", "🏆 All-Time"],
+  ["content", "🚨 Content"],
 ].map(([id, label]) => (
             <button
               key={id}
@@ -1678,6 +895,48 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
 
         {activeTab === "games" && (
           <section>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+                gap: "16px",
+                flexWrap: "wrap",
+              }}
+            >
+              <div>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "28px",
+                    fontWeight: 900,
+                  }}
+                >
+                  Games
+                </h2>
+
+                <p
+                  style={{
+                    margin: "6px 0 0",
+                    color: "#64748b",
+                  }}
+                >
+                  Live college football scoreboard
+                </p>
+              </div>
+
+              <div
+                style={{
+                  color: "#64748b",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                }}
+              >
+                Updates every 30 seconds
+              </div>
+            </div>
+
         {currentWeek !== null && (
           <div
             style={{
@@ -1815,7 +1074,19 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
               ))}
             </div>
 
-            {gamesLoading ? (
+            {gamesError ? (
+              <div
+                style={{
+                  padding: "32px",
+                  borderRadius: "16px",
+                  background: "#0f172a",
+                  border: "1px solid #7f1d1d",
+                  color: "#fca5a5",
+                }}
+              >
+                {gamesError}
+              </div>
+            ) : gamesLoading ? (
               <p
                 style={{
                   color:
@@ -1825,493 +1096,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                 Loading games...
               </p>
             ) : (
-              <div
-                style={{
-                  display:
-                    "grid",
-                  gap: "12px",
-                }}
-              >
-                {filteredGames.map(
-                  (game) => {
-                    const status =
-                      getGameStatus(
-                        game
-                      );
-
-                    const tier =
-                      game.tier;
-
-                    const suggestedTier =
-                      game.suggestedTier;
-
-                    const upsetSignal = upsets.find(
-                      (upset) => upset.gameId === game.id
-                    );
-                    const rivalryGame = rivalryGames.find(
-                      (item) => item.game.id === game.id
-                    );
-                    const matchupIndicator = upsetSignal
-                      ? {
-                          label: `🚨 ${game.completed ? "UPSET" : "UPSET ALERT"} — #${upsetSignal.rank} ${upsetSignal.rankedTeam} lost to ${upsetSignal.opponent} ${upsetSignal.result}`,
-                          color: "#f87171",
-                        }
-                      : rivalryGame
-                        ? {
-                            label: `🏆 RIVALRY — ${rivalryGame.rivalry.name}${rivalryGame.rivalry.trophy ? ` · ${rivalryGame.rivalry.trophy}` : ""}`,
-                            color: "#fbbf24",
-                          }
-                        : game.top10Matchup
-                          ? {
-                              label: "🔥 TOP-10 SHOWDOWN",
-                              color: "#f97316",
-                            }
-                          : game.top10VsUnranked
-                            ? {
-                                label: "💥 RANKING SHOCK WATCH",
-                                color: "#fb923c",
-                              }
-                            : game.rankedMatchup
-                              ? {
-                                  label: "🏆 RANKED MATCHUP",
-                                  color: "#fbbf24",
-                                }
-                              : game.rankedTeamLost
-                                ? {
-                                    label: "🚨 RANKED UPSET",
-                                    color: "#fbbf24",
-                                  }
-                                : null;
-
-                    return (
-                      <Fragment key={game.id}>
-                      <div className="legacy-game-card">
-                      <article
-                        key={
-                          game.id
-                        }
-                        style={{
-                          background:
-                            "#0f172a",
-                          border:
-                            game.homeRank ||
-                            game.awayRank
-                              ? "1px solid #475569"
-                              : "1px solid #1e293b",
-                          borderRadius:
-                            "12px",
-                          padding:
-                            "18px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display:
-                              "flex",
-                            justifyContent:
-                              "space-between",
-                            gap: "16px",
-                            flexWrap:
-                              "wrap",
-                          }}
-                        >
-                          <div>
-                            <div className="cfb-game-indicators-legacy">
-                            {upsets
-                              .filter(
-                                (upset) =>
-                                  upset.gameId ===
-                                  game.id
-                              )
-                              .map(
-                                (
-                                  upset
-                                ) => (
-                                  <div
-                                    key={
-                                      upset.gameId
-                                    }
-                                    style={{
-                                      color:
-                                        "#f87171",
-                                      fontSize:
-                                        "13px",
-                                      fontWeight:
-                                        900,
-                                      marginBottom:
-                                        "6px",
-                                    }}
-                                  >
-                                    🚨{" "}
-                                    {game.completed
-                                      ? "UPSET"
-                                      : "UPSET ALERT"}{" "}
-                                    — #
-                                    {
-                                      upset.rank
-                                    }{" "}
-                                    {
-                                      upset.rankedTeam
-                                    }{" "}
-                                    lost to{" "}
-                                    {
-                                      upset.opponent
-                                    }{" "}
-                                    {
-                                      upset.result
-                                    }
-                                  </div>
-                                )
-                              )}
-
-                            {rivalryGames
-                              .filter(
-                                (item) =>
-                                  item.game.id ===
-                                  game.id
-                              )
-                              .map(
-                                (
-                                  item
-                                ) => (
-                                  <div
-                                    key={
-                                      item.game.id
-                                    }
-                                    style={{
-                                      color:
-                                        "#fbbf24",
-                                      fontSize:
-                                        "13px",
-                                      fontWeight:
-                                        900,
-                                      marginBottom:
-                                        "6px",
-                                    }}
-                                  >
-                                    🏆 RIVALRY —{" "}
-                                    {
-                                      item.rivalry
-                                        .name
-                                    }
-                                    {item
-                                      .rivalry
-                                      .trophy
-                                      ? ` · ${item.rivalry.trophy}`
-                                      : ""}
-                                  </div>
-                                )
-                              )}
-
-                            {game.top10Matchup && (
-                              <div
-                                style={{
-                                  color:
-                                    "#f97316",
-                                  fontSize:
-                                    "13px",
-                                  fontWeight:
-                                    800,
-                                  marginBottom:
-                                    "6px",
-                                }}
-                              >
-                                🔥 TOP-10 SHOWDOWN
-                              </div>
-                            )}
-
-                            {game.top10VsUnranked && (
-                              <div
-                                style={{
-                                  color:
-                                    "#fb923c",
-                                  fontSize:
-                                    "13px",
-                                  fontWeight:
-                                    800,
-                                  marginBottom:
-                                    "6px",
-                                }}
-                              >
-                                💥 RANKING SHOCK WATCH
-                              </div>
-                            )}
-
-                            {game.rankedMatchup && (
-                              <div
-                                style={{
-                                  color:
-                                    "#fbbf24",
-                                  fontSize:
-                                    "13px",
-                                  fontWeight:
-                                    800,
-                                  marginBottom:
-                                    "6px",
-                                }}
-                              >
-                                🏆 RANKED MATCHUP
-                              </div>
-                            )}
-
-                            {game.rankedTeamLost && (
-                              <div
-                                style={{
-                                  fontWeight:
-                                    800,
-                                  fontSize:
-                                    "14px",
-                                  color:
-                                    "#fbbf24",
-                                  marginBottom:
-                                    "6px",
-                                }}
-                              >
-                                🚨 RANKED UPSET
-                              </div>
-                            )}
-                            </div>
-
-                            <div
-                              style={{
-                                color:
-                                  "#64748b",
-                                fontSize:
-                                  "13px",
-                                marginBottom:
-                                  "8px",
-                              }}
-                            >
-                              {formatGameTime(
-                                game.startDate
-                              )}{" "}
-                              ·{" "}
-                              {status}
-                            </div>
-
-                            <div
-                              style={{
-                                fontSize:
-                                  "20px",
-                                fontWeight:
-                                  800,
-                              }}
-                            >
-                              {game.awayRank &&
-                                `#${game.awayRank} `}
-                              {
-                                game.awayTeam
-                              }{" "}
-                              {game.awayPoints ??
-                                "—"}
-                            </div>
-
-                            <div
-                              style={{
-                                fontSize:
-                                  "20px",
-                                fontWeight:
-                                  800,
-                                marginTop:
-                                  "4px",
-                              }}
-                            >
-                              {game.homeRank &&
-                                `#${game.homeRank} `}
-                              {
-                                game.homeTeam
-                              }{" "}
-                              {game.homePoints ??
-                                "—"}
-                            </div>
-
-                            {matchupIndicator && (
-                              <div
-                                className="command-center__matchup-indicator"
-                                style={{
-                                  color: matchupIndicator.color,
-                                }}
-                              >
-                                {matchupIndicator.label}
-                              </div>
-                            )}
-                          </div>
-
-                          <div
-                            style={{
-                              display:
-                                "flex",
-                              flexDirection:
-                                "column",
-                              gap: "6px",
-                              alignItems:
-                                "flex-end",
-                            }}
-                          >
-                            {tier ? (
-                              <div
-                                style={{
-                                  fontWeight:
-                                    800,
-                                  fontSize:
-                                    "14px",
-                                }}
-                              >
-                                {
-                                  tierInfo[
-                                    tier
-                                  ].emoji
-                                }{" "}
-                                {tier} ·{" "}
-                                {
-                                  tierInfo[
-                                    tier
-                                  ].name
-                                }
-                              </div>
-                            ) : (
-                              <div
-                                style={{
-                                  fontWeight:
-                                    800,
-                                  fontSize:
-                                    "14px",
-                                  color:
-                                    suggestedTier ===
-                                    "S"
-                                      ? "#f97316"
-                                      : suggestedTier ===
-                                        "A"
-                                        ? "#fbbf24"
-                                        : suggestedTier ===
-                                          "B"
-                                          ? "#60a5fa"
-                                          : "#94a3b8",
-                                }}
-                              >
-                                Suggested:{" "}
-                                {
-                                  suggestedTier
-                                }
-                              </div>
-                            )}
-
-                            <div
-                              style={{
-                                display:
-                                  "flex",
-                                gap:
-                                  "6px",
-                                flexWrap:
-                                  "wrap",
-                                justifyContent:
-                                  "flex-end",
-                              }}
-                            >
-                              {(
-                                Object.keys(
-                                  tierInfo
-                                ) as Tier[]
-                              ).map(
-                                (
-                                  tierOption
-                                ) => (
-                                  <button
-                                    key={
-                                      tierOption
-                                    }
-                                    onClick={() =>
-                                      setGameTier(
-                                        game.id,
-                                        tierOption
-                                      )
-                                    }
-                                    style={{
-                                      border:
-                                        tiers[
-                                          game.id
-                                        ] ===
-                                        tierOption
-                                          ? "2px solid #ffffff"
-                                          : "1px solid #334155",
-                                      backgroundColor:
-                                        tiers[
-                                          game.id
-                                        ] ===
-                                        tierOption
-                                          ? tierOption ===
-                                            "S"
-                                            ? "#ef4444"
-                                            : tierOption ===
-                                              "A"
-                                              ? "#f59e0b"
-                                              : tierOption ===
-                                                "B"
-                                                ? "#3b82f6"
-                                                : tierOption ===
-                                                  "C"
-                                                  ? "#22c55e"
-                                                  : "#64748b"
-                                          : "#020617",
-                                      color:
-                                        "#ffffff",
-                                      borderRadius:
-                                        "6px",
-                                      padding:
-                                        "6px 9px",
-                                      cursor:
-                                        "pointer",
-                                      fontWeight:
-                                        700,
-                                    }}
-                                  >
-                                    {
-                                      tierOption
-                                    }
-                                  </button>
-                                )
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                      </div>
-                      <GameCard
-                        status={status}
-                        awayTeam={game.awayTeam}
-                        awayMeta={game.awayRank ? `#${game.awayRank}` : "Unranked"}
-                        awayScore={game.awayPoints}
-                        homeTeam={game.homeTeam}
-                        homeMeta={game.homeRank ? `#${game.homeRank}` : "Unranked"}
-                        homeScore={game.homePoints}
-                        time={formatGameTime(game.startDate)}
-                        indicator={matchupIndicator}
-                        footer={
-                          <div className="game-card__tier-controls">
-                            <div className="game-card__tier-label">
-                              {tier
-                                ? `${tierInfo[tier].emoji} ${tier} · ${tierInfo[tier].name}`
-                                : `Suggested: ${suggestedTier} · ${tierInfo[suggestedTier].name}`}
-                            </div>
-                            <div className="game-card__tier-buttons">
-                              {(Object.keys(tierInfo) as Tier[]).map((tierOption) => (
-                                <button
-                                  key={tierOption}
-                                  aria-pressed={tier === tierOption}
-                                  onClick={() => setGameTier(game.id, tierOption)}
-                                >
-                                  {tierOption}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        }
-                      />
-                      </Fragment>
-                    );
-                  }
-                )}
-              </div>
+              <CfbGamesGrid
+                games={filteredGames}
+                upsets={upsets}
+                rivalryGames={rivalryGames}
+                onSetTier={setGameTier}
+                getStatus={getGameStatus}
+              />
             )}
 
           </section>
@@ -2319,32 +1110,40 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
 
         {activeTab === "performances" && (
           <section>
+        <div
+          style={{
+            marginBottom: "24px",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "28px",
+              fontWeight: 900,
+            }}
+          >
+            Player Performances
+          </h2>
+
+          <p
+            style={{
+              margin: "6px 0 0",
+              color: "#64748b",
+            }}
+          >
+            Notable individual performances from the current CFB season.
+          </p>
+        </div>
+
         {currentWeek !== null && (
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "20px",
+              gap: "8px",
+              flexWrap: "wrap",
+              marginBottom: "28px",
             }}
           >
-            <label
-              htmlFor="cfb-week-selector"
-              style={{
-                fontWeight: 700,
-                color: "#f8fafc",
-              }}
-            >
-              Week:
-            </label>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                flexWrap: "wrap",
-              }}
-            >
               {Array.from(
                 { length: currentWeek + 1 },
                 (_, week) => (
@@ -2376,31 +1175,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                   </button>
                 )
               )}
-            </div>
           </div>
         )}
-            <div
-              style={{
-                background:
-                  "#0f172a",
-                border:
-                  "1px solid #1e293b",
-                borderRadius:
-                  "12px",
-                padding:
-                  "20px",
-              }}
-            >
-              <h2
-                style={{
-                  marginTop: 0,
-                  marginBottom:
-                    "6px",
-                }}
-              >
-                💥 Big Performances
-              </h2>
-
+        <PerformancePositionControls
+          value={performancePosition}
+          onChange={setPerformancePosition}
+        />
+            <div>
               {showMilestones && milestones.length > 0 && (
                 <div
                   style={{
@@ -2468,19 +1249,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                 </div>
               )}
 
-              <p
-                style={{
-                  color:
-                    "#94a3b8",
-                  marginTop: 0,
-                }}
-              >
-                Ridiculous single-game
-                performances worth
-                checking for social
-                content.
-              </p>
-
               {playerStatsLoading ? (
                 <p
                   style={{
@@ -2491,7 +1259,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                   Loading player
                   performances...
                 </p>
-              ) : bigPerformances.length ===
+              ) : filteredBigPerformances.length ===
                 0 ? (
                 <p
                   style={{
@@ -2512,7 +1280,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                       "12px",
                   }}
                 >
-                  {bigPerformances.map(
+                  {filteredBigPerformances.map(
                     (
                       performance
                     ) => (
@@ -2607,10 +1375,12 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                               "16px",
                           }}
                         >
-                          {performance.stats.map(
-                            (stat) => (
+                          {performance.stats
+                            .filter((stat) => stat.value > 0)
+                            .map(
+                            (stat, index) => (
                               <div
-                                key={`${stat.category}-${stat.stat}`}
+                                key={`${stat.category}-${stat.stat}-${index}`}
                                 style={{
                                   padding:
                                     "10px 14px",
@@ -2736,247 +1506,46 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
 
         {activeTab === "stats" && (
           <section>
-          {statsMode === "weekly" && currentWeek !== null && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "20px",
-              }}
-            >
-              <label
-                htmlFor="cfb-week-selector"
-                style={{
-                  fontWeight: 700,
-                  color: "#f8fafc",
-                }}
-              >
-                Week:
-              </label>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {Array.from(
-                  { length: currentWeek + 1 },
-                  (_, week) => (
-                    <button
-                      key={week}
-                      type="button"
-                      onClick={() => setSelectedWeek(week)}
-                      style={{
-                        padding: "10px 16px",
-                        borderRadius: "8px",
-                        border: "1px solid",
-                        borderColor:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#ef4444"
-                            : "#334155",
-                        background:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#3f0d12"
-                            : "#0f172a",
-                        color:
-                          (selectedWeek ?? currentWeek) === week
-                            ? "#fca5a5"
-                            : "#94a3b8",
-                        fontWeight: 900,
-                        cursor: "pointer",
-                      }}
-                    >
-                      Week {week}
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-          )}
-
-            <div
-              style={{
-                display:
-                  "flex",
-                gap: "8px",
-                marginBottom:
-                  "18px",
-                flexWrap:
-                  "wrap",
-              }}
-            >
-              <button
-                aria-pressed={statsView === "individual"}
-                onClick={() =>
-                  changeStatsView(
-                    "individual"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 14px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid #334155",
-                  background:
-                    statsView ===
-                    "individual"
-                      ? "#334155"
-                      : "#0f172a",
-                  color: "#fff",
-                  cursor:
-                    "pointer",
-                  fontWeight:
-                    700,
-                }}
-              >
-                Individual
-              </button>
-
-              <button
-                aria-pressed={statsView === "team"}
-                onClick={() =>
-                  changeStatsView(
-                    "team"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 14px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid #334155",
-                  background:
-                    statsView ===
-                    "team"
-                      ? "#334155"
-                      : "#0f172a",
-                  color: "#fff",
-                  cursor:
-                    "pointer",
-                  fontWeight:
-                    700,
-                }}
-              >
-                Team
-              </button>
-
-              <button
-                aria-pressed={statsMode === "weekly"}
-                onClick={() =>
-                  changeStatsMode(
-                    "weekly"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 14px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid #334155",
-                  background:
-                    statsMode ===
-                    "weekly"
-                      ? "#334155"
-                      : "#0f172a",
-                  color: "#fff",
-                  cursor:
-                    "pointer",
-                  fontWeight:
-                    700,
-                }}
-              >
-                Weekly
-              </button>
-
-              <button
-                aria-pressed={statsMode === "season"}
-                onClick={() =>
-                  changeStatsMode(
-                    "season"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 14px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid #334155",
-                  background:
-                    statsMode ===
-                    "season"
-                      ? "#334155"
-                      : "#0f172a",
-                  color: "#fff",
-                  cursor:
-                    "pointer",
-                  fontWeight:
-                    700,
-                }}
-              >
-                Season
-              </button>
-            </div>
-
-            <div
-              style={{
-                display:
-                  "flex",
-                gap:
-                  "8px",
-                flexWrap:
-                  "wrap",
-                marginBottom:
-                  "20px",
-              }}
-            >
-              {currentCategories.map(
-                (
-                  category
-                ) => (
-                  <button
-                    key={
-                      category.id
-                    }
-                    aria-pressed={selectedCategory === category.id}
-                    onClick={() =>
-                      setSelectedCategory(
-                        category.id
-                      )
-                    }
-                    style={{
-                      padding:
-                        "8px 12px",
-                      borderRadius:
-                        "8px",
-                      border:
-                        "1px solid #334155",
-                      background:
-                        selectedCategory ===
-                        category.id
-                          ? "#1e293b"
-                          : "#0f172a",
-                      color:
-                        "#f8fafc",
-                      cursor:
-                        "pointer",
-                    }}
-                  >
-                    {
-                      category.name
-                    }
-                  </button>
-                )
-              )}
-            </div>
-
+          <StatsPanelControls
+            title="Stats"
+            description={statsMode === "weekly" ? `Week ${selectedWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders"}
+            mode={statsMode}
+            modes={[
+              { value: "weekly", label: "Weekly" },
+              { value: "season", label: "Season" },
+            ]}
+            onModeChange={changeStatsMode}
+            view={statsView}
+            views={[
+              { value: "individual", label: "Players" },
+              { value: "team", label: "Teams" },
+            ]}
+            onViewChange={changeStatsView}
+            categories={currentCategories.map((category) => ({
+              value: category.id,
+              label: category.name,
+            }))}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            weekSelector={
+              statsMode === "weekly" && currentWeek !== null ? (
+                <div className="stats-panel-week-selector">
+                  <span>Week</span>
+                  {Array.from({ length: currentWeek + 1 }, (_, week) => {
+                    return (
+                      <button
+                        key={week}
+                        aria-pressed={(selectedWeek ?? currentWeek) === week}
+                        onClick={() => setSelectedWeek(week)}
+                      >
+                        {week}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : undefined
+            }
+          />
             <div
               style={{
                 background:
@@ -3085,14 +1654,32 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                       "auto",
                   }}
                 >
-                  <table
-                    style={{
-                      width:
-                        "100%",
-                      borderCollapse:
-                        "collapse",
-                    }}
-                  >
+                    <table
+                      style={{
+                        width:
+                          "100%",
+                        borderCollapse:
+                          "collapse",
+                        tableLayout:
+                          "fixed",
+                      }}
+                    >
+                    <colgroup>
+                      {statsView === "individual" ? (
+                        <>
+                          <col style={{ width: "12%" }} />
+                          <col style={{ width: "32%" }} />
+                          <col style={{ width: "36%" }} />
+                          <col style={{ width: "20%" }} />
+                        </>
+                      ) : (
+                        <>
+                          <col style={{ width: "16%" }} />
+                          <col style={{ width: "60%" }} />
+                          <col style={{ width: "24%" }} />
+                        </>
+                      )}
+                    </colgroup>
                     <thead>
                       <tr>
                         <th
@@ -3238,271 +1825,16 @@ selectedCategory === "scoring-defense"
           </section>
         )}
 
-               {activeTab === "all-time" && (
-          <section>
-            <div
-              style={{
-                background: "#0f172a",
-                border: "1px solid #1e293b",
-                borderRadius: "12px",
-                padding: "24px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <h2 style={{ margin: 0 }}>🏆 All-Time</h2>
-                  <p
-                    style={{
-                      color: "#94a3b8",
-                      margin: "8px 0 0",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Historical FBS career and season leaders.
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "20px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {(["individual", "team"] as const).map((view) => (
-  <button
-    key={view}
-    type="button"
-    onClick={() => setAllTimeView(view)}
-    style={{
-      padding: "10px 16px",
-      borderRadius: "8px",
-      border: "1px solid #334155",
-      background:
-        view === allTimeView ? "#1e293b" : "#111827",
-      color:
-        view === allTimeView ? "#f8fafc" : "#94a3b8",
-      fontWeight: 800,
-      cursor: "pointer",
-    }}
-  >
-    {view === "individual" ? "Individual" : "Team"}
-  </button>
-))}
-
-                <div
-                  style={{
-                    width: "1px",
-                    background: "#334155",
-                    margin: "0 4px",
-                  }}
-                />
-
-                {(["season", "career"] as const).map((period) => (
-  <button
-    key={period}
-    type="button"
-    onClick={() => setAllTimePeriod(period)}
-    style={{
-      padding: "10px 16px",
-      borderRadius: "8px",
-      border: "1px solid #334155",
-      background:
-        period === allTimePeriod ? "#1e293b" : "#111827",
-      color:
-        period === allTimePeriod ? "#f8fafc" : "#94a3b8",
-      fontWeight: 800,
-      cursor: "pointer",
-    }}
-  >
-    {period === "season" ? "Season" : "Career"}
-  </button>
-))}
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(420px, 1fr))",
-                  gap: "16px",
-                  marginTop: "20px",
-                }}
-              >
-                {[
-  [
-    `🏈 ${allTimePeriod === "career" ? "Career" : "Season"} Passing Yards`,
-    "passing-yards",
-    "yards",
-  ],
-  [
-    `🎯 ${allTimePeriod === "career" ? "Career" : "Season"} Passing TDs`,
-    "passing-td",
-    "TD",
-  ],
-  [
-    `🏃 ${allTimePeriod === "career" ? "Career" : "Season"} Rushing Yards`,
-    "rushing-yards",
-    "yards",
-  ],
-  [
-    `🔥 ${allTimePeriod === "career" ? "Career" : "Season"} Rushing TDs`,
-    "rushing-td",
-    "TD",
-  ],
-  [
-    `🙌 ${allTimePeriod === "career" ? "Career" : "Season"} Receiving Yards`,
-    "receiving-yards",
-    "yards",
-  ],
-  [
-    `🎯 ${allTimePeriod === "career" ? "Career" : "Season"} Receiving TDs`,
-    "receiving-td",
-    "TD",
-  ],
-  [
-    `🛡️ ${allTimePeriod === "career" ? "Career" : "Season"} Tackles`,
-    "tackles",
-    "tackles",
-  ],
-  [
-    `💥 ${allTimePeriod === "career" ? "Career" : "Season"} Sacks`,
-    "sacks",
-    "sacks",
-  ],
-  [
-    `🖐️ ${allTimePeriod === "career" ? "Career" : "Season"} Interceptions`,
-    "interceptions",
-    "INT",
-  ],
-].map(([title, category, unit]) => {
-const records =
-  allTimePeriod === "career"
-    ? cfbAllTimeCareerIndividual[
-        category as keyof typeof cfbAllTimeCareerIndividual
-      ]
-    : cfbAllTimeSeasonIndividual[
-        category as keyof typeof cfbAllTimeSeasonIndividual
-      ];
-
-  return (
-                    <article
-                      key={String(category)}
-                      style={{
-                        background: "#111827",
-                        border: "1px solid #334155",
-                        borderRadius: "10px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          padding: "16px 18px",
-                          borderBottom: "1px solid #334155",
-                          fontSize: "16px",
-                          fontWeight: 900,
-                        }}
-                      >
-                        {title}
-                      </div>
-
-                      <div>
-                        {records.slice(0, 10).map((record) => (
-                          <div
-                            key={`${category}-${record.rank}-${record.player}`}
-                            style={{
-                              display: "grid",
-                              gridTemplateColumns:
-                                "36px minmax(0, 1fr) auto",
-                              gap: "12px",
-                              alignItems: "center",
-                              padding: "13px 18px",
-                              borderBottom: "1px solid #1e293b",
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: "#64748b",
-                                fontWeight: 900,
-                                fontSize: "14px",
-                              }}
-                            >
-                              {record.rank}
-                            </span>
-
-                            <div style={{ minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontWeight: 800,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {record.player}
-                              </div>
-
-                              <div
-                                style={{
-                                  color: "#64748b",
-                                  fontSize: "12px",
-                                  marginTop: "3px",
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                {record.team}
-                                {record.years ? ` • ${record.years}` : ""}
-                              </div>
-                            </div>
-
-                            <strong
-                              style={{
-                                fontSize: "16px",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {record.value.toLocaleString()} {unit}
-                            </strong>
-                          </div>
-                        ))}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-
-              <div
-                style={{
-                  marginTop: "20px",
-                  padding: "14px 16px",
-                  background: "#111827",
-                  border: "1px solid #334155",
-                  borderRadius: "10px",
-                  color: "#94a3b8",
-                  lineHeight: 1.6,
-                  fontSize: "13px",
-                }}
-              >
-                <strong style={{ color: "#f8fafc" }}>
-                  Historical data:
-                </strong>{" "}
-                NCAA FBS football record book. The complete Top 25 for each
-                category is retained in the underlying data; this view
-                displays ranks 1–10.
-              </div>
-            </div>
-          </section>
+        {activeTab === "all-time" && (
+          <CfbAllTimePanel
+            view={allTimeView}
+            period={allTimePeriod}
+            onViewChange={setAllTimeView}
+            onPeriodChange={setAllTimePeriod}
+          />
         )}
+
+        {activeTab === "content" && <ContentPanel sport="CFB" />}
       </div>
     </main>
   );

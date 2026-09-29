@@ -4,6 +4,7 @@ export type CfbAllTimeRecord = {
   team: string;
   years: string;
   value: number;
+  isActive?: boolean;
 };
 
 export type CfbAllTimeCategory =
@@ -15,7 +16,20 @@ export type CfbAllTimeCategory =
   | "receiving-td"
   | "tackles"
   | "sacks"
-  | "interceptions";
+  | "interceptions"
+  | "total-offense-yards"
+  | "points";
+
+const toCfbAllTimeRecords = (
+  rows: readonly [player: string, team: string, years: string, value: number][],
+): CfbAllTimeRecord[] =>
+  rows.map(([player, team, years, value], index) => ({
+    rank: index + 1,
+    player,
+    team,
+    years,
+    value,
+  }));
 
 export const cfbAllTimeCareerIndividual = {
   "passing-yards": [
@@ -269,6 +283,62 @@ export const cfbAllTimeCareerIndividual = {
     ["Charles Jefferson","McNeese St.","1975-78",20],
     ["Chris Williams","LSU","1977-80",20],
   ].map(([player, team, years, value], i) => ({ rank: i + 1, player, team, years, value })),
+
+  "total-offense-yards": [
+    ["Case Keenum", "Houston", "2007–11", 20114],
+    ["Dillon Gabriel", "UCF/Oklahoma/Oregon", "2019–24", 19931],
+    ["Bo Nix", "Auburn/Oregon", "2019–23", 16964],
+    ["Timmy Chang", "Hawaii", "2000–04", 16910],
+    ["Sam Hartman", "Wake Forest/Notre Dame", "2018–23", 16634],
+    ["Landry Jones", "Oklahoma", "2009–12", 16271],
+    ["Jayden Daniels", "Arizona State/LSU", "2019–23", 16056],
+    ["Dan LeFevour", "Central Mich.", "2006–09", 15853],
+    ["Baker Mayfield", "Texas Tech/Oklahoma", "2013/2015–17", 15690],
+    ["Graham Harrell", "Texas Tech", "2005–08", 15611],
+    ["Holton Ahlers", "East Carolina", "2018–22", 15373],
+    ["Seth Henigan", "Memphis", "2021–24", 15164],
+    ["Rakeem Cato", "Marshall", "2011–14", 14918],
+    ["Colt McCoy", "Texas", "2006–09", 14824],
+    ["Colt Brennan", "Hawaii", "2005–07", 14740],
+    ["Ty Detmer", "BYU", "1988–91", 14665],
+    ["Kellen Moore", "Boise St.", "2008–11", 14534],
+    ["Will Rogers", "Mississippi St./Washington", "2020–24", 14378],
+    ["Colin Kaepernick", "Nevada", "2007–10", 14205],
+    ["Luke Falk", "Washington St.", "2014–17", 14086],
+    ["Frank Harris", "UTSA", "2019–24", 14007],
+    ["Michael Penix Jr.", "Indiana/Washington", "2018–23", 14006],
+    ["Chevan Cordeiro", "Hawaii/San Jose St.", "2018–23", 13811],
+    ["Kevin Kolb", "Houston", "2003–06", 13715],
+    ["Mason Rudolph", "Oklahoma St.", "2014–17", 13646],
+  ].map(([player, team, years, value], i) => ({ rank: i + 1, player, team, years, value })),
+
+  "points": [
+    ["Will Reichard", "Alabama", "2019–23", 547],
+    ["Keenan Reynolds", "Navy", "2012–15", 530],
+    ["Kenneth Dixon", "Louisiana Tech", "2012–15", 522],
+    ["Jonah Dalmas", "Boise St.", "2020–24", 508],
+    ["Montee Ball", "Wisconsin", "2009–12", 500],
+    ["Austin Seibert", "Oklahoma", "2015–18", 499],
+    ["Zane Gonzalez", "Arizona St.", "2013–16", 494],
+    ["Christopher Dunn", "NC State", "2018–23", 491],
+    ["Daniel Carlson", "Auburn", "2014–17", 480],
+    ["Travis Prentice", "Miami (OH)", "1996–99", 468],
+    ["Travis Etienne", "Clemson", "2017–20", 468],
+    ["Dustin Hopkins", "Florida State", "2009–12", 466],
+    ["Chandler Staton", "Appalachian State", "2017–21", 464],
+    ["Jonathan Barnes", "Louisiana Tech", "2014–17", 462],
+    ["Andre Szmyt", "Syracuse", "2018–22", 454],
+    ["B.T. Potter", "Clemson", "2018–22", 453],
+    ["Aaron Jones", "Baylor", "2010–13", 451],
+    ["Jaden Oberkrom", "TCU", "2012–15", 451],
+    ["Ricky Williams", "Texas", "1995–98", 450],
+    ["Michael Hunnicutt", "Oklahoma", "2011–14", 450],
+    ["Jameson West", "Toledo", "2015–18", 446],
+    ["Jake Elliott", "Memphis", "2013–16", 445],
+    ["Blake Grupe", "Arkansas/Notre Dame", "2018–21/2022", 445],
+    ["Rodrigo Blankenship", "Georgia", "2016–19", 440],
+    ["Kyle Brotzman", "Boise St.", "2007–10", 439],
+  ].map(([player, team, years, value], i) => ({ rank: i + 1, player, team, years, value })),
 };
 export const cfbAllTimeSeasonIndividual: Record<
   CfbAllTimeCategory,
@@ -519,4 +589,174 @@ export const cfbAllTimeSeasonIndividual: Record<
     { rank: 19, player: "Dre’ Bly", team: "North Carolina", years: "1996", value: 11 },
     { rank: 20, player: "Jim Leonhard", team: "Wisconsin", years: "2002", value: 11 },
   ],
+
+  "total-offense-yards": toCfbAllTimeRecords([
+    ["Joe Burrow", "LSU", "2019", 6039], ["Bailey Zappe", "Western Ky.", "2021", 5984],
+    ["B.J. Symons", "Texas Tech", "2003", 5976], ["Colt Brennan", "Hawaii", "2006", 5915],
+    ["Case Keenum", "Houston", "2009", 5829], ["Case Keenum", "Houston", "2011", 5666],
+    ["Graham Harrell", "Texas Tech", "2007", 5614], ["Anthony Gordon", "Washington St.", "2019", 5559],
+    ["Kyler Murray", "Oklahoma", "2018", 5362], ["Patrick Mahomes", "Texas Tech", "2016", 5312],
+    ["Lamar Jackson", "Louisville", "2017", 5261], ["Case Keenum", "Houston", "2008", 5241],
+    ["Marcus Mariota", "Oregon", "2014", 5224], ["Deshaun Watson", "Clemson", "2016", 5222],
+    ["David Klingler", "Houston", "1990", 5221], ["Deshaun Watson", "Clemson", "2015", 5209],
+    ["Derek Carr", "Fresno State", "2013", 5200], ["Paul Smith", "Tulsa", "2007", 5184],
+    ["Jalen Hurts", "Oklahoma", "2019", 5149], ["Bryant Moniz", "Hawaii", "2010", 5142],
+    ["Johnny Manziel", "Texas A&M", "2012", 5116], ["Lamar Jackson", "Louisville", "2016", 5114],
+    ["Patrick Mahomes", "Texas Tech", "2016", 5109], ["Matt Johnson", "Bowling Green", "2015", 5105],
+    ["Graham Harrell", "Texas Tech", "2008", 5096],
+  ]),
+
+  "points": toCfbAllTimeRecords([
+    ["Montee Ball", "Wisconsin", "2011", 236], ["Barry Sanders", "Oklahoma State", "1988", 234],
+    ["Devin Singletary", "Florida Atlantic", "2017", 198], ["Brock Forsey", "Boise State", "2002", 192],
+    ["Melvin Gordon", "Wisconsin", "2014", 192], ["Jay Ajayi", "Boise State", "2014", 192],
+    ["Bryson Daily", "Army", "2024", 192], ["Keenan Reynolds", "Navy", "2013", 188],
+    ["Troy Edwards", "Louisiana Tech", "1998", 186], ["Kapri Bibbs", "Colorado State", "2013", 186],
+    ["Kevin Smith", "UCF", "2007", 180], ["Najee Harris", "Alabama", "2020", 180],
+    ["Ashton Jeanty", "Boise State", "2024", 180], ["Toby Gerhart", "Stanford", "2009", 178],
+    ["Terry Metcalf", "Long Beach State", "1971", 174], ["Lydell Mitchell", "Penn State", "1971", 174],
+    ["Mike Rozier", "Nebraska", "1983", 174], ["Anthony Wales", "Western Kentucky", "2016", 174],
+    ["Caleb Hawkins", "North Texas", "2025", 174], ["Luke Staley", "BYU", "2001", 170],
+    ["Ricky Williams", "Texas", "1998", 168], ["Lee Suggs", "Virginia Tech", "2000", 168],
+    ["Willis McGahee", "Miami (FL)", "2002", 168], ["Kenneth Dixon", "Louisiana Tech", "2012", 168],
+    ["Kenneth Dixon", "Louisiana Tech", "2014", 168],
+  ]),
+};
+
+// NCAA FBS record-book single-game leaderboards. Unlike season and career
+// records, the record book does not always provide a game date for every row,
+// so the opponent is retained in `team` and `years` is intentionally blank.
+const singleGameRecords = (
+  rows: readonly [player: string, team: string, value: number][],
+): CfbAllTimeRecord[] =>
+  rows.map(([player, team, value], index) => ({
+    rank: index + 1,
+    player,
+    team,
+    years: "",
+    value,
+  }));
+
+const datedSingleGameRecords = (
+  rows: readonly [player: string, team: string, date: string, value: number][],
+): CfbAllTimeRecord[] =>
+  rows.map(([player, team, years, value], index) => ({
+    rank: index + 1,
+    player,
+    team,
+    years,
+    value,
+  }));
+
+export const cfbAllTimeSingleGameIndividual: Partial<
+  Record<CfbAllTimeCategory, CfbAllTimeRecord[]>
+> = {
+  "passing-yards": singleGameRecords([
+    ["Connor Halliday", "Washington St. vs. California", 734],
+    ["Patrick Mahomes", "Texas Tech vs. Oklahoma", 734],
+    ["David Klingler", "Houston vs. Arizona St.", 716],
+    ["Matt Vogler", "TCU vs. Houston", 690],
+    ["B.J. Symons", "Texas Tech vs. Ole Miss", 661],
+    ["Geno Smith", "West Virginia vs. Baylor", 656],
+    ["Graham Harrell", "Texas Tech vs. Oklahoma St.", 646],
+    ["Cody Hodges", "Texas Tech vs. Kansas St.", 643],
+    ["Brian Lindgren", "Idaho vs. Middle Tenn.", 637],
+    ["Scott Mitchell", "Utah vs. Air Force", 631],
+    ["K.J. Costello", "Mississippi St. vs. LSU", 623],
+    ["Jeremy Leach", "New Mexico vs. Utah", 622],
+    ["Dave Wilson", "Illinois vs. Ohio St.", 621],
+    ["John Walsh", "BYU vs. Utah St.", 619],
+    ["Jimmy Klingler", "Houston vs. Rice", 613],
+    ["David Neill", "Nevada vs. New Mexico St.", 611],
+    ["Anthony Gordon", "Washington St. vs. Oregon St.", 606],
+    ["Alan Bowman", "Texas Tech vs. Houston", 605],
+    ["Daniel Meager", "North Texas vs. SMU", 601],
+    ["Luke Falk", "Washington St. vs. Arizona St.", 601],
+    ["Dillon Gabriel", "UCF vs. Memphis", 601],
+    ["Ty Detmer", "BYU vs. San Diego St.", 599],
+    ["Patrick Mahomes", "Texas Tech vs. Baylor", 598],
+    ["Baker Mayfield", "Oklahoma vs. Oklahoma St.", 598],
+    ["Drew Anderson", "Buffalo vs. Western Mich.", 597],
+  ]),
+  "rushing-yards": singleGameRecords([
+    ["Samaje Perine", "Oklahoma vs. Kansas", 427],
+    ["Jaret Patterson", "Buffalo vs. Kent St.", 409],
+    ["Melvin Gordon", "Wisconsin vs. Nebraska", 408],
+    ["LaDainian Tomlinson", "TCU vs. UTEP", 406],
+    ["Tony Sands", "Kansas vs. Missouri", 396],
+    ["Marshall Faulk", "San Diego St. vs. Pacific", 386],
+    ["Troy Davis", "Iowa St. vs. Missouri", 378],
+    ["Robbie Mixon", "Central Mich. vs. Eastern Mich.", 377],
+    ["Anthony Thompson", "Indiana vs. Wisconsin", 377],
+    ["Travis Prentice", "Miami vs. OH", 376],
+    ["Astron Whatley", "Kent St. vs. Eastern Mich.", 373],
+    ["Ka’Deem Carey", "Arizona vs. Colorado", 366],
+    ["Mike Pringle", "Cal St. Fullerton vs. New Mexico St.", 357],
+    ["Rueben Mayes", "Washington St. vs. Oregon", 357],
+    ["Brian Pruitt", "Central Mich. vs. Toledo", 356],
+    ["Eddie Lee Ivery", "Georgia Tech vs. Air Force", 356],
+    ["Montel Harris", "Temple vs. Army West Point", 355],
+    ["Garrett Wolfe", "NIU vs. Ball St.", 353],
+    ["Scott Harley", "East Carolina vs. NC State", 351],
+    ["Ricky Williams", "Texas vs. Iowa St.", 350],
+    ["Eric Allen", "Michigan St. vs. Purdue", 350],
+    ["Matt Forte", "Tulane vs. SMU", 349],
+    ["Paul Palmer", "Temple vs. East Carolina", 349],
+    ["Shun White", "Navy vs. Towson", 348],
+    ["Ricky Bell", "Southern California vs. Washington St.", 347],
+  ]),
+  "receiving-yards": datedSingleGameRecords([
+    ["Troy Edwards", "Louisiana Tech", "Aug. 29, 1998", 405],
+    ["Jeremy Gallon", "Michigan", "Oct. 19, 2013", 369],
+    ["Randy Gatewood", "UNLV", "Sep. 17, 1994", 363],
+    ["Chuck Hughes", "Texas Western", "Sep. 18, 1965", 349],
+    ["Jaxon Smith-Njigba", "Ohio State", "Jan. 1, 2022", 347],
+    ["Donnie Avery", "Houston", "Oct. 13, 2007", 346],
+    ["Marqise Lee", "USC", "Oct. 27, 2012", 345],
+    ["Casey Fitzgerald", "North Texas", "Sep. 8, 2007", 327],
+    ["Nate Burleson", "Nevada", "Nov. 10, 2001", 326],
+    ["Carlos Henderson", "Louisiana Tech", "Oct. 15, 2016", 326],
+    ["Rick Eber", "Tulsa", "Oct. 7, 1967", 322],
+    ["Harry Wood", "Tulsa", "Oct. 7, 1967", 318],
+    ["Patrick Edwards", "Houston", "Oct. 27, 2011", 318],
+    ["Jeff Evans", "New Mexico State", "Sep. 30, 1978", 316],
+    ["Alex Van Dyke", "Nevada", "Nov. 18, 1995", 314],
+    ["Terrance Williams", "Baylor", "Nov. 18, 2012", 314],
+    ["Chad Mackey", "Louisiana Tech", "Oct. 16, 1996", 310],
+    ["Corey Rucker", "Arkansas State", "Dec. 5, 2020", 310],
+    ["Jason Rivers", "Hawaii", "Dec. 24, 2006", 308],
+    ["Kayshon Boutte", "LSU", "Dec. 19, 2020", 308],
+    ["Tetairoa McMillan", "Arizona", "Aug. 31, 2024", 304],
+    ["Cobi Hamilton", "Arkansas", "Sep. 22, 2012", 303],
+    ["Stedman Bailey", "West Virginia", "Sep. 29, 2012", 303],
+    ["Andy Isabella", "UMass", "Nov. 3, 2018", 303],
+    ["Chris Daniels", "Purdue", "Oct. 16, 1999", 301],
+  ]),
+  "total-offense-yards": datedSingleGameRecords([
+    ["Patrick Mahomes", "Texas Tech", "Oct. 22, 2016", 819],
+    ["Connor Halliday", "Washington State", "Oct. 4, 2014", 751],
+    ["David Klingler", "Houston", "Dec. 2, 1990", 732],
+    ["Matt Vogler", "TCU", "Nov. 3, 1990", 696],
+    ["Geno Smith", "West Virginia", "Sep. 29, 2012", 687],
+    ["B.J. Symons", "Texas Tech", "Sep. 27, 2003", 681],
+    ["Brian Lindgren", "Idaho", "Oct. 6, 2001", 657],
+    ["Dillon Gabriel", "UCF", "Oct. 17, 2020", 650],
+    ["Graham Harrell", "Texas Tech", "Sep. 22, 2008", 643],
+    ["Brett Smith", "Wyoming", "Nov. 23, 2013", 640],
+    ["Clayton Tune", "Houston", "Nov. 5, 2022", 638],
+    ["Garrett Gilbert", "SMU", "Oct. 26, 2013", 635],
+    ["Scott Mitchell", "Utah", "Oct. 15, 1988", 625],
+    ["David Klingler", "Houston", "Nov. 3, 1990", 625],
+    ["Patrick Mahomes", "Texas Tech", "Nov. 29, 2014", 625],
+    ["Zac Dysert", "Miami (OH)", "Sep. 29, 2012", 624],
+    ["B.J. Symons", "Texas Tech", "Sep. 20, 2003", 618],
+    ["Jimmy Klingler", "Houston", "Nov. 28, 1992", 612],
+    ["Lamar Jackson", "Louisville", "Sep. 9, 2016", 610],
+    ["Drew Anderson", "Buffalo", "Oct. 7, 2017", 610],
+    ["Jayden Daniels", "LSU", "Nov. 11, 2023", 606],
+    ["Quinton Flowers", "South Florida", "Nov. 24, 2017", 605],
+    ["Cody Hodges", "Texas Tech", "Oct. 15, 2005", 604],
+    ["Nick Mullens", "Southern Miss", "Oct. 1, 2016", 604],
+    ["Ty Detmer", "BYU", "Nov. 16, 1991", 603],
+  ]),
 };

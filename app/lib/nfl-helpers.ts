@@ -1,3 +1,8 @@
+import {
+  nflDivisionByTeam,
+  nflTeamNameByAbbreviation,
+} from "../nfl/data/divisions";
+
 // Shared NFL types and pure helper functions.
 // Extracted from app/nfl/page.tsx on [today's date].
 // Nothing here touches React state — all pure functions.
@@ -11,6 +16,7 @@ export type NFLGame = {
   awayPoints: number | null;
   homeRecord: string | null;
   awayRecord: string | null;
+  broadcasts: string[];
   completed: boolean;
   status: string;
 
@@ -30,6 +36,7 @@ export type NFLPlayerStat = {
   receiving_tds: number;
   tackles: number;
   sacks: number;
+  interceptions: number;
 };
 
 export type NFLPerformance = NFLPlayerStat & {
@@ -52,22 +59,26 @@ export type StatCategory =
   | "receiving"
   | "receiving-td"
   | "tackles"
-  | "sacks";
+  | "sacks"
+  | "interceptions";
 
 export type TeamStatCategory =
   | "total-offense"
-  | "passing"
-  | "rushing"
-  | "points"
-  | "defense"
+  | "rushing-offense"
+  | "passing-offense"
+  | "scoring-offense"
+  | "total-defense"
+  | "rushing-defense"
+  | "passing-defense"
+  | "scoring-defense"
   | "sacks"
   | "turnover-margin";
 
 export type StatsView = "players" | "teams";
 
-export type Tab = "games" | "stats" | "performances" | "all-time";
+export type Tab = "games" | "stats" | "performances" | "all-time" | "content";
 
-export type PerformanceWeek = "all" | number;
+export type PerformanceWeek = number;
 
 export type StatsMode = "weekly" | "season";
 
@@ -92,7 +103,73 @@ export function formatGameTime(date: string) {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/London",
   });
+}
+
+export function getNflPrimeTimeIndicator(game: NFLGame) {
+  const gameDay = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "America/New_York",
+  }).format(new Date(game.startDate));
+
+  const broadcasts = game.broadcasts.map((name) =>
+    name.toLowerCase()
+  );
+
+  if (
+    gameDay === "Thursday" &&
+    broadcasts.some((name) => name.includes("prime video"))
+  ) {
+    return {
+      label: "📺 THURSDAY NIGHT FOOTBALL",
+      color: "#a78bfa",
+    };
+  }
+
+  if (
+    gameDay === "Sunday" &&
+    broadcasts.some((name) => name.includes("nbc"))
+  ) {
+    return {
+      label: "🌙 SUNDAY NIGHT FOOTBALL",
+      color: "#60a5fa",
+    };
+  }
+
+  if (
+    gameDay === "Monday" &&
+    broadcasts.some(
+      (name) =>
+        name.includes("espn") ||
+        name.includes("abc")
+    )
+  ) {
+    return {
+      label: "🎙️ MONDAY NIGHT FOOTBALL",
+      color: "#fb7185",
+    };
+  }
+
+  return null;
+}
+
+export function getNflDivisionalIndicator(game: NFLGame) {
+  const homeDivision = nflDivisionByTeam[game.homeTeam];
+  const awayDivision = nflDivisionByTeam[game.awayTeam];
+
+  if (!homeDivision || homeDivision !== awayDivision) {
+    return null;
+  }
+
+  return {
+    label: `🏈 ${homeDivision.toUpperCase()} MATCHUP`,
+    color: "#38bdf8",
+  };
+}
+
+export function getNflTeamName(team: string) {
+  return nflTeamNameByAbbreviation[team] ?? team;
 }
 
 export function getTeamName(team: NFLTeamStat) {

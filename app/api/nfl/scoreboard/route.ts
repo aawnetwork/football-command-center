@@ -5,9 +5,19 @@ export const revalidate = 30;
 const ESPN_SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const week = searchParams.get("week");
+
   try {
-    const response = await fetch(ESPN_SCOREBOARD_URL, {
+    const scoreboardUrl = new URL(ESPN_SCOREBOARD_URL);
+    scoreboardUrl.searchParams.set("seasontype", "2");
+
+    if (week) {
+      scoreboardUrl.searchParams.set("week", week);
+    }
+
+    const response = await fetch(scoreboardUrl, {
       cache: "no-store",
     });
 
@@ -49,6 +59,10 @@ export async function GET() {
           home?.records?.[0]?.summary ?? null,
         awayRecord:
           away?.records?.[0]?.summary ?? null,
+        broadcasts:
+          competition?.broadcasts?.flatMap(
+            (broadcast: any) => broadcast.names ?? []
+          ) ?? [],
         completed:
           competition?.status?.type?.completed ?? false,
         status:
@@ -56,7 +70,10 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(games);
+    return NextResponse.json({
+      games,
+      week: data.week?.number ?? (week ? Number(week) : null),
+    });
   } catch (error) {
     console.error("ESPN NFL scoreboard error:", error);
 

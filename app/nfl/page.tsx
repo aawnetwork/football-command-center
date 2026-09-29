@@ -1,23 +1,26 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
-import { GameCard } from "../components/GameCard";
+import { useEffect, useMemo, useState } from "react";
+import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
+import { ContentPanel } from "../features/content/ContentPanel";
+import { NflGamesGrid } from "../features/games/NflGamesGrid";
+import { NflPerformanceCard } from "../features/performances/NflPerformanceCard";
 import {
-  nflAllTimeCareerIndividual,
-  nflAllTimeSeasonIndividual,
-} from "./data/nfl-all-time-career";
+  PerformancePositionControls,
+  type PerformancePosition,
+} from "../features/performances/PerformancePositionControls";
+import { StatsLeaderboardTable } from "../features/stats/StatsLeaderboardTable";
+import { StatsPanelControls } from "../features/stats/StatsPanelControls";
 
 import {
   tierInfo,
-  formatGameTime,
   getTeamName,
-  getGameImportance,
   getContentAngle,
+  getNflTeamName,
   getPerformanceScore,
   getRecordWinPercentage,
   isStatementWin,
 } from "../lib/nfl-helpers";
-
 import type {
   NFLGame,
   NFLPlayerStat,
@@ -47,6 +50,7 @@ export default function NFLPage() {
 
   const [loading, setLoading] =
     useState(true);
+  const [gamesError, setGamesError] = useState<string | null>(null);
 
   const [statsLoading, setStatsLoading] =
     useState(false);
@@ -59,9 +63,20 @@ export default function NFLPage() {
 
   const [gameTiers, setGameTiers] = useState<Record<number, NFLTier>>({});
   const [gameTiersLoaded, setGameTiersLoaded] = useState(false);
+  const [selectedGameTier, setSelectedGameTier] = useState<"ALL" | NFLTier>(
+    "ALL"
+  );
+  const [selectedGameWeek, setSelectedGameWeek] = useState<number | null>(
+    null
+  );
+  const [currentGameWeek, setCurrentGameWeek] = useState<number | null>(
+    null
+  );
 
   const [performanceWeek, setPerformanceWeek] =
-    useState<PerformanceWeek>("all");
+    useState<PerformanceWeek>(1);
+  const [performancePosition, setPerformancePosition] =
+    useState<PerformancePosition>("all");
 
   const latestPerformanceWeek =
     Math.max(
@@ -71,11 +86,18 @@ export default function NFLPage() {
       )
     );
 
+  useEffect(() => {
+    if (performances.length > 0) {
+      setPerformanceWeek(latestPerformanceWeek);
+    }
+  }, [latestPerformanceWeek, performances.length]);
+
   const [statsView, setStatsView] =
     useState<StatsView>("players");
 
   const [statsMode, setStatsMode] = useState<StatsMode>("weekly");
   const [statsWeek, setStatsWeek] = useState<number | null>(null);
+  const [availableStatsWeeks, setAvailableStatsWeeks] = useState<number[]>([]);
 
   const [statCategory, setStatCategory] =
     useState<StatCategory>("passing");
@@ -85,22 +107,54 @@ export default function NFLPage() {
       "total-offense"
     );
 
+  function changeStatsMode(mode: StatsMode) {
+    setStatsMode(mode);
+
+    if (mode === "weekly" && statsView === "teams") {
+      setTeamStatCategory("total-offense");
+    }
+  }
+
+  function changeStatsView(view: StatsView) {
+    setStatsView(view);
+
+    if (view === "teams") {
+      setTeamStatCategory("total-offense");
+    }
+  }
+
   const [allTimeView, setAllTimeView] = useState<"individual" | "team">(
     "individual"
   );
-
-  const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
-    "career"
-  );
+  const [allTimePeriod, setAllTimePeriod] = useState<
+    "career" | "season" | "single-game"
+  >("career");
 
   useEffect(() => {
     const savedTiers = localStorage.getItem("nfl-game-tiers");
+    let restoreTimer: number | undefined;
 
     if (savedTiers) {
-      setGameTiers(JSON.parse(savedTiers));
+      try {
+        const parsedTiers: unknown = JSON.parse(savedTiers);
+
+        if (parsedTiers && typeof parsedTiers === "object") {
+          restoreTimer = window.setTimeout(() => {
+            setGameTiers(parsedTiers as Record<number, NFLTier>);
+          }, 0);
+        }
+      } catch {
+        localStorage.removeItem("nfl-game-tiers");
+      }
     }
 
     setGameTiersLoaded(true);
+
+    return () => {
+      if (restoreTimer !== undefined) {
+        window.clearTimeout(restoreTimer);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -112,10 +166,17 @@ export default function NFLPage() {
   }, [gameTiers, gameTiersLoaded]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadGames() {
+      setLoading(true);
+      setGamesError(null);
+
       try {
         const response = await fetch(
-          window.location.origin + "/api/nfl/scoreboard"
+          selectedGameWeek === null
+            ? "/api/nfl/scoreboard"
+            : `/api/nfl/scoreboard?week=${selectedGameWeek}`
         );
 
         if (!response.ok) {
@@ -124,12 +185,24 @@ export default function NFLPage() {
           );
         }
 
-        const data =
-          await response.json();
-          console.log("NFL DATA FROM PAGE:", data);
+        const data = await response.json();
+        const gamesData = Array.isArray(data) ? data : data.games ?? [];
+
+        if (cancelled) {
+          return;
+        }
+
+        if (
+          !Array.isArray(data) &&
+          data.week != null &&
+          selectedGameWeek === null
+        ) {
+          setCurrentGameWeek(data.week);
+          setSelectedGameWeek(data.week);
+        }
 
         setGames(
-  data.map((game: NFLGame) => {
+  gamesData.map((game: NFLGame) => {
     const importance = getGameImportance(game);
 
     return {
@@ -140,12 +213,19 @@ export default function NFLPage() {
   })
 );
       } catch (error) {
-        console.error(
-          "NFL games error:",
-          error
-        );
+        if (!cancelled) {
+          console.error(
+            "NFL games error:",
+            error
+          );
+          setGamesError(
+            "Live NFL games are temporarily unavailable. We’ll retry automatically."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -156,9 +236,11 @@ export default function NFLPage() {
       30000
     );
 
-    return () =>
+    return () => {
+      cancelled = true;
       clearInterval(interval);
-  }, []);
+    };
+  }, [selectedGameWeek]);
 
   useEffect(() => {
     async function loadStats() {
@@ -167,7 +249,9 @@ export default function NFLPage() {
       try {
         const playerResponse =
           await fetch(
-            `/api/nfl/stats?mode=${statsMode}`
+            `/api/nfl/stats?mode=${statsMode}${
+              statsMode === "weekly" && statsWeek ? `&week=${statsWeek}` : ""
+            }`
           );
 
         if (!playerResponse.ok) {
@@ -182,7 +266,19 @@ export default function NFLPage() {
         setStats(
           playerData.stats ?? []
         );
-        setStatsWeek(playerData.week ?? null);
+        setAvailableStatsWeeks(playerData.availableWeeks ?? []);
+        setStatsWeek((currentWeek) => {
+          if (statsMode !== "weekly") {
+            return null;
+          }
+
+          const weeks = playerData.availableWeeks ?? [];
+          if (currentWeek && weeks.includes(currentWeek)) {
+            return currentWeek;
+          }
+
+          return playerData.week ?? weeks.at(-1) ?? null;
+        });
 
         const teamResponse =
           await fetch(
@@ -220,7 +316,7 @@ export default function NFLPage() {
     const interval = setInterval(loadStats, 30000);
 
     return () => clearInterval(interval);
-  }, [activeTab, statsMode]);
+  }, [activeTab, statsMode, statsWeek]);
 
   useEffect(() => {
     async function loadPerformances() {
@@ -294,6 +390,14 @@ export default function NFLPage() {
     });
   }
 
+  const filteredGames = useMemo(() => {
+    if (selectedGameTier === "ALL") {
+      return games;
+    }
+
+    return games.filter((game) => gameTiers[game.id] === selectedGameTier);
+  }, [games, gameTiers, selectedGameTier]);
+
   function getStatValue(
     player: NFLPlayerStat
   ) {
@@ -321,6 +425,9 @@ export default function NFLPage() {
 
       case "sacks":
         return player.sacks;
+
+      case "interceptions":
+        return player.interceptions;
 
       default:
         return 0;
@@ -353,6 +460,9 @@ export default function NFLPage() {
       case "sacks":
         return "Sacks";
 
+      case "interceptions":
+        return "Interceptions";
+
       default:
         return "";
     }
@@ -361,7 +471,7 @@ export default function NFLPage() {
   function getTeamName(
     team: NFLTeamStat
   ) {
-    return team.team ?? "Team";
+    return getNflTeamName(team.team ?? "Team");
   }
 
   function getTeamStatValue(
@@ -378,17 +488,17 @@ export default function NFLPage() {
           )
         );
 
-      case "passing":
+      case "passing-offense":
         return Number(
           team.passing_yards ?? 0
         );
 
-      case "rushing":
+      case "rushing-offense":
         return Number(
           team.rushing_yards ?? 0
         );
 
-      case "points": {
+      case "scoring-offense": {
         if (team.points !== undefined) {
           return Number(team.points);
         }
@@ -463,17 +573,23 @@ export default function NFLPage() {
         );
       }
 
-      case "defense":
-        return (
-          Number(
-            team.def_tackles_solo ??
-              0
-          ) +
-          Number(
-            team.def_tackle_assists ??
-              0
-          )
-        );
+      case "total-defense": {
+        const passingDefense = Number(team.def_passing_yards ?? 0);
+        const rushingDefense = Number(team.def_rushing_yards ?? 0);
+
+        return passingDefense || rushingDefense
+          ? passingDefense + rushingDefense
+          : Number(team.def_tackles_solo ?? 0) + Number(team.def_tackle_assists ?? 0);
+      }
+
+      case "rushing-defense":
+        return Number(team.def_rushing_yards ?? 0);
+
+      case "passing-defense":
+        return Number(team.def_passing_yards ?? 0);
+
+      case "scoring-defense":
+        return Number(team.def_points ?? 0);
 
       case "sacks":
         return Number(
@@ -517,17 +633,26 @@ export default function NFLPage() {
       case "total-offense":
         return "Total Yards";
 
-      case "passing":
+      case "passing-offense":
         return "Passing Yards";
 
-      case "rushing":
+      case "rushing-offense":
         return "Rushing Yards";
 
-      case "points":
+      case "scoring-offense":
         return "Points";
 
-      case "defense":
-        return "Total Tackles";
+      case "total-defense":
+        return "Total Yards Allowed";
+
+      case "rushing-defense":
+        return "Rushing Yards Allowed";
+
+      case "passing-defense":
+        return "Passing Yards Allowed";
+
+      case "scoring-defense":
+        return "Points Allowed";
 
       case "sacks":
         return "Sacks";
@@ -537,6 +662,31 @@ export default function NFLPage() {
 
       default:
         return "Team Stat";
+    }
+  }
+
+  function getTeamCategoryName() {
+    switch (teamStatCategory) {
+      case "total-offense":
+        return "Total Offense";
+      case "rushing-offense":
+        return "Rushing Offense";
+      case "passing-offense":
+        return "Passing Offense";
+      case "scoring-offense":
+        return "Scoring Offense";
+      case "total-defense":
+        return "Total Defense";
+      case "rushing-defense":
+        return "Rushing Defense";
+      case "passing-defense":
+        return "Passing Defense";
+      case "scoring-defense":
+        return "Scoring Defense";
+      case "sacks":
+        return "Sacks";
+      case "turnover-margin":
+        return "Turnover Margin";
     }
   }
 function getGameImportance(game: NFLGame) {
@@ -847,11 +997,63 @@ function getPerformanceReason(
         );
       })
       .sort(
-        (a, b) =>
-          getTeamStatValue(b) -
-          getTeamStatValue(a)
+        (a, b) => {
+          const ascendingCategories: TeamStatCategory[] = [
+            "total-defense",
+            "rushing-defense",
+            "passing-defense",
+            "scoring-defense",
+          ];
+
+          return ascendingCategories.includes(teamStatCategory)
+            ? getTeamStatValue(a) - getTeamStatValue(b)
+            : getTeamStatValue(b) - getTeamStatValue(a);
+        }
       )
       .slice(0, 10);
+
+  const statsLeaderboardRows =
+    statsView === "players"
+      ? sortedStats.map((player) => {
+          const value = getStatValue(player);
+          const valueLabel =
+            statCategory.endsWith("-td")
+              ? `${value} TD`
+              : statCategory === "tackles"
+                ? `${value} tackles`
+              : statCategory === "sacks"
+                ? `${value} sacks`
+                : statCategory === "interceptions"
+                  ? `${value} INT`
+                : `${value.toLocaleString()} yards`;
+
+          return {
+            id: player.player_id,
+            name: player.player_display_name,
+            team: getNflTeamName(player.recent_team),
+            value: valueLabel,
+          };
+        })
+      : sortedTeamStats.map((team) => {
+          const value = getTeamStatValue(team);
+          const valueLabel =
+        teamStatCategory === "scoring-offense" ||
+        teamStatCategory === "scoring-defense"
+              ? String(value)
+              : teamStatCategory === "sacks"
+                ? `${value} sacks`
+                : teamStatCategory === "turnover-margin"
+                  ? value > 0
+                    ? `+${value}`
+                    : String(value)
+                  : `${value.toLocaleString()} yards`;
+
+          return {
+            id: getTeamName(team),
+            name: getTeamName(team),
+            value: valueLabel,
+          };
+        });
 
   const filteredPerformances =
     [...performances]
@@ -868,11 +1070,49 @@ function getPerformanceReason(
       )
       .filter(
         (performance) =>
-          performanceWeek ===
-            "all" ||
           performance.week ===
             performanceWeek
       )
+      .filter((performance) => {
+        if (performancePosition === "all") {
+          return true;
+        }
+
+        if (performancePosition === "qb") {
+          return (
+            performance.passing_yards > 0 ||
+            performance.passing_tds > 0
+          );
+        }
+
+        if (performancePosition === "rb") {
+          return (
+            performance.rushing_yards > 0 ||
+            performance.rushing_tds > 0
+          );
+        }
+
+        if (performancePosition === "wr") {
+          return (
+            performance.receiving_yards > 0 ||
+            performance.receiving_tds > 0
+          );
+        }
+
+        const hasOffensiveStats =
+          performance.passing_yards > 0 ||
+          performance.passing_tds > 0 ||
+          performance.rushing_yards > 0 ||
+          performance.rushing_tds > 0 ||
+          performance.receiving_yards > 0 ||
+          performance.receiving_tds > 0;
+
+        return (
+          !hasOffensiveStats &&
+          (performance.tackles > 0 ||
+            performance.sacks > 0)
+        );
+      })
       .sort((a, b) => {
         if (
           a.week !==
@@ -899,8 +1139,6 @@ function getPerformanceReason(
         background: "#020617",
         color: "#f8fafc",
         padding: "40px 24px",
-        fontFamily:
-          "Arial, sans-serif",
       }}
     >
       <div
@@ -925,8 +1163,15 @@ function getPerformanceReason(
               Sunday football intelligence.
             </p>
           </div>
-          <div className="command-center__source">
-            Live data powered by ESPN & nflverse
+          <div className="command-center__header-brand">
+            <div
+              className="command-center__brand-logo"
+              role="img"
+              aria-label="AAW Network"
+            />
+            <div className="command-center__source">
+              Live data powered by ESPN & nflverse
+            </div>
           </div>
         </header>
 
@@ -947,6 +1192,7 @@ function getPerformanceReason(
 ["performances", "🔥 Performances"],
 ["stats", "📊 Stats"],
 ["all-time", "🏆 All-Time"],
+["content", "🚨 Content"],
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (
@@ -1031,7 +1277,137 @@ function getPerformanceReason(
               </div>
             </div>
 
-            {loading ? (
+            {currentGameWeek !== null && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "20px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: "#f8fafc",
+                  }}
+                >
+                  Week:
+                </span>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {Array.from({ length: currentGameWeek }, (_, index) => {
+                    const week = index + 1;
+
+                    return (
+                      <button
+                        key={week}
+                        type="button"
+                        onClick={() => setSelectedGameWeek(week)}
+                        style={{
+                          padding: "10px 16px",
+                          borderRadius: "8px",
+                          border: "1px solid",
+                          borderColor:
+                            selectedGameWeek === week
+                              ? "#ef4444"
+                              : "#334155",
+                          background:
+                            selectedGameWeek === week
+                              ? "#3f0d12"
+                              : "#0f172a",
+                          color:
+                            selectedGameWeek === week
+                              ? "#fca5a5"
+                              : "#94a3b8",
+                          fontWeight: 900,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Week {week}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
+                marginBottom: "20px",
+              }}
+            >
+              <button
+                aria-pressed={selectedGameTier === "ALL"}
+                onClick={() => setSelectedGameTier("ALL")}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #334155",
+                  background:
+                    selectedGameTier === "ALL" ? "#334155" : "#0f172a",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                All Games
+              </button>
+
+              {(Object.keys(tierInfo) as NFLTier[]).map((tier) => (
+                <button
+                  key={tier}
+                  aria-pressed={selectedGameTier === tier}
+                  onClick={() => setSelectedGameTier(tier)}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background:
+                      selectedGameTier === tier
+                        ? tier === "S"
+                          ? "#7f1d1d"
+                          : tier === "A"
+                            ? "#78350f"
+                            : tier === "B"
+                              ? "#1e3a8a"
+                              : tier === "C"
+                                ? "#14532d"
+                                : "#334155"
+                        : "#0f172a",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontWeight: 700,
+                  }}
+                >
+                  {tierInfo[tier].emoji} {tier}
+                </button>
+              ))}
+            </div>
+
+            {gamesError ? (
+              <div
+                style={{
+                  padding: "32px",
+                  borderRadius: "16px",
+                  background: "#0f172a",
+                  border: "1px solid #7f1d1d",
+                  color: "#fca5a5",
+                }}
+              >
+                {gamesError}
+              </div>
+            ) : loading ? (
               <div
                 style={{
                   padding: "32px",
@@ -1044,7 +1420,7 @@ function getPerformanceReason(
                     "#94a3b8",
                 }}
               >
-                Loading NFL games... {games.length}
+                Loading NFL games...
               </div>
             ) : games.length ===
               0 ? (
@@ -1062,283 +1438,24 @@ function getPerformanceReason(
               >
                 No NFL games found.
               </div>
-            ) : (
+            ) : filteredGames.length === 0 ? (
               <div
-                className="command-center__game-grid"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(300px, 1fr))",
-                  gap: "16px",
+                  padding: "24px",
+                  borderRadius: "12px",
+                  background: "#0f172a",
+                  border: "1px solid #334155",
+                  color: "#94a3b8",
                 }}
               >
-                {games.map((game) => {
-                  const tier = gameTiers[game.id];
-                  const suggestedTier = game.importance ?? "C";
-
-                  return (
-                    <Fragment key={game.id}>
-                    <div className="legacy-game-card">
-                    <article
-                      key={game.id}
-                      style={{
-                        padding: "24px",
-                        borderRadius:
-                          "16px",
-                        background:
-                          "#0f172a",
-                        border:
-                          "1px solid #334155",
-                      }}
-                    >
-                      <div
-                        style={{
-                          color:
-                            "#64748b",
-                          fontSize:
-                            "12px",
-                          fontWeight:
-                            800,
-                          marginBottom:
-                            "20px",
-                        }}
-                      >
-                        {game.completed
-                          ? "FINAL"
-                          : game.status.toUpperCase()}
-                      </div>
-
-                      <div
-                        style={{
-                          display:
-                            "grid",
-                          gap: "14px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display:
-                              "flex",
-                            justifyContent:
-                              "space-between",
-                            alignItems:
-                              "center",
-                            gap: "16px",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                fontWeight:
-                                  900,
-                                fontSize:
-                                  "18px",
-                              }}
-                            >
-                              {
-                                game.awayTeam
-                              }
-                            </div>
-
-                            {game.awayRecord && (
-                              <div
-                                style={{
-                                  color:
-                                    "#64748b",
-                                  fontSize:
-                                    "12px",
-                                  marginTop:
-                                    "4px",
-                                }}
-                              >
-                                {
-                                  game.awayRecord
-                                }
-                              </div>
-                            )}
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize:
-                                "28px",
-                              fontWeight:
-                                900,
-                            }}
-                          >
-                            {
-                              game.awayPoints ??
-                              "—"
-                            }
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            height:
-                              "1px",
-                            background:
-                              "#1e293b",
-                          }}
-                        />
-
-                        <div
-                          style={{
-                            display:
-                              "flex",
-                            justifyContent:
-                              "space-between",
-                            alignItems:
-                              "center",
-                            gap: "16px",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                fontWeight:
-                                  900,
-                                fontSize:
-                                  "18px",
-                              }}
-                            >
-                              {
-                                game.homeTeam
-                              }
-                            </div>
-
-                            {game.homeRecord && (
-                              <div
-                                style={{
-                                  color:
-                                    "#64748b",
-                                  fontSize:
-                                    "12px",
-                                  marginTop:
-                                    "4px",
-                                }}
-                              >
-                                {
-                                  game.homeRecord
-                                }
-                              </div>
-                            )}
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize:
-                                "28px",
-                              fontWeight:
-                                900,
-                            }}
-                          >
-                            {
-                              game.homePoints ??
-                              "—"
-                            }
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop:
-                            "20px",
-                          paddingTop:
-                            "14px",
-                          borderTop:
-                            "1px solid #1e293b",
-                          color:
-                            "#64748b",
-                          fontSize:
-                            "12px",
-                        }}
-                      >
-                        <div>{formatGameTime(game.startDate)}</div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            gap: "12px",
-                            flexWrap: "wrap",
-                            marginTop: "12px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              color: tier ? "#f8fafc" : "#94a3b8",
-                              fontWeight: 800,
-                            }}
-                          >
-                            {tier
-                              ? `${tierInfo[tier].emoji} ${tier} · ${tierInfo[tier].name}`
-                              : `Suggested: ${suggestedTier} · ${tierInfo[suggestedTier].name}`}
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "6px",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            {(Object.keys(tierInfo) as NFLTier[]).map((tierOption) => (
-                              <button
-                                key={tierOption}
-                                aria-pressed={tier === tierOption}
-                                onClick={() => setGameTier(game.id, tierOption)}
-                                style={{
-                                  minWidth: "32px",
-                                  padding: "5px 8px",
-                                  cursor: "pointer",
-                                  fontSize: "12px",
-                                }}
-                              >
-                                {tierOption}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                    </div>
-                    <GameCard
-                      status={game.completed ? "FINAL" : game.status.toUpperCase()}
-                      awayTeam={game.awayTeam}
-                      awayMeta={game.awayRecord ?? "No record available"}
-                      awayScore={game.awayPoints}
-                      homeTeam={game.homeTeam}
-                      homeMeta={game.homeRecord ?? "No record available"}
-                      homeScore={game.homePoints}
-                      time={formatGameTime(game.startDate)}
-                      footer={
-                        <div className="game-card__tier-controls">
-                          <div className="game-card__tier-label">
-                            {tier
-                              ? `${tierInfo[tier].emoji} ${tier} · ${tierInfo[tier].name}`
-                              : `Suggested: ${suggestedTier} · ${tierInfo[suggestedTier].name}`}
-                          </div>
-                          <div className="game-card__tier-buttons">
-                            {(Object.keys(tierInfo) as NFLTier[]).map((tierOption) => (
-                              <button
-                                key={tierOption}
-                                aria-pressed={tier === tierOption}
-                                onClick={() => setGameTier(game.id, tierOption)}
-                              >
-                                {tierOption}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      }
-                    />
-                    </Fragment>
-                  );
-                })}
+                No games have been marked {selectedGameTier} yet.
               </div>
+            ) : (
+              <NflGamesGrid
+                games={filteredGames}
+                gameTiers={gameTiers}
+                onSetTier={setGameTier}
+              />
             )}
           </section>
         )}
@@ -1384,36 +1501,14 @@ function getPerformanceReason(
                   "28px",
               }}
             >
-              {[
-                ["all", "ALL"],
-                ...Array.from(
-                  {
-                    length:
-                      latestPerformanceWeek,
-                  },
-                  (_, index) => {
-                    const week =
-                      latestPerformanceWeek -
-                      index;
-
-                    return [
-                      week,
-                      `WEEK ${week}`,
-                    ] as [
-                      PerformanceWeek,
-                      string
-                    ];
-                  }
-                ),
-              ].map(
-                ([week, label]) => (
+              {Array.from(
+                { length: latestPerformanceWeek },
+                (_, index) => index + 1
+              ).map(
+                (week) => (
                   <button
                     key={String(week)}
-                    onClick={() =>
-  setPerformanceWeek(
-    week === "all" ? "all" : Number(week)
-  )
-}
+                    onClick={() => setPerformanceWeek(week)}
                     style={{
                       padding:
                         "10px 16px",
@@ -1442,11 +1537,16 @@ function getPerformanceReason(
                         "pointer",
                     }}
                   >
-                    {label}
+                    Week {week}
                   </button>
                 )
               )}
             </div>
+
+            <PerformancePositionControls
+              value={performancePosition}
+              onChange={setPerformancePosition}
+            />
 
             {performancesLoading ? (
               <div
@@ -1497,11 +1597,7 @@ function getPerformanceReason(
                     index
                 )
                   .filter(
-                    (week) =>
-                      performanceWeek ===
-                        "all" ||
-                      performanceWeek ===
-                        week
+                    (week) => performanceWeek === week
                   )
                   .map(
                     (week) => {
@@ -1528,48 +1624,22 @@ function getPerformanceReason(
                           <div
                             style={{
                               display:
-                                "flex",
-                              alignItems:
-                                "center",
-                              gap: "12px",
-                              marginBottom:
-                                "14px",
-                            }}
-                          >
-                            <h3
-                              style={{
-                                margin:
-                                  0,
-                                fontSize:
-                                  "20px",
-                                fontWeight:
-                                  900,
-                              }}
-                            >
-                              WEEK{" "}
-                              {week}
-                            </h3>
-
-                            <div
-                              style={{
-                                height:
-                                  "1px",
-                                flex: 1,
-                                background:
-                                  "#1e293b",
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              display:
                                 "grid",
                               gap:
                                 "16px",
                             }}
                           >
                             {weekPerformances.map(
+                              (performance, index) => (
+                                <NflPerformanceCard
+                                  key={`${performance.player_id}-${performance.week}-${index}`}
+                                  performance={performance}
+                                  contentAngle={getContentAngle(performance)}
+                                />
+                              )
+                            )}
+
+                            {false && weekPerformances.map(
                               (
                                 performance,
                                 index
@@ -2313,282 +2383,133 @@ function getPerformanceReason(
           </section>
         )} */}
 
-       {activeTab === "all-time" && (
-  <section>
-    <div
-      style={{
-        background: "#0f172a",
-        border: "1px solid #1e293b",
-        borderRadius: "12px",
-        padding: "24px",
-      }}
-    >
-      <h2 style={{ marginTop: 0, marginBottom: "8px" }}>
-        🏆 All-Time
-      </h2>
 
-      <p
-        style={{
-          color: "#94a3b8",
-          marginTop: 0,
-          lineHeight: 1.6,
-        }}
-      >
-        NFL career and single-season leaders from the official NFL
-        Record &amp; Fact Book. This is a historical record-book
-        snapshot, separate from the live and 2026 season stats above.
-      </p>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          gap: "16px",
-          marginTop: "20px",
-        }}
-      >
-        {[
-          ["🏈 Career Passing Yards", nflAllTimeCareerIndividual, "passing-yards"],
-          ["🏈 Career Passing TDs", nflAllTimeCareerIndividual, "passing-td"],
-          ["🏃 Career Rushing Yards", nflAllTimeCareerIndividual, "rushing-yards"],
-          ["🏃 Career Rushing TDs", nflAllTimeCareerIndividual, "rushing-td"],
-          ["🙌 Career Receiving Yards", nflAllTimeCareerIndividual, "receiving-yards"],
-          ["🙌 Career Receiving TDs", nflAllTimeCareerIndividual, "receiving-td"],
-          ["🛡️ Career Tackles", nflAllTimeCareerIndividual, "tackles"],
-          ["🔥 Career Sacks", nflAllTimeCareerIndividual, "sacks"],
-                    ["🎯 Career Interceptions", nflAllTimeCareerIndividual, "interceptions"],
-        ].map((item) => {
-          const title = item[0] as string;
-          const data = item[1] as typeof nflAllTimeCareerIndividual;
-          const category = item[2] as keyof typeof nflAllTimeCareerIndividual;
-
-          const records = data[category].slice(0, 10);
-
-          return (
-            <div
-              key={title}
-              style={{
-                background: "#111827",
-                border: "1px solid #334155",
-                borderRadius: "10px",
-                padding: "18px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 800,
-                  marginBottom: "14px",
-                }}
-              >
-                {title}
-              </div>
-
-              <div style={{ display: "grid", gap: "8px" }}>
-                {records.map((record) => (
-                  <div
-                    key={`${title}-${record.rank}-${record.player}`}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "28px 1fr auto",
-                      gap: "10px",
-                      alignItems: "center",
-                      padding: "10px 0",
-                      borderTop:
-                        record.rank === 1
-                          ? "none"
-                          : "1px solid #1e293b",
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "#64748b",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {record.rank}
-                    </span>
-
-                    <div>
-                      <div style={{ fontWeight: 800 }}>
-                        {record.player}
-                      </div>
-
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: "12px",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {record.team} · {record.years}
-                      </div>
-                    </div>
-
-                    <strong>
-                      {record.value.toLocaleString()}
-                    </strong>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-              </div>
-              <div style={{ marginTop: "20px", padding: "14px 16px", background: "#111827", border: "1px solid #334155", borderRadius: "10px", color: "#cbd5e1", lineHeight: 1.6, fontSize: "13px" }}>
-                <strong style={{ color: "#f8fafc" }}>Historical source:</strong>{" "}
-                NFL 2024 Record &amp; Fact Book, compiled by the Elias Sports Bureau. The book states that its records reflect available official NFL information from the league's formation in 1920, including applicable AFL records from 1960–69.
-              </div>
-            </div>
-          </section>
+        {activeTab === "all-time" && (
+          <NflAllTimePanel
+            view={allTimeView}
+            period={allTimePeriod}
+            onViewChange={setAllTimeView}
+            onPeriodChange={setAllTimePeriod}
+          />
         )}
+
+        {activeTab === "content" && <ContentPanel sport="NFL" />}
 
         {activeTab === "stats" && (
           <section>
-            <div
-              style={{
-                display: "flex",
-                justifyContent:
-                  "space-between",
-                alignItems: "center",
-                marginBottom: "20px",
-                gap: "16px",
-                flexWrap: "wrap",
+            <StatsPanelControls
+              title="Stats"
+              description={
+                statsMode === "weekly"
+                  ? `NFL leaders — Week ${statsWeek ?? "latest"} · live updates every 30 seconds`
+                  : "NFL season leaders"
+              }
+              mode={statsMode}
+              modes={[
+                { value: "weekly", label: "Weekly" },
+                { value: "season", label: "Season" },
+              ]}
+              onModeChange={changeStatsMode}
+              view={statsView}
+              views={[
+                { value: "players", label: "Players" },
+                { value: "teams", label: "Teams" },
+              ]}
+              onViewChange={changeStatsView}
+              categories={
+                statsView === "players"
+                  ? [
+                      { value: "passing", label: "Passing Yards" },
+                      { value: "passing-td", label: "Passing TDs" },
+                      { value: "rushing", label: "Rushing Yards" },
+                      { value: "rushing-td", label: "Rushing TDs" },
+                      { value: "receiving", label: "Receiving Yards" },
+                      { value: "receiving-td", label: "Receiving TDs" },
+                      { value: "tackles", label: "Tackles" },
+                      { value: "sacks", label: "Sacks" },
+                      { value: "interceptions", label: "Interceptions" },
+                    ]
+                  : statsMode === "weekly"
+                    ? [
+                        { value: "total-offense", label: "Total Offense" },
+                        { value: "rushing-offense", label: "Rushing Offense" },
+                        { value: "passing-offense", label: "Passing Offense" },
+                        { value: "total-defense", label: "Total Defense" },
+                        { value: "sacks", label: "Sacks" },
+                      ]
+                    : [
+                        { value: "total-offense", label: "Total Offense" },
+                        { value: "rushing-offense", label: "Rushing Offense" },
+                        { value: "passing-offense", label: "Passing Offense" },
+                        { value: "scoring-offense", label: "Scoring Offense" },
+                        { value: "total-defense", label: "Total Defense" },
+                        { value: "rushing-defense", label: "Rushing Defense" },
+                        { value: "passing-defense", label: "Passing Defense" },
+                        { value: "scoring-defense", label: "Scoring Defense" },
+                        { value: "sacks", label: "Sacks" },
+                        { value: "turnover-margin", label: "Turnover Margin" },
+                      ]
+              }
+              selectedCategory={
+                statsView === "players" ? statCategory : teamStatCategory
+              }
+              onCategoryChange={(category) => {
+                if (statsView === "players") {
+                  setStatCategory(category as StatCategory);
+                } else {
+                  setTeamStatCategory(category as TeamStatCategory);
+                }
               }}
-            >
-              <div>
-                <h2
-                  style={{
-                    margin: 0,
-                    fontSize: "28px",
-                    fontWeight: 900,
-                  }}
-                >
-                  Stats
-                </h2>
+              weekSelector={
+                statsMode === "weekly" && availableStatsWeeks.length > 0 ? (
+                  <div className="stats-panel-week-selector">
+                    <span>Week</span>
+                    {availableStatsWeeks.map((week) => (
+                      <button
+                        key={week}
+                        aria-pressed={statsWeek === week}
+                        onClick={() => setStatsWeek(week)}
+                      >
+                        {week}
+                      </button>
+                    ))}
+                  </div>
+                ) : undefined
+              }
+            />
 
-                <p
-                  style={{
-                    margin:
-                      "6px 0 0",
-                    color:
-                      "#64748b",
-                  }}
-                >
-                  {statsMode === "weekly"
-                    ? `NFL leaders — Week ${statsWeek ?? "latest"}`
-                    : "NFL season leaders"}
-                  {statsMode === "weekly" && " · Live updates every 30 seconds"}
-                </p>
+            {statsLoading ? (
+              <div
+                style={{
+                  padding: "32px",
+                  borderRadius: "12px",
+                  background: "#0f172a",
+                  border: "1px solid #1e293b",
+                  color: "#94a3b8",
+                }}
+              >
+                Loading NFL stats...
               </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                flexWrap: "wrap",
-                marginBottom:
-                  "20px",
-              }}
-            >
-              <button
-                aria-pressed={statsMode === "weekly"}
-                onClick={() => setStatsMode("weekly")}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                }}
-              >
-                Weekly
-              </button>
-
-              <button
-                aria-pressed={statsMode === "season"}
-                onClick={() => setStatsMode("season")}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                }}
-              >
-                Season
-              </button>
-
-              <button
-                aria-pressed={statsView === "players"}
-                onClick={() =>
-                  setStatsView(
-                    "players"
-                  )
+            ) : (
+              <StatsLeaderboardTable
+                title={`${
+                  statsView === "players" ? "Individual" : "Team"
+                } ${
+                  statsView === "players"
+                    ? getStatLabel()
+                    : getTeamCategoryName()
+                }`}
+                subtitle={
+                  statsMode === "weekly"
+                    ? `Week ${statsWeek ?? "latest"} leaders`
+                    : "2026 season leaders"
                 }
-                style={{
-                  padding:
-                    "10px 16px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid",
-                  borderColor:
-                    statsView ===
-                    "players"
-                      ? "#ef4444"
-                      : "#334155",
-                  background:
-                    statsView ===
-                    "players"
-                      ? "#3f0d12"
-                      : "#0f172a",
-                  color:
-                    statsView ===
-                    "players"
-                      ? "#fca5a5"
-                      : "#94a3b8",
-                  fontWeight:
-                    900,
-                  cursor:
-                    "pointer",
-                }}
-              >
-                👤 Player Leaders
-              </button>
+                rows={statsLeaderboardRows}
+                showTeam={statsView === "players"}
+              />
+            )}
 
-              <button
-                aria-pressed={statsView === "teams"}
-                onClick={() =>
-                  setStatsView(
-                    "teams"
-                  )
-                }
-                style={{
-                  padding:
-                    "10px 16px",
-                  borderRadius:
-                    "8px",
-                  border:
-                    "1px solid",
-                  borderColor:
-                    statsView === "teams"
-                      ? "#ef4444"
-                      : "#334155",
-                  background:
-                    statsView === "teams"
-                      ? "#3f0d12"
-                      : "#0f172a",
-                  color:
-                    statsView === "teams"
-                      ? "#fca5a5"
-                      : "#94a3b8",
-                  fontWeight:
-                    900,
-                  cursor:
-                    "pointer",
-                }}
-              >
-                🏈 Team Leaders
-              </button>
-            </div>
-
-            {statsView ===
+            {false && statsView ===
               "players" && (
               <>
                 <div
@@ -2824,7 +2745,7 @@ function getPerformanceReason(
               </>
             )}
 
-            {statsView ===
+            {false && statsView ===
               "teams" && (
               <>
                 <div
@@ -2845,20 +2766,32 @@ function getPerformanceReason(
                         "Total Offense",
                       ],
                       [
-                        "passing",
-                        "Passing",
+                        "rushing-offense",
+                        "Rushing Offense",
                       ],
                       [
-                        "rushing",
-                        "Rushing",
+                        "passing-offense",
+                        "Passing Offense",
                       ],
                       [
-                        "points",
-                        "Points",
+                        "scoring-offense",
+                        "Scoring Offense",
                       ],
                       [
-                        "defense",
-                        "Defense",
+                        "total-defense",
+                        "Total Defense",
+                      ],
+                      [
+                        "rushing-defense",
+                        "Rushing Defense",
+                      ],
+                      [
+                        "passing-defense",
+                        "Passing Defense",
+                      ],
+                      [
+                        "scoring-defense",
+                        "Scoring Defense",
                       ],
                       [
                         "sacks",

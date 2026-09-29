@@ -199,6 +199,9 @@ if (defensiveStats?.totals) {
               "passing",
               "rushing",
               "receiving",
+              "defensive",
+              "interceptions",
+              "fumbles",
             ].includes(categoryName)
           ) {
             continue;
@@ -231,11 +234,16 @@ if (defensiveStats?.totals) {
               const label =
                 labels[index];
 
-              if (
-                !["YDS", "TD", "INT"].includes(
-                  label
-                )
-              ) {
+              const supportedLabels =
+                categoryName === "defensive"
+                  ? ["TOT", "SACKS", "TFL", "PD", "TD", "INT", "FF", "FR"]
+                  : categoryName === "interceptions"
+                    ? ["INT", "TD"]
+                    : categoryName === "fumbles"
+                      ? ["REC"]
+                  : ["YDS", "TD", "INT"];
+
+              if (!supportedLabels.includes(label)) {
                 continue;
               }
 
@@ -254,6 +262,15 @@ if (defensiveStats?.totals) {
                 continue;
               }
 
+              const defensiveStat =
+                categoryName === "interceptions"
+                  ? label === "TD"
+                    ? "TD"
+                    : "INT"
+                  : categoryName === "fumbles"
+                    ? "FR"
+                    : label;
+
               playerStats.push({
                 playerId: Number(
                   player.id
@@ -261,8 +278,13 @@ if (defensiveStats?.totals) {
                 player:
                   player.displayName,
                 team: teamName,
-                category: categoryName,
-                stat: label,
+                category:
+                  categoryName === "defensive" ||
+                  categoryName === "interceptions" ||
+                  categoryName === "fumbles"
+                    ? "defensive"
+                    : categoryName,
+                stat: defensiveStat,
                 value: numericValue,
                 gameId,
                 opponent,

@@ -23,11 +23,11 @@ export default function Home() {
             fontSize: "14px",
             fontWeight: 900,
             letterSpacing: "0.12em",
-            color: "#60a5fa",
+            color: "#ffc720",
             marginBottom: "12px",
           }}
         >
-          FOOTBALL COMMAND CENTER
+          AAW FOOTBALL AND CONTENT HUB
         </div>
 
         <h1
@@ -35,12 +35,12 @@ export default function Home() {
             fontSize: "clamp(42px, 7vw, 72px)",
             lineHeight: 1,
             margin: "0 0 20px",
-            fontWeight: 900,
+            fontWeight: 1000,
           }}
         >
-          Your Football
+          AAW FOOTBALL
           <br />
-          Intelligence Hub
+          AND CONTENT HUB
         </h1>
 
         <p
@@ -77,12 +77,9 @@ export default function Home() {
                 borderRadius: "16px",
                 background: "#0f172a",
                 border: "1px solid #334155",
-                minHeight: "220px",
+                minHeight: "120px",
               }}
             >
-              <div style={{ fontSize: "42px", marginBottom: "20px" }}>
-                🏈
-              </div>
 
               <div
                 style={{
@@ -91,22 +88,12 @@ export default function Home() {
                   marginBottom: "8px",
                 }}
               >
-                CFB
+                CFB PORTAL
               </div>
 
               <div
                 style={{
-                  color: "#94a3b8",
-                  fontSize: "16px",
-                  marginBottom: "28px",
-                }}
-              >
-                College Football
-              </div>
-
-              <div
-                style={{
-                  color: "#60a5fa",
+                  color: "#FF6B00",
                   fontWeight: 900,
                 }}
               >
@@ -128,12 +115,9 @@ export default function Home() {
                 borderRadius: "16px",
                 background: "#0f172a",
                 border: "1px solid #334155",
-                minHeight: "220px",
+                minHeight: "120px",
               }}
             >
-              <div style={{ fontSize: "42px", marginBottom: "20px" }}>
-                🏈
-              </div>
 
               <div
                 style={{
@@ -142,22 +126,12 @@ export default function Home() {
                   marginBottom: "8px",
                 }}
               >
-                NFL
+                NFL PORTAL
               </div>
 
               <div
                 style={{
-                  color: "#94a3b8",
-                  fontSize: "16px",
-                  marginBottom: "28px",
-                }}
-              >
-                National Football League
-              </div>
-
-              <div
-                style={{
-                  color: "#ef4444",
+                  color: "#ffc720",
                   fontWeight: 900,
                 }}
               >

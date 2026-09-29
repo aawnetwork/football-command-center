@@ -30,7 +30,14 @@ export function GameCard({
 }: GameCardProps) {
   return (
     <article className="game-card">
-      <div className="game-card__status">{status}</div>
+      <div className="game-card__status-row">
+        <div className="game-card__status">{status}</div>
+        {indicator && (
+          <div className="game-card__indicator" style={{ color: indicator.color }}>
+            {indicator.label}
+          </div>
+        )}
+      </div>
 
       <div className="game-card__teams">
         <div className="game-card__team-row">
@@ -53,11 +60,6 @@ export function GameCard({
       </div>
 
       <div className="game-card__footer">
-        {indicator && (
-          <div className="game-card__indicator" style={{ color: indicator.color }}>
-            {indicator.label}
-          </div>
-        )}
         <div className="game-card__time">{time}</div>
         {footer}
       </div>
