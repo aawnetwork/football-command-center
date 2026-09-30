@@ -257,6 +257,198 @@
 .command-center th { color: var(--cc-muted) !important; }
 .command-center td { border-color: var(--cc-border) !important; }
 
+.football-snapshot {
+  min-height: 100vh;
+  padding: 40px 24px 56px;
+  background: #0b1f33;
+  color: #f8fafc;
+  font-family: var(--font-montserrat), Arial, ui-sans-serif, system-ui, sans-serif;
+}
+
+.football-snapshot__container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.football-snapshot__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #24334b;
+}
+
+.football-snapshot__eyebrow,
+.football-snapshot__intro p,
+.football-snapshot__league-heading p,
+.football-snapshot__explore p {
+  margin: 0 0 8px;
+  color: #ffc720;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.football-snapshot h1 {
+  margin: 0;
+  font-family: var(--font-bebas-neue), Impact, sans-serif;
+  font-size: clamp(52px, 7vw, 76px);
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: .86;
+}
+
+.football-snapshot__subtitle {
+  margin: 12px 0 0;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.football-snapshot__brand {
+  width: 190px;
+  height: 42px;
+  flex: 0 0 auto;
+  background-image: url("/aaw-network.png");
+  background-repeat: no-repeat;
+  background-position: center 58%;
+  background-size: 190px 190px;
+}
+
+.football-snapshot__intro,
+.football-snapshot__explore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid #24334b;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #111c31, #0f172a);
+}
+
+.football-snapshot__intro h2,
+.football-snapshot__explore h2 {
+  margin: 0;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.18;
+}
+
+.football-snapshot__intro span {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 1px solid #24334b;
+  border-radius: 999px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.football-snapshot__leagues {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.football-snapshot__league {
+  overflow: hidden;
+  border: 1px solid #24334b;
+  border-radius: 14px;
+  background: #0f172a;
+}
+
+.football-snapshot__league-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid #24334b;
+}
+
+.football-snapshot__league-heading h2 {
+  margin: 0;
+  font-family: var(--font-bebas-neue), Impact, sans-serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: .9;
+}
+
+.football-snapshot__league--cfb .football-snapshot__league-heading p { color: #ff6b00; }
+.football-snapshot__league--nfl .football-snapshot__league-heading p { color: #ffc720; }
+
+.football-snapshot__league-heading a,
+.football-snapshot__explore-link {
+  color: #f8fafc;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.football-snapshot__league-heading a span,
+.football-snapshot__explore-link span { margin-left: 5px; }
+
+.football-snapshot__game-list { padding: 0 22px; }
+
+.football-snapshot__game {
+  display: grid;
+  gap: 7px;
+  padding: 17px 0;
+  border-bottom: 1px solid #24334b;
+}
+
+.football-snapshot__game:last-child { border-bottom: 0; }
+
+.football-snapshot__game-flag {
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.football-snapshot__league--cfb .football-snapshot__game-flag { color: #ff8f47; }
+.football-snapshot__league--nfl .football-snapshot__game-flag { color: #ffe17a; }
+
+.football-snapshot__game strong { font-size: 15px; line-height: 1.4; }
+.football-snapshot__game strong span { color: #64748b; }
+.football-snapshot__game small { color: #94a3b8; font-size: 12px; font-weight: 700; }
+
+.football-snapshot__empty {
+  margin: 0;
+  padding: 24px 22px;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.football-snapshot__explore { margin-top: 16px; }
+.football-snapshot__explore > div:last-child { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.football-snapshot__explore-link {
+  display: inline-flex;
+  padding: 10px 13px;
+  border: 1px solid #3b4d69;
+  border-radius: 8px;
+}
+
+.football-snapshot__explore-link--cfb { border-color: #ff6b00; }
+.football-snapshot__explore-link--nfl { border-color: #ffc720; }
+
+@media (max-width: 700px) {
+  .football-snapshot { padding: 28px 16px 40px; }
+  .football-snapshot__header,
+  .football-snapshot__intro,
+  .football-snapshot__explore { align-items: flex-start; flex-direction: column; }
+  .football-snapshot__brand { order: -1; }
+  .football-snapshot__leagues { grid-template-columns: 1fr; }
+}
+
 .all-time-panel {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
