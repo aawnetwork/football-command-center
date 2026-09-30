@@ -93,10 +93,16 @@ export function parseBroadcastCsv(input: string): CsvRow[] {
   });
 }
 
-function dateToEspnFormat(value: string) {
+function dateToEspnFormats(value: string) {
   const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return null;
-  return `${match[3]}${match[2]}${match[1]}`;
+
+  const date = new Date(Date.UTC(Number(match[3]), Number(match[2]) - 1, Number(match[1]), 12));
+  return [-1, 0, 1].map((offset) => {
+    const candidate = new Date(date);
+    candidate.setUTCDate(candidate.getUTCDate() + offset);
+    return `${candidate.getUTCFullYear()}${String(candidate.getUTCMonth() + 1).padStart(2, "0")}${String(candidate.getUTCDate()).padStart(2, "0")}`;
+  });
 }
 
 function normaliseTeam(value: string) {
@@ -153,7 +159,7 @@ export function matchBroadcastRows(rows: CsvRow[], games: ScheduledGame[]): Broa
 }
 
 export async function loadGamesForBroadcastDates(league: BroadcastLeague, dates: string[]) {
-  const requestedDates = [...new Set(dates.map(dateToEspnFormat).filter((date): date is string => Boolean(date)))];
+  const requestedDates = [...new Set(dates.flatMap((date) => dateToEspnFormats(date) ?? []))];
   const sportPath = league === "NFL" ? "nfl" : "college-football";
   const responses = await Promise.all(requestedDates.map(async (date) => {
     const url = new URL(`https://site.api.espn.com/apis/site/v2/sports/football/${sportPath}/scoreboard`);
