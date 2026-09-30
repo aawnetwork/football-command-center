@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { NflGamesGrid } from "../features/games/NflGamesGrid";
+import { StandingsPanel } from "../features/standings/StandingsPanel";
 import { NflPerformanceCard } from "../features/performances/NflPerformanceCard";
 import {
   PerformancePositionControls,
@@ -1191,6 +1192,7 @@ function getPerformanceReason(
               ["games", "🏈 Games"],
 ["performances", "🔥 Performances"],
 ["stats", "📊 Stats"],
+["standings", "📋 Standings"],
 ["all-time", "🏆 All-Time"],
 ["content", "🚨 Content"],
             ] as [Tab, string][]
@@ -2392,6 +2394,8 @@ function getPerformanceReason(
             onPeriodChange={setAllTimePeriod}
           />
         )}
+
+        {activeTab === "standings" && <StandingsPanel sport="NFL" />}
 
         {activeTab === "content" && <ContentPanel sport="NFL" />}
 

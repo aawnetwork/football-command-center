@@ -79,7 +79,7 @@ export type TeamStatCategory =
 
 export type StatsView = "players" | "teams";
 
-export type Tab = "games" | "stats" | "performances" | "all-time" | "content";
+export type Tab = "games" | "stats" | "performances" | "standings" | "all-time" | "content";
 
 export type PerformanceWeek = number;
 

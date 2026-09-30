@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
+import { StandingsPanel } from "../features/standings/StandingsPanel";
 import {
   PerformancePositionControls,
   type PerformancePosition,
@@ -853,6 +854,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   ["games", "🏈 Games"],
   ["performances", "🔥 Performances"],
   ["stats", "📊 Stats"],
+  ["standings", "📋 Standings"],
   ["all-time", "🏆 All-Time"],
   ["content", "🚨 Content"],
 ].map(([id, label]) => (
@@ -1822,6 +1824,8 @@ selectedCategory === "scoring-defense"
             onPeriodChange={setAllTimePeriod}
           />
         )}
+
+        {activeTab === "standings" && <StandingsPanel sport="CFB" />}
 
         {activeTab === "content" && <ContentPanel sport="CFB" />}
       </div>

@@ -574,9 +574,132 @@
   line-height: 1.5;
 }
 
+.standings-panel {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.standings-panel__header h2,
+.standings-panel__header p {
+  margin: 0;
+}
+
+.standings-panel__header p,
+.standings-panel__empty {
+  color: var(--cc-muted);
+  line-height: 1.6;
+}
+
+.standings-panel__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.standings-panel__filters button {
+  padding: 8px 12px;
+  border: 1px solid var(--cc-border);
+  border-radius: 8px;
+  background: var(--cc-surface-raised);
+  color: var(--cc-muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.standings-panel__filters button[aria-pressed="true"] {
+  border-color: var(--cc-accent);
+  background: var(--cc-accent-soft);
+  color: var(--cc-text);
+}
+
+.standings-panel__empty {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px dashed var(--cc-border);
+  border-radius: 9px;
+}
+
+.standings-panel__groups {
+  display: grid;
+  gap: 28px;
+  margin-top: 26px;
+}
+
+.standings-panel__conference > h3,
+.standings-panel__table-wrap > h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+
+.standings-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.standings-panel__table-wrap {
+  overflow: hidden;
+  border: 1px solid var(--cc-border);
+  border-radius: 10px;
+  background: var(--cc-surface-raised);
+}
+
+.standings-panel__table-wrap > h3 {
+  padding: 16px 16px 0;
+}
+
+.standings-panel__scroll { overflow-x: auto; }
+
+.standings-panel table {
+  width: 100%;
+  min-width: 450px;
+  border-collapse: collapse;
+}
+
+.standings-panel th,
+.standings-panel td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--cc-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.standings-panel th {
+  color: var(--cc-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.standings-panel td {
+  color: var(--cc-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.standings-panel__team {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 900;
+}
+
+.standings-panel__team img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 @media (max-width: 640px) {
   .command-center { padding: 28px 16px !important; }
   .command-center--nfl .command-center__game-grid { grid-template-columns: 1fr !important; }
   .content-panel { padding: 18px; }
   .content-panel__item { padding: 13px; }
+  .standings-panel { padding: 18px; }
+  .standings-panel__grid { grid-template-columns: 1fr; }
 }
