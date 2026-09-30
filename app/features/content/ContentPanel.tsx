@@ -82,13 +82,19 @@ const compactTeamName = (team: string) =>
     .replace(/[^a-z0-9]/g, "")
     .trim();
 
-const isRivalry = (game: Game) => {
+const getRivalry = (game: Game) => {
   const home = compactTeamName(game.homeTeam);
   const away = compactTeamName(game.awayTeam);
-  return rivalries.some(({ teams }) => {
+  return rivalries.find(({ teams }) => {
     const [first, second] = teams.map(compactTeamName);
     return (home === first && away === second) || (home === second && away === first);
   });
+};
+
+const rivalryLabel = (game: Game) => {
+  const rivalry = getRivalry(game);
+  if (!rivalry) return null;
+  return `🏆 ${rivalry.name.toUpperCase()}${rivalry.trophy ? ` · ${rivalry.trophy.toUpperCase()}` : ""}`;
 };
 
 const gameTime = (date: string) =>
@@ -186,7 +192,7 @@ export function ContentPanel({ sport }: ContentPanelProps) {
       }
 
       const labels = [
-        isRivalry(game) ? "🏆 RIVALRY" : null,
+        rivalryLabel(game),
         game.homeRank && game.awayRank && game.homeRank <= 10 && game.awayRank <= 10 ? "🔥 TOP-10 SHOWDOWN" : null,
         game.homeRank && game.awayRank ? "📈 RANKED MATCHUP" : null,
       ].filter(Boolean);
@@ -203,7 +209,7 @@ export function ContentPanel({ sport }: ContentPanelProps) {
     .flatMap((game) => {
       const labels = [
         isUpset(game) ? "🚨 UPSET" : null,
-        isRivalry(game) ? "🏆 RIVALRY RESULT" : null,
+        rivalryLabel(game) ? `🏆 ${getRivalry(game)?.name.toUpperCase()} RESULT` : null,
         game.homeRank && game.awayRank && game.homeRank <= 10 && game.awayRank <= 10 ? "🔥 TOP-10 SHOWDOWN" : null,
       ].filter(Boolean);
       if (!labels.length) return [];
