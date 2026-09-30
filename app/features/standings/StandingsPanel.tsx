@@ -264,6 +264,6 @@ function StandingTable({ section, sport }: { section: StandingSection; sport: Le
 function PollTable({ entries }: { entries: PollEntry[] }) {
   return <article className="standings-panel__table-wrap"><div className="standings-panel__scroll"><table>
     <thead><tr><th>Rank</th><th>Team</th><th>Record</th><th>Last week</th><th>Points</th></tr></thead>
-    <tbody>{entries.map((entry) => <tr key={entry.abbreviation || entry.team}><td>{entry.rank}</td><td><span className="standings-panel__team">{entry.logo && <img src={entry.logo} alt="" />}{entry.team}</span></td><td>{entry.record}</td><td>{entry.previousRank ?? "—"}</td><td>{entry.points?.toLocaleString() ?? "—"}</td></tr>)}</tbody>
+    <tbody>{entries.map((entry) => <tr key={entry.abbreviation || entry.team}><td>{entry.rank}</td><td><span className="standings-panel__team">{entry.logo && <img src={entry.logo} alt="" />}{entry.team}</span></td><td>{entry.record}</td><td>{entry.previousRank ?? "NR"}</td><td>{entry.points?.toLocaleString() ?? "—"}</td></tr>)}</tbody>
   </table></div></article>;
 }

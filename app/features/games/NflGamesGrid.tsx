@@ -1,7 +1,6 @@
 import { GameCard } from "../../components/GameCard";
 import {
   formatGameTime,
-  getNflDivisionalIndicator,
   getNflInternationalIndicator,
   getNflPrimeTimeIndicator,
   tierInfo,
@@ -28,8 +27,7 @@ export function NflGamesGrid({
         const suggestedTier = game.importance ?? "C";
         const indicator =
           getNflInternationalIndicator(game) ??
-          getNflPrimeTimeIndicator(game) ??
-          getNflDivisionalIndicator(game);
+          getNflPrimeTimeIndicator(game);
 
         return (
           <GameCard

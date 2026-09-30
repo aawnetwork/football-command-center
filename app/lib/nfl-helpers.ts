@@ -1,7 +1,4 @@
-import {
-  nflDivisionByTeam,
-  nflTeamNameByAbbreviation,
-} from "../nfl/data/divisions";
+import { nflTeamNameByAbbreviation } from "../nfl/data/divisions";
 
 // Shared NFL types and pure helper functions.
 // Extracted from app/nfl/page.tsx on [today's date].
@@ -167,20 +164,6 @@ export function getNflInternationalIndicator(game: NFLGame) {
   return {
     label: `🌍 INTERNATIONAL GAME${location ? ` · ${location.toUpperCase()}` : ""}`,
     color: "#34d399",
-  };
-}
-
-export function getNflDivisionalIndicator(game: NFLGame) {
-  const homeDivision = nflDivisionByTeam[game.homeTeam];
-  const awayDivision = nflDivisionByTeam[game.awayTeam];
-
-  if (!homeDivision || homeDivision !== awayDivision) {
-    return null;
-  }
-
-  return {
-    label: `🏈 ${homeDivision.toUpperCase()} MATCHUP`,
-    color: "#38bdf8",
   };
 }
 

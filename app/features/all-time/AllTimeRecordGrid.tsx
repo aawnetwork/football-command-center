@@ -32,7 +32,10 @@ export function AllTimeRecordGrid({
             <span>{title}</span>
             <small>Top {Math.min(10, records.length)} of {records.length}</small>
           </div>
-          {records.slice(0, 10).map((record) => {
+          {[...records]
+            .sort((left, right) => right.value - left.value || left.player.localeCompare(right.player))
+            .slice(0, 10)
+            .map((record, index) => {
             const isActive = record.isActive ?? /(?:^|\D)2026(?:\D|$)/.test(record.years);
 
             return (
@@ -40,7 +43,7 @@ export function AllTimeRecordGrid({
                 className={`all-time-record-row${isActive ? " all-time-record-row--active" : ""}`}
                 key={`${title}-${record.rank}-${record.player}`}
               >
-                <span className="all-time-record-row__rank">{record.rank}</span>
+                <span className="all-time-record-row__rank">{index + 1}</span>
                 <div className="all-time-record-row__player">
                   <div>
                     {record.player}

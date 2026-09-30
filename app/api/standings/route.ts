@@ -44,7 +44,7 @@ const normaliseEntry = (entry: any, league: League) => {
 
 const normalisePollEntry = (rank: any): PollEntry => ({
   rank: Number(rank.current),
-  previousRank: Number.isFinite(Number(rank.previous)) ? Number(rank.previous) : null,
+  previousRank: Number(rank.previous) > 0 ? Number(rank.previous) : null,
   team: rank.team?.displayName ?? `${rank.team?.location ?? ""} ${rank.team?.name ?? ""}`.trim(),
   abbreviation: rank.team?.abbreviation ?? "",
   logo: rank.team?.logos?.[0]?.href ?? rank.team?.logo ?? null,
