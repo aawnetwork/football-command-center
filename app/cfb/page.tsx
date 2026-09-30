@@ -294,7 +294,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     }
 
     let cancelled = false;
-    fetch(`/api/broadcast-availability?gameIds=${games.map((game) => game.id).join(",")}`)
+    fetch(`/api/broadcast-availability?league=CFB&gameIds=${games.map((game) => game.id).join(",")}`)
       .then((response) => response.ok ? response.json() : { availability: [] })
       .then((data: { availability?: BroadcastAvailability[] }) => {
         if (cancelled) return;

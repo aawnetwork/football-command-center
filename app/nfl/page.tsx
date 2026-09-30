@@ -12,6 +12,7 @@ import {
 } from "../features/performances/PerformancePositionControls";
 import { StatsLeaderboardTable } from "../features/stats/StatsLeaderboardTable";
 import { StatsPanelControls } from "../features/stats/StatsPanelControls";
+import type { BroadcastAvailability } from "../lib/broadcast-availability";
 
 import {
   tierInfo,
@@ -52,6 +53,7 @@ export default function NFLPage() {
   const [loading, setLoading] =
     useState(true);
   const [gamesError, setGamesError] = useState<string | null>(null);
+  const [broadcastAvailability, setBroadcastAvailability] = useState<Record<number, BroadcastAvailability["platforms"]>>({});
 
   const [statsLoading, setStatsLoading] =
     useState(false);
@@ -242,6 +244,29 @@ export default function NFLPage() {
       clearInterval(interval);
     };
   }, [selectedGameWeek]);
+
+  useEffect(() => {
+    if (!games.length) {
+      setBroadcastAvailability({});
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`/api/broadcast-availability?league=NFL&gameIds=${games.map((game) => game.id).join(",")}`)
+      .then((response) => response.ok ? response.json() : { availability: [] })
+      .then((data: { availability?: BroadcastAvailability[] }) => {
+        if (!cancelled) {
+          setBroadcastAvailability(Object.fromEntries((data.availability ?? []).map((entry) => [entry.gameId, entry.platforms])));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setBroadcastAvailability({});
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [games]);
 
   useEffect(() => {
     async function loadStats() {
@@ -1476,6 +1501,7 @@ function getPerformanceReason(
               <NflGamesGrid
                 games={filteredGames}
                 gameTiers={gameTiers}
+                broadcastAvailability={broadcastAvailability}
                 onSetTier={setGameTier}
               />
             )}

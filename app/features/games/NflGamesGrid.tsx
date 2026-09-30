@@ -1,4 +1,5 @@
 import { GameCard } from "../../components/GameCard";
+import type { BroadcastAvailability } from "../../lib/broadcast-availability";
 import {
   formatGameTime,
   getNflInternationalIndicator,
@@ -12,12 +13,14 @@ import { GameTierControls } from "./GameTierControls";
 type NflGamesGridProps = {
   games: NFLGame[];
   gameTiers: Record<number, NFLTier>;
+  broadcastAvailability: Record<number, BroadcastAvailability["platforms"]>;
   onSetTier: (gameId: number, tier: NFLTier) => void;
 };
 
 export function NflGamesGrid({
   games,
   gameTiers,
+  broadcastAvailability,
   onSetTier,
 }: NflGamesGridProps) {
   return (
@@ -42,12 +45,17 @@ export function NflGamesGrid({
             time={formatGameTime(game.startDate)}
             indicator={indicator}
             footer={
-              <GameTierControls
-                tier={tier}
-                suggestedTier={suggestedTier}
-                tiers={tierInfo}
-                onSelect={(nextTier) => onSetTier(game.id, nextTier)}
-              />
+              <>
+                {broadcastAvailability[game.id]?.length ? (
+                  <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
+                ) : null}
+                <GameTierControls
+                  tier={tier}
+                  suggestedTier={suggestedTier}
+                  tiers={tierInfo}
+                  onSelect={(nextTier) => onSetTier(game.id, nextTier)}
+                />
+              </>
             }
           />
         );

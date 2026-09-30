@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 
 import {
-  loadCfbGamesForBroadcastDates,
+  loadGamesForBroadcastDates,
   matchBroadcastRows,
   parseBroadcastCsv,
   type BroadcastAvailability,
+  type BroadcastLeague,
 } from "../../lib/broadcast-availability";
 
 export const runtime = "nodejs";
@@ -21,17 +22,23 @@ function isAuthorised(request: Request) {
   return Boolean(token && request.headers.get("x-broadcast-import-token") === token);
 }
 
+function parseLeague(value: string | null): BroadcastLeague | null {
+  return value === "CFB" || value === "NFL" ? value : null;
+}
+
 export async function GET(request: Request) {
   if (!isConfigured()) return NextResponse.json({ error: "Broadcast storage is not configured." }, { status: 503 });
 
-  const gameIds = new URL(request.url).searchParams.get("gameIds")
+  const url = new URL(request.url);
+  const league = parseLeague(url.searchParams.get("league")) ?? "CFB";
+  const gameIds = url.searchParams.get("gameIds")
     ?.split(",")
     .map(Number)
     .filter(Number.isFinite) ?? [];
   if (!gameIds.length) return NextResponse.json({ availability: [] });
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/broadcast_availability?league=eq.CFB&event_id=in.(${gameIds.join(",")})&select=event_id,dazn,disney_plus`,
+    `${supabaseUrl}/rest/v1/broadcast_availability?league=eq.${league}&event_id=in.(${gameIds.join(",")})&select=event_id,dazn,disney_plus`,
     { headers: { apikey: supabaseSecret!, Authorization: `Bearer ${supabaseSecret!}` }, cache: "no-store" },
   );
   if (!response.ok) return NextResponse.json({ error: "Unable to load broadcast availability." }, { status: 502 });
@@ -51,13 +58,15 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const file = formData.get("file");
   const mode = formData.get("mode");
+  const league = parseLeague(formData.get("league")?.toString() ?? null);
+  if (!league) return NextResponse.json({ error: "Choose CFB or NFL." }, { status: 400 });
   if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".csv")) {
     return NextResponse.json({ error: "Choose a CSV file." }, { status: 400 });
   }
 
   try {
     const rows = parseBroadcastCsv(await file.text());
-    const games = await loadCfbGamesForBroadcastDates(rows.map((row) => row.date));
+    const games = await loadGamesForBroadcastDates(league, rows.map((row) => row.date));
     const result = matchBroadcastRows(rows, games);
 
     if (mode !== "commit") {
@@ -65,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     const payload = result.matched.map(({ row, game }) => ({
-      league: "CFB",
+      league,
       event_id: game.id,
       event_date: game.startDate,
       away_team: game.awayTeam,

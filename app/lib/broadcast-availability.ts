@@ -1,4 +1,5 @@
 export type BroadcastPlatform = "DAZN" | "Disney+";
+export type BroadcastLeague = "CFB" | "NFL";
 
 export type BroadcastAvailability = {
   gameId: number;
@@ -151,11 +152,12 @@ export function matchBroadcastRows(rows: CsvRow[], games: ScheduledGame[]): Broa
   return { matched, unmatched, skipped };
 }
 
-export async function loadCfbGamesForBroadcastDates(dates: string[]) {
+export async function loadGamesForBroadcastDates(league: BroadcastLeague, dates: string[]) {
   const requestedDates = [...new Set(dates.map(dateToEspnFormat).filter((date): date is string => Boolean(date)))];
+  const sportPath = league === "NFL" ? "nfl" : "college-football";
   const responses = await Promise.all(requestedDates.map(async (date) => {
-    const url = new URL("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard");
-    url.searchParams.set("groups", "80");
+    const url = new URL(`https://site.api.espn.com/apis/site/v2/sports/football/${sportPath}/scoreboard`);
+    if (league === "CFB") url.searchParams.set("groups", "80");
     url.searchParams.set("limit", "500");
     url.searchParams.set("dates", date);
     const response = await fetch(url, { cache: "no-store" });
