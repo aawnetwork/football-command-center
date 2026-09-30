@@ -391,6 +391,11 @@ export default function NFLPage() {
     });
   }
 
+  function clearGameTiers() {
+    setGameTiers({});
+    setSelectedGameTier("ALL");
+  }
+
   const filteredGames = useMemo(() => {
     if (selectedGameTier === "ALL") {
       return games;
@@ -1395,6 +1400,21 @@ function getPerformanceReason(
                   {tierInfo[tier].emoji} {tier}
                 </button>
               ))}
+              <button
+                onClick={clearGameTiers}
+                disabled={Object.keys(gameTiers).length === 0}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #475569",
+                  background: "transparent",
+                  color: Object.keys(gameTiers).length === 0 ? "#64748b" : "#cbd5e1",
+                  cursor: Object.keys(gameTiers).length === 0 ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                Clear selections
+              </button>
             </div>
 
             {gamesError ? (

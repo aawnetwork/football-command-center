@@ -640,6 +640,11 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     });
   }
 
+  function clearGameTiers() {
+    setTiers({});
+    setSelectedTier("ALL");
+  }
+
   function getPerformanceResult(
     performance: BigPerformance
   ) {
@@ -1063,6 +1068,21 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   {tier}
                 </button>
               ))}
+              <button
+                onClick={clearGameTiers}
+                disabled={Object.keys(tiers).length === 0}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #475569",
+                  background: "transparent",
+                  color: Object.keys(tiers).length === 0 ? "#64748b" : "#cbd5e1",
+                  cursor: Object.keys(tiers).length === 0 ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                Clear selections
+              </button>
             </div>
 
             {gamesError ? (
