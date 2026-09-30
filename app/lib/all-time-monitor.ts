@@ -75,7 +75,7 @@ type MonitorStore = {
   lastCheckedAt?: string;
 };
 
-const monitorCatalogVersion = "nflverse-active-career-v1";
+const monitorCatalogVersion = "espn-active-career-v3";
 
 const storePath = path.join(process.cwd(), "data", "all-time-monitor.json");
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -174,9 +174,6 @@ const buildNflCareerRecords = (
   Object.entries(nflAllTimeCareerIndividual).reduce<Record<NflAllTimeCategory, CatalogRecord[]>>(
     (recordSets, [category, staticRecords]) => {
       const typedCategory = category as NflAllTimeCategory;
-      const staticByPlayer = new Map(
-        staticRecords.map((record) => [normalizePlayer(record.player), record]),
-      );
       const livePlayers = new Set(
         liveSource.categories[typedCategory].map((record) => normalizePlayer(record.player)),
       );
@@ -185,17 +182,15 @@ const buildNflCareerRecords = (
         .map((record) => ({ ...record }));
 
       for (const liveRecord of liveSource.categories[typedCategory]) {
-        const staticRecord = staticByPlayer.get(normalizePlayer(liveRecord.player));
-        // The record-book value is retained if the public live feed has not yet
-        // published a newer season. This prevents a source lag from moving a
-        // player backwards in the all-time table.
-        const value = Math.max(staticRecord?.value ?? 0, liveRecord.value);
         merged.push({
           rank: 0,
           player: liveRecord.player,
           team: liveRecord.team,
           years: liveRecord.years,
-          value,
+          // Active-player totals come from the complete nflverse season archive
+          // plus the current weekly file. Static record-book values are only a
+          // fallback for retired players, not an upper bound for live totals.
+          value: liveRecord.value,
           isActive: true,
         });
       }

@@ -177,7 +177,7 @@ export function NflAllTimePanel({
       <p className="all-time-panel__source">
         <strong>Historical source:</strong> NFL Record &amp; Fact Book,
         compiled by the Elias Sports Bureau. <strong>Active-player updates:</strong>{" "}
-        nflverse.
+        ESPN career stats, with roster status from nflverse.
       </p>
     </section>
   );
