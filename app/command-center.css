@@ -599,6 +599,36 @@
   margin-top: 22px;
 }
 
+.standings-panel__mode-switch,
+.standings-panel__week-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.standings-panel__mode-switch {
+  margin-top: 22px;
+}
+
+.standings-panel__mode-switch button,
+.standings-panel__week-switch button {
+  padding: 10px 15px;
+  border: 1px solid var(--cc-border);
+  border-radius: 8px;
+  background: var(--cc-surface-raised);
+  color: var(--cc-muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.standings-panel__mode-switch button[aria-pressed="true"],
+.standings-panel__week-switch button[aria-pressed="true"] {
+  border-color: var(--cc-accent);
+  background: var(--cc-accent-soft);
+  color: var(--cc-text);
+}
+
 .standings-panel__filters button {
   padding: 8px 12px;
   border: 1px solid var(--cc-border);
@@ -627,6 +657,23 @@
   display: grid;
   gap: 28px;
   margin-top: 26px;
+}
+
+.standings-panel__rankings {
+  margin-top: 22px;
+}
+
+.standings-panel__rankings-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.standings-panel__rankings-controls .standings-panel__mode-switch {
+  margin-top: 0;
+}
+
+.standings-panel__rankings .standings-panel__table-wrap {
+  margin-top: 22px;
 }
 
 .standings-panel__conference > h3,
