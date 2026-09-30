@@ -13,6 +13,7 @@ type GameCardProps = {
     label: string;
     color: string;
   } | null;
+  headerRight?: ReactNode;
   footer: ReactNode;
 };
 
@@ -26,6 +27,7 @@ export function GameCard({
   homeScore,
   time,
   indicator,
+  headerRight,
   footer,
 }: GameCardProps) {
   return (
@@ -37,6 +39,7 @@ export function GameCard({
             {indicator.label}
           </div>
         )}
+        {headerRight && <div className="game-card__header-right">{headerRight}</div>}
       </div>
 
       <div className="game-card__teams">

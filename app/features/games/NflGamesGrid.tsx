@@ -44,18 +44,18 @@ export function NflGamesGrid({
             homeScore={game.homePoints}
             time={formatGameTime(game.startDate)}
             indicator={indicator}
+            headerRight={
+              broadcastAvailability[game.id]?.length ? (
+                <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
+              ) : null
+            }
             footer={
-              <>
-                {broadcastAvailability[game.id]?.length ? (
-                  <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
-                ) : null}
-                <GameTierControls
-                  tier={tier}
-                  suggestedTier={suggestedTier}
-                  tiers={tierInfo}
-                  onSelect={(nextTier) => onSetTier(game.id, nextTier)}
-                />
-              </>
+              <GameTierControls
+                tier={tier}
+                suggestedTier={suggestedTier}
+                tiers={tierInfo}
+                onSelect={(nextTier) => onSetTier(game.id, nextTier)}
+              />
             }
           />
         );

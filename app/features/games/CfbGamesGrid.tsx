@@ -112,18 +112,18 @@ export function CfbGamesGrid({
             homeScore={game.homePoints}
             time={formatGameTime(game.startDate)}
             indicator={indicator}
+            headerRight={
+              broadcastAvailability[game.id]?.length ? (
+                <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
+              ) : null
+            }
             footer={
-              <>
-                {broadcastAvailability[game.id]?.length ? (
-                  <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
-                ) : null}
-                <GameTierControls
-                  tier={game.tier}
-                  suggestedTier={game.suggestedTier}
-                  tiers={tierInfo}
-                  onSelect={(tier) => onSetTier(game.id, tier)}
-                />
-              </>
+              <GameTierControls
+                tier={game.tier}
+                suggestedTier={game.suggestedTier}
+                tiers={tierInfo}
+                onSelect={(tier) => onSetTier(game.id, tier)}
+              />
             }
           />
         );

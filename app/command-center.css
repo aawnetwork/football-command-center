@@ -214,6 +214,10 @@
   letter-spacing: 0.04em;
 }
 
+.game-card__header-right {
+  margin-left: auto;
+}
+
 .game-card__time {
   font-weight: 700;
 }
@@ -234,7 +238,6 @@
 }
 
 .game-card__broadcast {
-  margin-bottom: 10px;
   color: #6ee7b7;
   font-size: 12px;
   font-weight: 900;
