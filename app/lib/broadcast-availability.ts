@@ -1,4 +1,4 @@
-export type BroadcastPlatform = "DAZN" | "Disney+";
+export type BroadcastPlatform = "DAZN" | "Disney+" | "Sky Sports" | "Channel 5";
 export type BroadcastLeague = "CFB" | "NFL";
 
 export type BroadcastAvailability = {
@@ -65,6 +65,8 @@ function platformList(value: string): BroadcastPlatform[] {
   const platforms: BroadcastPlatform[] = [];
   if (value.toLowerCase().includes("dazn")) platforms.push("DAZN");
   if (value.toLowerCase().includes("disney")) platforms.push("Disney+");
+  if (value.toLowerCase().includes("sky")) platforms.push("Sky Sports");
+  if (value.toLowerCase().includes("channel 5")) platforms.push("Channel 5");
   return platforms;
 }
 

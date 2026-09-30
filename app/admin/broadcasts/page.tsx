@@ -15,11 +15,11 @@ type Preview = {
 const leagueCopy: Record<League, { title: string; description: string }> = {
   CFB: {
     title: "CFB weekly CSV",
-    description: "Upload this week’s DAZN and Disney+ availability for college football.",
+    description: "Upload this week’s confirmed UK TV and streaming availability for college football.",
   },
   NFL: {
     title: "NFL weekly CSV",
-    description: "Upload this week’s confirmed DAZN availability for NFL games.",
+    description: "Upload this week’s confirmed UK TV and streaming availability for NFL games.",
   },
 };
 
@@ -85,7 +85,7 @@ export default function BroadcastImportPage() {
         </div>
         <div>
           <h2>Skipped <span>{preview.skipped.length}</span></h2>
-          {preview.skipped.length ? <ul>{preview.skipped.map((row) => <li key={row.matchup}><strong>{row.matchup}</strong><small>Not a game row or no supported platform.</small></li>)}</ul> : <p>No rows were skipped.</p>}
+          {preview.skipped.length ? <ul>{preview.skipped.map((row) => <li key={row.matchup}><strong>{row.matchup}</strong><small>Not a game row or no recognised UK broadcaster.</small></li>)}</ul> : <p>No rows were skipped.</p>}
         </div>
       </section>
     );

@@ -38,15 +38,20 @@ export async function GET(request: Request) {
   if (!gameIds.length) return NextResponse.json({ availability: [] });
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/broadcast_availability?league=eq.${league}&event_id=in.(${gameIds.join(",")})&select=event_id,dazn,disney_plus`,
+    `${supabaseUrl}/rest/v1/broadcast_availability?league=eq.${league}&event_id=in.(${gameIds.join(",")})&select=event_id,dazn,disney_plus,sky_sports,channel_5`,
     { headers: { apikey: supabaseSecret!, Authorization: `Bearer ${supabaseSecret!}` }, cache: "no-store" },
   );
   if (!response.ok) return NextResponse.json({ error: "Unable to load broadcast availability." }, { status: 502 });
 
-  const rows = await response.json() as { event_id: number; dazn: boolean; disney_plus: boolean }[];
+  const rows = await response.json() as { event_id: number; dazn: boolean; disney_plus: boolean; sky_sports: boolean; channel_5: boolean }[];
   const availability: BroadcastAvailability[] = rows.map((row) => ({
     gameId: row.event_id,
-    platforms: [row.dazn ? "DAZN" : null, row.disney_plus ? "Disney+" : null].filter((platform): platform is "DAZN" | "Disney+" => Boolean(platform)),
+    platforms: [
+      row.dazn ? "DAZN" : null,
+      row.disney_plus ? "Disney+" : null,
+      row.sky_sports ? "Sky Sports" : null,
+      row.channel_5 ? "Channel 5" : null,
+    ].filter((platform): platform is BroadcastAvailability["platforms"][number] => Boolean(platform)),
   }));
   return NextResponse.json({ availability });
 }
@@ -84,6 +89,8 @@ export async function POST(request: Request) {
       source_matchup: row.matchup,
       dazn: row.platforms.includes("DAZN"),
       disney_plus: row.platforms.includes("Disney+"),
+      sky_sports: row.platforms.includes("Sky Sports"),
+      channel_5: row.platforms.includes("Channel 5"),
     }));
 
     if (payload.length) {
