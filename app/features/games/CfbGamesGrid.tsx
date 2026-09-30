@@ -1,4 +1,5 @@
 import { GameCard } from "../../components/GameCard";
+import type { BroadcastAvailability } from "../../lib/broadcast-availability";
 import { formatGameTime } from "../../lib/cfb-helpers";
 import { GameTierControls } from "./GameTierControls";
 
@@ -63,6 +64,7 @@ type CfbGamesGridProps = {
   games: CfbGame[];
   upsets: UpsetSignal[];
   rivalryGames: RivalryGame[];
+  broadcastAvailability: Record<number, BroadcastAvailability["platforms"]>;
   onSetTier: (gameId: number, tier: CfbTier) => void;
   getStatus: (game: CfbGame) => string;
 };
@@ -71,6 +73,7 @@ export function CfbGamesGrid({
   games,
   upsets,
   rivalryGames,
+  broadcastAvailability,
   onSetTier,
   getStatus,
 }: CfbGamesGridProps) {
@@ -110,12 +113,17 @@ export function CfbGamesGrid({
             time={formatGameTime(game.startDate)}
             indicator={indicator}
             footer={
-              <GameTierControls
-                tier={game.tier}
-                suggestedTier={game.suggestedTier}
-                tiers={tierInfo}
-                onSelect={(tier) => onSetTier(game.id, tier)}
-              />
+              <>
+                {broadcastAvailability[game.id]?.length ? (
+                  <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
+                ) : null}
+                <GameTierControls
+                  tier={game.tier}
+                  suggestedTier={game.suggestedTier}
+                  tiers={tierInfo}
+                  onSelect={(tier) => onSetTier(game.id, tier)}
+                />
+              </>
             }
           />
         );

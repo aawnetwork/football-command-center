@@ -38,6 +38,7 @@ import type {
   UpsetSignal,
 } from "../lib/cfb-helpers";
 import { rivalries } from "./data/rivalries";
+import type { BroadcastAvailability } from "../lib/broadcast-availability";
 
 export default function Home() {
   const [activeTab, setActiveTab] =
@@ -55,6 +56,7 @@ export default function Home() {
   const [gamesLoading, setGamesLoading] =
     useState(true);
   const [gamesError, setGamesError] = useState<string | null>(null);
+  const [broadcastAvailability, setBroadcastAvailability] = useState<Record<number, BroadcastAvailability["platforms"]>>({});
 
   const [tiers, setTiers] =
     useState<Record<number, Tier>>({});
@@ -284,6 +286,28 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       JSON.stringify(tiers)
     );
   }, [tiers, tiersLoaded]);
+
+  useEffect(() => {
+    if (!games.length) {
+      setBroadcastAvailability({});
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`/api/broadcast-availability?gameIds=${games.map((game) => game.id).join(",")}`)
+      .then((response) => response.ok ? response.json() : { availability: [] })
+      .then((data: { availability?: BroadcastAvailability[] }) => {
+        if (cancelled) return;
+        setBroadcastAvailability(Object.fromEntries((data.availability ?? []).map((entry) => [entry.gameId, entry.platforms])));
+      })
+      .catch(() => {
+        if (!cancelled) setBroadcastAvailability({});
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [games]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1111,6 +1135,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 games={filteredGames}
                 upsets={upsets}
                 rivalryGames={rivalryGames}
+                broadcastAvailability={broadcastAvailability}
                 onSetTier={setGameTier}
                 getStatus={getGameStatus}
               />
