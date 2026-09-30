@@ -1872,7 +1872,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                               }
                             : game.rankedMatchup
                               ? {
-                                  label: "🏆 RANKED MATCHUP",
+                                  label: "📈 RANKED MATCHUP",
                                   color: "#fbbf24",
                                 }
                               : game.rankedTeamLost
@@ -2049,7 +2049,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
                                     "6px",
                                 }}
                               >
-                                🏆 RANKED MATCHUP
+                                📈 RANKED MATCHUP
                               </div>
                             )}
 

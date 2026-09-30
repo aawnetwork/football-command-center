@@ -182,8 +182,8 @@ export function FootballSnapshot() {
       <div className="football-snapshot__container">
         <header className="football-snapshot__header">
           <div>
-            <p className="football-snapshot__eyebrow">FOOTBALL COMMAND CENTRE</p>
-            <h1>FOOTBALL</h1>
+            <p className="football-snapshot__eyebrow">Live Updates, Stats and Content Filter</p>
+            <h1>AAW NETWORK</h1>
             <p className="football-snapshot__subtitle">Your combined NFL and college football weekly snapshot.</p>
           </div>
           <div className="football-snapshot__brand" aria-label="AAW Network" />
@@ -192,7 +192,7 @@ export function FootballSnapshot() {
         <section className="football-snapshot__intro">
           <div>
             <p>THE WEEK AHEAD</p>
-            <h2>What matters across football right now.</h2>
+            <h2>Upcoming rivalry games and more.</h2>
           </div>
           <span>{loading ? "Refreshing live data…" : "Live data powered by ESPN"}</span>
         </section>
@@ -217,7 +217,7 @@ export function FootballSnapshot() {
         <section className="football-snapshot__explore">
           <div>
             <p>GO DEEPER</p>
-            <h2>Each league still has its own command centre.</h2>
+            <h2>In-depth stats, games and more by going to each league's hub.</h2>
           </div>
           <div>
             <Link href="/cfb" className="football-snapshot__explore-link football-snapshot__explore-link--cfb">CFB Centre <span>→</span></Link>
