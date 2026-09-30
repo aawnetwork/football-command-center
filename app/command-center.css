@@ -159,11 +159,19 @@
 }
 
 .game-card__status-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
+}
+
+.game-card__status-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .game-card__status {
@@ -215,7 +223,9 @@
 }
 
 .game-card__header-right {
-  margin-left: auto;
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .game-card__time {
@@ -287,6 +297,8 @@
 .broadcast-import__results p { padding: 0 16px 16px; }
 
 @media (max-width: 780px) {
+  .game-card__status-row { grid-template-columns: 1fr; }
+  .game-card__header-right { justify-self: start; text-align: left; }
   .broadcast-import { padding: 32px 16px; }
   .broadcast-import__results { grid-template-columns: 1fr; }
 }

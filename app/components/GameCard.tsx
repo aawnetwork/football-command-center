@@ -33,12 +33,14 @@ export function GameCard({
   return (
     <article className="game-card">
       <div className="game-card__status-row">
-        <div className="game-card__status">{status}</div>
-        {indicator && (
-          <div className="game-card__indicator" style={{ color: indicator.color }}>
-            {indicator.label}
-          </div>
-        )}
+        <div className="game-card__status-left">
+          <div className="game-card__status">{status}</div>
+          {indicator && (
+            <div className="game-card__indicator" style={{ color: indicator.color }}>
+              {indicator.label}
+            </div>
+          )}
+        </div>
         {headerRight && <div className="game-card__header-right">{headerRight}</div>}
       </div>
 
