@@ -499,14 +499,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         game.homeRank <= 10 &&
         game.awayRank <= 10;
 
-      const top10VsUnranked =
-        (game.homeRank !== null &&
-          game.homeRank <= 10 &&
-          game.awayRank === null) ||
-        (game.awayRank !== null &&
-          game.awayRank <= 10 &&
-          game.homeRank === null);
-
       const rankedTeam =
         game.homeRank !== null ||
         game.awayRank !== null;
@@ -517,8 +509,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         suggestedTier = "S";
       } else if (top10Matchup) {
         suggestedTier = "S";
-      } else if (top10VsUnranked) {
-        suggestedTier = "A";
       } else if (rankedMatchup) {
         suggestedTier = "A";
       } else if (rankedTeam) {
@@ -532,7 +522,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         rankedTeamLost,
         rankedMatchup,
         top10Matchup,
-        top10VsUnranked,
       };
     });
   }, [games, tiers]);

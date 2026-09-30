@@ -21,7 +21,6 @@ type CfbGame = {
   tier?: CfbTier;
   suggestedTier: CfbTier;
   top10Matchup?: boolean;
-  top10VsUnranked?: boolean;
   rankedMatchup?: boolean;
   rankedTeamLost?: boolean;
 };
@@ -92,13 +91,11 @@ export function CfbGamesGrid({
               }
             : game.top10Matchup
               ? { label: "🔥 TOP-10 SHOWDOWN", color: "#f97316" }
-              : game.top10VsUnranked
-                ? { label: "💥 RANKING SHOCK WATCH", color: "#fb923c" }
-                : game.rankedMatchup
-                  ? { label: "🏆 RANKED MATCHUP", color: "#fbbf24" }
-                  : game.rankedTeamLost
-                    ? { label: "🚨 RANKED UPSET", color: "#fbbf24" }
-                    : null;
+              : game.rankedMatchup
+                ? { label: "📈 RANKED MATCHUP", color: "#fbbf24" }
+                : game.rankedTeamLost
+                  ? { label: "🚨 RANKED UPSET", color: "#fbbf24" }
+                  : null;
 
         return (
           <GameCard

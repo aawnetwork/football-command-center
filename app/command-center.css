@@ -493,7 +493,90 @@
   border-radius: 10px;
 }
 
+.content-panel__phase-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.content-panel__phase-controls button {
+  padding: 9px 15px;
+  border: 1px solid var(--cc-border);
+  border-radius: 8px;
+  background: var(--cc-surface-raised);
+  color: var(--cc-muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.content-panel__phase-controls button[aria-selected="true"] {
+  border-color: var(--cc-accent);
+  background: var(--cc-accent-soft);
+  color: var(--cc-text);
+}
+
+.content-panel__sections {
+  display: grid;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.content-panel__section h3 {
+  margin: 0 0 12px;
+  color: var(--cc-text);
+  font-size: 16px;
+}
+
+.content-panel__items {
+  display: grid;
+  gap: 10px;
+}
+
+.content-panel__item {
+  padding: 14px 16px;
+  border: 1px solid var(--cc-border);
+  border-left: 3px solid var(--cc-accent);
+  border-radius: 9px;
+  background: var(--cc-surface-raised);
+}
+
+.content-panel__item--alert {
+  border-left-color: #fb7185;
+}
+
+.content-panel__item--milestone {
+  border-left-color: #fbbf24;
+}
+
+.content-panel__item p {
+  margin: 0 0 6px;
+  color: var(--cc-muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+
+.content-panel__item strong {
+  display: block;
+  color: var(--cc-text);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.content-panel__section-empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--cc-border);
+  border-radius: 9px;
+  color: var(--cc-muted);
+  line-height: 1.5;
+}
+
 @media (max-width: 640px) {
   .command-center { padding: 28px 16px !important; }
   .command-center--nfl .command-center__game-grid { grid-template-columns: 1fr !important; }
+  .content-panel { padding: 18px; }
+  .content-panel__item { padding: 13px; }
 }
