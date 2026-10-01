@@ -21,7 +21,12 @@ export type NflLiveCareerSource = {
 type EspnCategory = {
   name: string;
   names: string[];
-  statistics: { season?: { year?: number }; stats: string[] }[];
+  statistics: {
+    season?: { year?: number };
+    stats: string[];
+    displayName?: string;
+    teamSlug?: string;
+  }[];
 };
 
 type RosterPlayer = {
@@ -137,11 +142,21 @@ const calculateCareer = (categories: EspnCategory[], category: NflAllTimeCategor
   const fieldIndex = source?.names.indexOf(field) ?? -1;
   if (!source || fieldIndex < 0) return { value: 0, years: "" };
 
-  const seasons = source.statistics
+  // ESPN returns separate stints plus a duplicate "YYYY Totals" row when a
+  // player changes team mid-season. Keep the stints and discard the aggregate
+  // row so a season is never counted twice (for example, Davante Adams in 2024).
+  const regularSeasonStints = source.statistics.filter(
+    (season) => !/\btotals\b/i.test(season.displayName ?? season.teamSlug ?? ""),
+  );
+
+  const seasons = regularSeasonStints
     .map((season) => season.season?.year)
     .filter((year): year is number => Boolean(year));
   return {
-    value: source.statistics.reduce((total, season) => total + numeric(season.stats[fieldIndex]), 0),
+    value: regularSeasonStints.reduce(
+      (total, season) => total + numeric(season.stats[fieldIndex]),
+      0,
+    ),
     years: seasons.length ? `${Math.min(...seasons)}–${Math.max(...seasons)}` : "",
   };
 };

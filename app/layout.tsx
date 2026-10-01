@@ -16,7 +16,7 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "Football Command Center | AAW Network",
+  title: "AAW Network Football Hub",
   description: "AAW Network's football intelligence hub.",
 };
 

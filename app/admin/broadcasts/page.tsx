@@ -95,7 +95,7 @@ export default function BroadcastImportPage() {
     <main className="broadcast-import">
       <div className="broadcast-import__container">
         <header>
-          <p>AAW FOOTBALL COMMAND CENTRE</p>
+          <p>AAW FOOTBALL DESK</p>
           <h1>Broadcast availability</h1>
           <span>Keep the same four columns in both files: Date, Time, Matchup and Platform. Preview each league before publishing it to the game cards.</span>
         </header>

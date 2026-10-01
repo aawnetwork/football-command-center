@@ -117,7 +117,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     const home = normalizeTeam(game.homeTeam);
     const away = normalizeTeam(game.awayTeam);
 
-    return rivalries.find((rivalry) => {
+    const matchingRivalries = rivalries.filter((rivalry) => {
       const [teamA, teamB] = rivalry.teams;
 
       const a = normalizeTeam(teamA);
@@ -128,6 +128,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         (home.includes(b) && away.includes(a))
       );
     });
+
+    // Prefer the most specific pairing. Without this, Arkansas–Texas A&M can
+    // be claimed by the broader Arkansas–Texas entry because "Texas A&M"
+    // contains "Texas".
+    return matchingRivalries.sort(
+      (left, right) =>
+        right.teams[0].length + right.teams[1].length -
+        (left.teams[0].length + left.teams[1].length)
+    )[0];
   }
 
   function detectMilestones(
@@ -841,7 +850,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           >
             <div>
               <div className="command-center__eyebrow">
-                FOOTBALL COMMAND CENTRE
+                FOOTBALL DESK
               </div>
               <h1
                 className="command-center__title"

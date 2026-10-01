@@ -105,30 +105,36 @@ export async function GET(request: Request) {
 const teamBase =
   `${baseUrl}/current/team`;
 
-    const individualResponses = await Promise.all(
-      individualSources.map((source) =>
-        fetch(
-          `${individualBase}/${source.endpoint}`,
-          {
+    // The NCAA provider can throttle a burst of requests. Fetch the small
+    // leaderboard catalogue in sequence so one page visit does not turn into
+    // fifteen concurrent upstream calls (and a failed entire stats tab).
+    const getStatsResponses = async (
+      sources: readonly { endpoint: string }[],
+      base: string
+    ) => {
+      const responses: Response[] = [];
+
+      for (const source of sources) {
+        responses.push(
+          await fetch(`${base}/${source.endpoint}`, {
             next: {
               revalidate: 300,
             },
-          }
-        )
-      )
+          })
+        );
+      }
+
+      return responses;
+    };
+
+    const individualResponses = await getStatsResponses(
+      individualSources,
+      individualBase
     );
 
-    const teamResponses = await Promise.all(
-      teamSources.map((source) =>
-        fetch(
-          `${teamBase}/${source.endpoint}`,
-          {
-            next: {
-              revalidate: 300,
-            },
-          }
-        )
-      )
+    const teamResponses = await getStatsResponses(
+      teamSources,
+      teamBase
     );
 
     const allResponses = [

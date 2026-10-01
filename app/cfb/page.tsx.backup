@@ -1591,7 +1591,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career">(
           >
             <div>
               <div className="command-center__eyebrow">
-                FOOTBALL COMMAND CENTER
+                FOOTBALL DESK
               </div>
               <h1
                 className="command-center__title"

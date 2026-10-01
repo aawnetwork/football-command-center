@@ -1209,7 +1209,7 @@ function getPerformanceReason(
         >
           <div>
             <div className="command-center__eyebrow">
-              FOOTBALL COMMAND CENTER
+              FOOTBALL DESK
             </div>
             <h1 className="command-center__title">NFL</h1>
             <p className="command-center__subtitle">
