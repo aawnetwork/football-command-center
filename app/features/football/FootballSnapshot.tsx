@@ -135,8 +135,10 @@ export function FootballSnapshot() {
     }
 
     loadSnapshot();
+    const interval = window.setInterval(loadSnapshot, 60_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, []);
 

@@ -51,7 +51,7 @@ export function CfbAllTimePanel({
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/all-time/leaderboards?league=CFB")
+    const loadLeaderboards = () => fetch("/api/all-time/leaderboards?league=CFB")
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load CFB all-time updates.");
         return response.json();
@@ -86,8 +86,11 @@ export function CfbAllTimePanel({
         // The bundled NCAA record-book snapshot remains available offline.
       });
 
+    loadLeaderboards();
+    const interval = window.setInterval(loadLeaderboards, 300_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, []);
 

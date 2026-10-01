@@ -55,7 +55,7 @@ export function NflAllTimePanel({
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/all-time/leaderboards?league=NFL")
+    const loadLeaderboards = () => fetch("/api/all-time/leaderboards?league=NFL")
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load NFL all-time updates.");
         return response.json();
@@ -90,8 +90,11 @@ export function NflAllTimePanel({
         // The bundled record book remains the reliable fallback while offline.
       });
 
+    loadLeaderboards();
+    const interval = window.setInterval(loadLeaderboards, 300_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, []);
 

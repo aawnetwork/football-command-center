@@ -346,8 +346,6 @@ export default function NFLPage() {
 
   useEffect(() => {
     async function loadPerformances() {
-      setPerformancesLoading(true);
-
       try {
         const response =
           await fetch(
@@ -381,7 +379,10 @@ export default function NFLPage() {
       activeTab ===
       "performances"
     ) {
+      setPerformancesLoading(true);
       loadPerformances();
+      const interval = window.setInterval(loadPerformances, 30_000);
+      return () => window.clearInterval(interval);
     }
   }, [activeTab]);
 

@@ -152,7 +152,6 @@ export function ContentPanel({ sport }: ContentPanelProps) {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      setLoading(true);
       try {
         const [scoreboard, allTime, monitor] = await Promise.all([
           fetch(sport === "CFB" ? "/api/scoreboard" : "/api/nfl/scoreboard").then((response) => response.json()),
@@ -174,7 +173,11 @@ export function ContentPanel({ sport }: ContentPanelProps) {
       }
     };
     void load();
-    return () => { cancelled = true; };
+    const interval = window.setInterval(() => void load(), 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, [sport]);
 
   const preparedGames = useMemo<ContentItem[]>(() => games

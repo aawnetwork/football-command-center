@@ -77,9 +77,12 @@ export function StandingsPanel({ sport }: { sport: League }) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    void fetch(`/api/standings?league=${sport}`)
+    const loadStandings = (initial = false) => {
+      if (initial) {
+        setLoading(true);
+        setError(null);
+      }
+      return fetch(`/api/standings?league=${sport}`)
       .then(async (response) => {
         const data: StandingResponse = await response.json();
         if (!response.ok) throw new Error(data.error ?? "Unable to load standings.");
@@ -96,7 +99,14 @@ export function StandingsPanel({ sport }: { sport: League }) {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    };
+
+    void loadStandings(true);
+    const interval = window.setInterval(() => void loadStandings(), 300_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, [sport]);
 
   const visibleSections = useMemo(
@@ -180,10 +190,13 @@ function CfbRankings() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
     const weekParam = selectedWeek ? `&week=${selectedWeek}` : "";
-    void fetch(`/api/standings?league=CFB&view=polls${weekParam}`)
+    const loadRankings = (initial = false) => {
+      if (initial) {
+        setLoading(true);
+        setError(null);
+      }
+      return fetch(`/api/standings?league=CFB&view=polls${weekParam}`)
       .then(async (response) => {
         const payload: PollResponse = await response.json();
         if (!response.ok) throw new Error(payload.error ?? "Unable to load rankings.");
@@ -200,7 +213,14 @@ function CfbRankings() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    };
+
+    void loadRankings(true);
+    const interval = window.setInterval(() => void loadRankings(), 300_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, [selectedWeek]);
 
   const poll = data?.polls.find((item) => item.kind === pollKind);
