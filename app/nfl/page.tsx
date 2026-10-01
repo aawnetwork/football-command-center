@@ -1241,12 +1241,12 @@ function getPerformanceReason(
         >
           {(
             [
-              ["games", "Games"],
-["performances", "Performances"],
-["stats", "Stats"],
-["standings", "Standings"],
-["all-time", "All-Time"],
-["content", "Content"],
+              ["games", "🏈 Games"],
+["performances", "🔥 Performances"],
+["stats", "📊 Stats"],
+["standings", "📋 Standings"],
+["all-time", "🏆 All-Time"],
+["content", "🚨 Content"],
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (
@@ -1372,14 +1372,14 @@ function getPerformanceReason(
                           borderColor:
                             selectedGameWeek === week
                               ? "#ffc720"
-                              : "#ffc7202e",
+                              : "#334155",
                           background:
                             selectedGameWeek === week
-                              ? "#3f0d12"
+                              ? "#ffc7202e"
                               : "#0f172a",
                           color:
                             selectedGameWeek === week
-                              ? "#fca5a5"
+                              ? "#ffffff"
                               : "#94a3b8",
                           fontWeight: 900,
                           cursor: "pointer",
@@ -1590,16 +1590,16 @@ function getPerformanceReason(
                         performanceWeek ===
                         week
                           ? "#ffc720"
-                          : "#ffc7202e",
+                          : "#334155",
                       background:
                         performanceWeek ===
                         week
-                          ? "#3f0d12"
+                          ? "#ffc7202e"
                           : "#0f172a",
                       color:
                         performanceWeek ===
                         week
-                          ? "#fca5a5"
+                          ? "#ffffff"
                           : "#94a3b8",
                       fontWeight:
                         900,

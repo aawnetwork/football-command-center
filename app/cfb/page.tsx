@@ -1017,15 +1017,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       border: "1px solid",
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ef4444"
+                          ? "#ff6b00"
                           : "#334155",
                       background:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#3f0d12"
+                          ? "#ff6b002a"
                           : "#0f172a",
                       color:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#fca5a5"
+                          ? "#ffffff"
                           : "#94a3b8",
                       fontWeight: 900,
                       cursor: "pointer",
@@ -1214,15 +1214,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       border: "1px solid",
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ef4444"
+                          ? "#ff6b00"
                           : "#334155",
                       background:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#3f0d12"
+                          ? "#ff6b002a"
                           : "#0f172a",
                       color:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#fca5a5"
+                          ? "#ffffff"
                           : "#94a3b8",
                       fontWeight: 900,
                       cursor: "pointer",
