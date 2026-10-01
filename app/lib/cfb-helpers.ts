@@ -12,6 +12,7 @@ export type Game = {
   homeRank: number | null;
   awayRank: number | null;
   completed: boolean;
+  live: boolean;
 };
 
 export type Milestone = {

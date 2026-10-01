@@ -39,6 +39,7 @@ import type {
 } from "../lib/cfb-helpers";
 import { rivalries } from "./data/rivalries";
 import type { BroadcastAvailability } from "../lib/broadcast-availability";
+import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 
 export default function Home() {
   const [activeTab, setActiveTab] =
@@ -57,6 +58,7 @@ export default function Home() {
     useState(true);
   const [gamesError, setGamesError] = useState<string | null>(null);
   const [broadcastAvailability, setBroadcastAvailability] = useState<Record<number, BroadcastAvailability["platforms"]>>({});
+  const gameIds = games.map((game) => game.id).join(",");
 
   const [tiers, setTiers] =
     useState<Record<number, Tier>>({});
@@ -294,7 +296,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     }
 
     let cancelled = false;
-    fetch(`/api/broadcast-availability?league=CFB&gameIds=${games.map((game) => game.id).join(",")}`)
+    fetch(`/api/broadcast-availability?league=CFB&gameIds=${gameIds}`)
       .then((response) => response.ok ? response.json() : { availability: [] })
       .then((data: { availability?: BroadcastAvailability[] }) => {
         if (cancelled) return;
@@ -307,13 +309,31 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     return () => {
       cancelled = true;
     };
-  }, [games]);
+  }, [gameIds]);
 
   useEffect(() => {
-    let cancelled = false;
+    if (activeTab !== "games") {
+      return;
+    }
 
-    async function loadGames() {
-      setGamesLoading(true);
+    let cancelled = false;
+    let refreshTimer: number | undefined;
+
+    function scheduleRefresh(gamesData: Game[]) {
+      const delay = getScoreboardRefreshDelay(gamesData);
+
+      if (delay !== null) {
+        refreshTimer = window.setTimeout(() => {
+          void loadGames(false);
+        }, delay);
+      }
+    }
+
+    async function loadGames(initialLoad: boolean) {
+      if (initialLoad) {
+        setGamesLoading(true);
+      }
+
       setGamesError(null);
 
       try {
@@ -384,32 +404,33 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         );
 
         setUpsets(detectUpsets(gamesData));
+        scheduleRefresh(gamesData);
       } catch (error) {
         if (!cancelled) {
           console.error(error);
           setGamesError(
             "Live college football games are temporarily unavailable. We’ll retry automatically."
           );
+          refreshTimer = window.setTimeout(() => {
+            void loadGames(false);
+          }, 60_000);
         }
       } finally {
-        if (!cancelled) {
+        if (!cancelled && initialLoad) {
           setGamesLoading(false);
         }
       }
     }
 
-    loadGames();
-
-    const interval = setInterval(
-      loadGames,
-      30000
-    );
+    void loadGames(true);
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      if (refreshTimer !== undefined) {
+        window.clearTimeout(refreshTimer);
+      }
     };
-  }, [selectedWeek]);
+  }, [activeTab, selectedWeek]);
 
   useEffect(() => {
     async function loadSeasonStats() {

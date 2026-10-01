@@ -13,6 +13,7 @@ import {
 import { StatsLeaderboardTable } from "../features/stats/StatsLeaderboardTable";
 import { StatsPanelControls } from "../features/stats/StatsPanelControls";
 import type { BroadcastAvailability } from "../lib/broadcast-availability";
+import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 
 import {
   tierInfo,
@@ -54,6 +55,7 @@ export default function NFLPage() {
     useState(true);
   const [gamesError, setGamesError] = useState<string | null>(null);
   const [broadcastAvailability, setBroadcastAvailability] = useState<Record<number, BroadcastAvailability["platforms"]>>({});
+  const gameIds = games.map((game) => game.id).join(",");
 
   const [statsLoading, setStatsLoading] =
     useState(false);
@@ -169,10 +171,28 @@ export default function NFLPage() {
   }, [gameTiers, gameTiersLoaded]);
 
   useEffect(() => {
-    let cancelled = false;
+    if (activeTab !== "games") {
+      return;
+    }
 
-    async function loadGames() {
-      setLoading(true);
+    let cancelled = false;
+    let refreshTimer: number | undefined;
+
+    function scheduleRefresh(gamesData: NFLGame[]) {
+      const delay = getScoreboardRefreshDelay(gamesData);
+
+      if (delay !== null) {
+        refreshTimer = window.setTimeout(() => {
+          void loadGames(false);
+        }, delay);
+      }
+    }
+
+    async function loadGames(initialLoad: boolean) {
+      if (initialLoad) {
+        setLoading(true);
+      }
+
       setGamesError(null);
 
       try {
@@ -204,17 +224,18 @@ export default function NFLPage() {
           setSelectedGameWeek(data.week);
         }
 
-        setGames(
-  gamesData.map((game: NFLGame) => {
-    const importance = getGameImportance(game);
+        const preparedGames = gamesData.map((game: NFLGame) => {
+          const importance = getGameImportance(game);
 
-    return {
-      ...game,
-      importance: importance.importance,
-      importanceReasons: importance.reasons,
-    };
-  })
-);
+          return {
+            ...game,
+            importance: importance.importance,
+            importanceReasons: importance.reasons,
+          };
+        });
+
+        setGames(preparedGames);
+        scheduleRefresh(preparedGames);
       } catch (error) {
         if (!cancelled) {
           console.error(
@@ -224,26 +245,26 @@ export default function NFLPage() {
           setGamesError(
             "Live NFL games are temporarily unavailable. We’ll retry automatically."
           );
+          refreshTimer = window.setTimeout(() => {
+            void loadGames(false);
+          }, 60_000);
         }
       } finally {
-        if (!cancelled) {
+        if (!cancelled && initialLoad) {
           setLoading(false);
         }
       }
     }
 
-    loadGames();
-
-    const interval = setInterval(
-      loadGames,
-      30000
-    );
+    void loadGames(true);
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      if (refreshTimer !== undefined) {
+        window.clearTimeout(refreshTimer);
+      }
     };
-  }, [selectedGameWeek]);
+  }, [activeTab, selectedGameWeek]);
 
   useEffect(() => {
     if (!games.length) {
@@ -252,7 +273,7 @@ export default function NFLPage() {
     }
 
     let cancelled = false;
-    fetch(`/api/broadcast-availability?league=NFL&gameIds=${games.map((game) => game.id).join(",")}`)
+    fetch(`/api/broadcast-availability?league=NFL&gameIds=${gameIds}`)
       .then((response) => response.ok ? response.json() : { availability: [] })
       .then((data: { availability?: BroadcastAvailability[] }) => {
         if (!cancelled) {
@@ -266,7 +287,7 @@ export default function NFLPage() {
     return () => {
       cancelled = true;
     };
-  }, [games]);
+  }, [gameIds]);
 
   useEffect(() => {
     async function loadStats() {

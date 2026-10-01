@@ -101,6 +101,9 @@ export async function GET(request: Request) {
           completed:
             competition?.status?.type
               ?.completed ?? false,
+          live:
+            competition?.status?.type
+              ?.state === "in",
         };
       }
     );

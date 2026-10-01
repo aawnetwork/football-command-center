@@ -18,6 +18,7 @@ export type NFLGame = {
   venueCity: string | null;
   venueCountry: string | null;
   completed: boolean;
+  live: boolean;
   status: string;
 
   importance?: "S" | "A" | "B" | "C";

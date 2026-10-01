@@ -19,6 +19,7 @@ type CfbGame = {
   homeRank: number | null;
   awayRank: number | null;
   completed: boolean;
+  live: boolean;
   tier?: CfbTier;
   suggestedTier: CfbTier;
   top10Matchup?: boolean;
