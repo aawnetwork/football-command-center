@@ -1241,12 +1241,12 @@ function getPerformanceReason(
         >
           {(
             [
-              ["games", "🏈 Games"],
-["performances", "🔥 Performances"],
-["stats", "📊 Stats"],
-["standings", "📋 Standings"],
-["all-time", "🏆 All-Time"],
-["content", "🚨 Content"],
+              ["games", "Games"],
+["performances", "Performances"],
+["stats", "Stats"],
+["standings", "Standings"],
+["all-time", "All-Time"],
+["content", "Content"],
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (

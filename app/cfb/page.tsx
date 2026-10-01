@@ -901,12 +901,12 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           }}
         >
           {[
-  ["games", "🏈 Games"],
-  ["performances", "🔥 Performances"],
-  ["stats", "📊 Stats"],
-  ["standings", "📋 Standings"],
-  ["all-time", "🏆 All-Time"],
-  ["content", "🚨 Content"],
+  ["games", "Games"],
+  ["performances", "Performances"],
+  ["stats", "Stats"],
+  ["standings", "Standings"],
+  ["all-time", "All-Time"],
+  ["content", "Content"],
 ].map(([id, label]) => (
             <button
               key={id}
