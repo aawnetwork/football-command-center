@@ -1877,8 +1877,11 @@ selectedCategory === "scoring-defense"
       statsView ===
         "individual" &&
       selectedCategory === "sacks"
-      ? `${leader.value.toLocaleString()} sacks`
-      : `${leader.value.toLocaleString()} yards`}
+  ? `${leader.value.toLocaleString()} sacks`
+      : formatStatValue(
+          selectedCategory,
+          leader.value
+        )}
                               </td>
                             </tr>
                           )
