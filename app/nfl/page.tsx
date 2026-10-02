@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { NflGamesGrid } from "../features/games/NflGamesGrid";
@@ -1217,6 +1218,12 @@ function getPerformanceReason(
             </p>
           </div>
           <div className="command-center__header-brand">
+            <Link
+              className="command-center__league-switch"
+              href="/cfb"
+            >
+              Switch to CFB <span aria-hidden="true">→</span>
+            </Link>
             <div
               className="command-center__brand-logo"
               role="img"

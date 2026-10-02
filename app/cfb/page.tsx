@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
@@ -877,6 +878,12 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             </div>
 
             <div className="command-center__header-brand">
+              <Link
+                className="command-center__league-switch"
+                href="/nfl"
+              >
+                Switch to NFL <span aria-hidden="true">→</span>
+              </Link>
               <div
                 className="command-center__brand-logo"
                 role="img"

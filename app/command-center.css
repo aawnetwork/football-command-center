@@ -61,6 +61,25 @@
   flex-wrap: wrap;
 }
 
+.command-center__league-switch {
+  color: var(--cc-text);
+  border: 1px solid var(--cc-border-strong);
+  background: rgb(8 26 43 / 0.5);
+  border-radius: 2px;
+  padding: 8px 11px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-decoration: none;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+
+.command-center__league-switch:hover {
+  color: var(--cc-accent);
+  border-color: var(--cc-accent);
+  background: var(--cc-accent-soft);
+}
+
 .command-center__eyebrow {
   color: var(--cc-accent) !important;
   font-size: 11px !important;
