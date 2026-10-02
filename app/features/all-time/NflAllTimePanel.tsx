@@ -120,7 +120,7 @@ export function NflAllTimePanel({
   return (
     <section className="all-time-panel">
       <div className="all-time-panel__header">
-        <h2>🏆 All-Time</h2>
+        <h2>🏆 All-Time Leaders</h2>
         <p>
           NFL record leaders, organized by record holder and record type.
         </p>

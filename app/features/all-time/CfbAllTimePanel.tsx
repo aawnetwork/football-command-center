@@ -116,7 +116,7 @@ export function CfbAllTimePanel({
     <section className="all-time-panel">
       <div className="all-time-panel__header">
         <h2>🏆 All-Time</h2>
-        <p>Historical FBS leaders, organized by record holder and record type.</p>
+        <p>Historical FBS leaders, organised by record holder and record type.</p>
       </div>
 
       <div className="all-time-panel__controls">
