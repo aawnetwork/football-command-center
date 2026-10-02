@@ -253,6 +253,10 @@ export function buildWeeklyIndividualLeaders(
   return stats
     .filter(
       (stat) =>
+        // The stats route also includes team defensive totals for the team
+        // leaderboard. They have no player ID and must never appear as an
+        // individual "leader" (for example, a team showing as 84 tackles).
+        Number.isFinite(stat.playerId) &&
         stat.category === selected.sourceCategory &&
         stat.stat === selected.stat
     )
@@ -280,6 +284,7 @@ export function buildWeeklyTeamLeaders(
   };
 
   for (const stat of stats) {
+    const isTeamAggregate = !Number.isFinite(stat.playerId);
     const isOffensive = [
       "total-offense",
       "rushing-offense",
@@ -287,6 +292,12 @@ export function buildWeeklyTeamLeaders(
     ].includes(category);
 
     if (isOffensive) {
+      // Offensive team totals are constructed from individual box-score lines.
+      // There is no parallel aggregate source for these categories.
+      if (isTeamAggregate) {
+        continue;
+      }
+
       const matchesTotalOffense =
         category === "total-offense" &&
         ["passing", "rushing"].includes(stat.category);
@@ -306,6 +317,12 @@ export function buildWeeklyTeamLeaders(
         continue;
       }
     } else {
+      // Defensive totals arrive directly from ESPN as team aggregates. Using
+      // player rows as well would count the same sacks/tackles twice.
+      if (!isTeamAggregate) {
+        continue;
+      }
+
       if (
         stat.category !== "defensive" ||
         stat.stat !== defensiveStatMap[category]
