@@ -1140,6 +1140,18 @@ function getPerformanceReason(
         }
 
         if (performancePosition === "rb") {
+          const hasPassingLine =
+            performance.passing_yards > 0 ||
+            performance.passing_tds > 0;
+
+          // The NFL feed does not reliably provide a position for every
+          // performance. Treat a passing line as the QB signal, then require
+          // the same 150-yard rushing threshold used to flag an NFL rushing
+          // performance before showing that QB in the RB view.
+          if (hasPassingLine && performance.rushing_yards < 150) {
+            return false;
+          }
+
           return (
             performance.rushing_yards > 0 ||
             performance.rushing_tds > 0

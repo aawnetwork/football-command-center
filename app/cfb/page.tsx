@@ -652,6 +652,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         ["passing", "rushing", "receiving"].includes(stat.category)
       );
 
+      const hasPassingLine = performance.stats.some(
+        (stat) => stat.category === "passing"
+      );
+
+      const rushingYards = performance.stats.find(
+        (stat) => stat.category === "rushing" && stat.stat === "YDS"
+      )?.value ?? 0;
+
       if (performancePosition === "def") {
         return (
           !hasOffensiveStats &&
@@ -659,6 +667,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             (stat) => stat.category === "defensive"
           )
         );
+      }
+
+      // Position data is not present in the CFB feed, so passing production
+      // is the reliable QB signal. A QB with a small rushing line should not
+      // clutter the RB view; only include them once they meet the app's
+      // 200-yard rushing-performance threshold.
+      if (performancePosition === "rb" && hasPassingLine) {
+        return rushingYards >= 200;
       }
 
       return performance.stats.some(
