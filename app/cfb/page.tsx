@@ -583,12 +583,17 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }, [games, tiers]);
 
   const filteredGames = useMemo(() => {
-    if (selectedTier === "ALL") {
-      return gamesWithSignals;
-    }
+    const tierFilteredGames =
+      selectedTier === "ALL"
+        ? gamesWithSignals
+        : gamesWithSignals.filter(
+            (game) => game.tier === selectedTier
+          );
 
-    return gamesWithSignals.filter(
-      (game) => game.tier === selectedTier
+    // Preserve the scoreboard's normal order, but keep completed games out
+    // of the middle of an active slate.
+    return [...tierFilteredGames].sort(
+      (left, right) => Number(left.completed) - Number(right.completed)
     );
   }, [
     gamesWithSignals,

@@ -445,11 +445,18 @@ export default function NFLPage() {
   }
 
   const filteredGames = useMemo(() => {
-    if (selectedGameTier === "ALL") {
-      return games;
-    }
+    const tierFilteredGames =
+      selectedGameTier === "ALL"
+        ? games
+        : games.filter(
+            (game) => gameTiers[game.id] === selectedGameTier
+          );
 
-    return games.filter((game) => gameTiers[game.id] === selectedGameTier);
+    // Preserve the feed's normal order, while ensuring finals always sit at
+    // the bottom of the game board.
+    return [...tierFilteredGames].sort(
+      (left, right) => Number(left.completed) - Number(right.completed)
+    );
   }, [games, gameTiers, selectedGameTier]);
 
   function getStatValue(
