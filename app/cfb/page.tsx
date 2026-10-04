@@ -645,24 +645,21 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       return bigPerformances;
     }
 
-    const categoryByPosition = {
-      qb: "passing",
-      rb: "rushing",
-      wr: "receiving",
-      def: "defensive",
-    } as const;
-
     return bigPerformances.filter((performance) => {
       const hasOffensiveStats = performance.stats.some((stat) =>
         ["passing", "rushing", "receiving"].includes(stat.category)
       );
 
-      const hasPassingLine = performance.stats.some(
-        (stat) => stat.category === "passing"
-      );
-
       const rushingYards = performance.stats.find(
         (stat) => stat.category === "rushing" && stat.stat === "YDS"
+      )?.value ?? 0;
+
+      const passingYards = performance.stats.find(
+        (stat) => stat.category === "passing" && stat.stat === "YDS"
+      )?.value ?? 0;
+
+      const receivingYards = performance.stats.find(
+        (stat) => stat.category === "receiving" && stat.stat === "YDS"
       )?.value ?? 0;
 
       if (performancePosition === "def") {
@@ -674,19 +671,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         );
       }
 
-      // Position data is not present in the CFB feed, so passing production
-      // is the reliable QB signal. A QB with a small rushing line should not
-      // clutter the RB view; only include them once they meet the app's
-      // 200-yard rushing-performance threshold.
-      if (performancePosition === "rb" && hasPassingLine) {
-        return rushingYards >= 200;
-      }
-
-      return performance.stats.some(
-        (stat) =>
-          stat.category ===
-          categoryByPosition[performancePosition]
-      );
+      // A flagged performance can contain several small stat lines. Position
+      // views should only show the player when they cleared that position's
+      // own headline yardage threshold, rather than simply recording a stat
+      // in that category.
+      if (performancePosition === "qb") return passingYards >= 400;
+      if (performancePosition === "rb") return rushingYards >= 200;
+      return receivingYards >= 200;
     });
   }, [bigPerformances, performancePosition]);
 
