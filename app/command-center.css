@@ -1286,3 +1286,11 @@
   .game-card__footer { grid-template-columns: 1fr; }
   .game-card__tier-controls { justify-content: space-between; }
 }
+
+/* Archive selector shares the existing Rankings control styling. */
+.standings-panel__week-switch { align-items: center; }
+.standings-panel__week-switch select {
+  max-width: 100%; padding: 10px 15px; border: 1px solid var(--cc-border);
+  border-radius: 2px; background: var(--cc-surface-raised); color: var(--cc-text);
+  font: inherit; cursor: pointer;
+}

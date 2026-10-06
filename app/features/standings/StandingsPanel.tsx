@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 type League = "CFB" | "NFL";
 type CfbView = "conferences" | "rankings";
 type NflView = "divisions" | "playoffs";
-type PollKind = "ap" | "cfp" | "uki";
+import { pollKey, pollLabel, previousRankLabel, type PollEntry, type PollKind, type PollResponse } from "./poll-model";
 
 type StandingTeam = {
   team: string;
@@ -28,33 +28,6 @@ type StandingSection = {
 type StandingResponse = {
   sections?: StandingSection[];
   playoffPictureAvailable?: boolean;
-  error?: string;
-};
-
-type PollEntry = {
-  rank: number;
-  previousRank: number | null;
-  team: string;
-  abbreviation: string;
-  logo: string | null;
-  record: string;
-  points: number | null;
-  firstPlaceVotes: number | null;
-};
-
-type Poll = {
-  kind: PollKind;
-  available: boolean;
-  week: number;
-  publishedAt: string | null;
-  entries: PollEntry[];
-};
-
-type PollResponse = {
-  currentWeek: number;
-  selectedWeek: number;
-  availableWeeks: number[];
-  polls: Poll[];
   error?: string;
 };
 
@@ -183,60 +156,52 @@ function NflStandings({ view, onViewChange, playoffPictureAvailable, sections, l
 
 function CfbRankings() {
   const [pollKind, setPollKind] = useState<PollKind>("ap");
-  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [selection, setSelection] = useState("latest");
   const [data, setData] = useState<PollResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    const weekParam = selectedWeek ? `&week=${selectedWeek}` : "";
-    const loadRankings = (initial = false) => {
-      if (initial) {
-        setLoading(true);
-        setError(null);
-      }
-      return fetch(`/api/standings?league=CFB&view=polls${weekParam}`)
-      .then(async (response) => {
+    const params = new URLSearchParams({ league: "CFB", view: "polls", type: pollKind });
+    if (selection !== "latest") {
+      const [, season, phase, week] = selection.split(":");
+      params.set("season", season); params.set("phase", phase); params.set("week", week);
+    }
+    const loadRankings = async (initial = false) => {
+      if (initial) { setLoading(true); setError(null); }
+      try {
+        const response = await fetch(`/api/standings?${params}`, { cache: "no-store" });
         const payload: PollResponse = await response.json();
         if (!response.ok) throw new Error(payload.error ?? "Unable to load rankings.");
-        return payload;
-      })
-      .then((payload) => {
-        if (cancelled) return;
-        setData(payload);
-        if (selectedWeek === null) setSelectedWeek(payload.selectedWeek);
-      })
-      .catch((reason: Error) => {
-        if (!cancelled) setError(reason.message);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        if (!cancelled) { setData(payload); setError(null); }
+      } catch (reason) {
+        if (!cancelled) setError((reason as Error).message);
+      } finally { if (!cancelled) setLoading(false); }
     };
-
     void loadRankings(true);
     const interval = window.setInterval(() => void loadRankings(), 300_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [selectedWeek]);
+    return () => { cancelled = true; window.clearInterval(interval); };
+  }, [pollKind, selection]);
 
-  const poll = data?.polls.find((item) => item.kind === pollKind);
-  const isCurrentWeek = data?.selectedWeek === data?.currentWeek;
+  const poll = data?.poll;
   return <div className="standings-panel__rankings">
     <div className="standings-panel__rankings-controls">
       <div className="standings-panel__mode-switch" aria-label="Ranking source">
-        {(Object.keys(pollLabels) as PollKind[]).map((kind) => <button key={kind} type="button" aria-pressed={pollKind === kind} onClick={() => setPollKind(kind)}>{pollLabels[kind]}</button>)}
+        {(Object.keys(pollLabels) as PollKind[]).map(kind => <button key={kind} type="button" aria-pressed={pollKind === kind} onClick={() => { setPollKind(kind); setSelection("latest"); setData(null); setLoading(true); }}>{pollLabels[kind]}</button>)}
       </div>
-      {data && <div className="standings-panel__week-switch" aria-label="Poll week">
-        {data.availableWeeks.map((week) => <button key={week} type="button" aria-pressed={data.selectedWeek === week} onClick={() => setSelectedWeek(week)}>Week {week}</button>)}
-      </div>}
+      <label className="standings-panel__week-switch">Poll snapshot{' '}
+        <select aria-label="Poll snapshot" value={selection} onChange={event => setSelection(event.target.value)}>
+          <option value="latest">Latest stored</option>
+          {data?.availableSnapshots.map(snapshot => <option key={pollKey(snapshot)} value={pollKey(snapshot)}>{pollLabel(snapshot)}</option>)}
+        </select>
+      </label>
     </div>
-    {loading ? <div className="standings-panel__empty">Loading rankings…</div> : error ? <div className="standings-panel__empty">{error}</div> : poll?.available ? <PollTable entries={poll.entries} /> : <div className="standings-panel__empty">
-      {pollKind === "cfp" ? "CFP rankings will appear here once the committee releases its first poll." : pollKind === "uki" ? "UK & Ireland rankings will appear here once this week’s list is added." : isCurrentWeek ? "No AP poll is available right now." : "That week has not been captured yet. Future polls will be stored here week by week."}
-    </div>}
+    {loading ? <div className="standings-panel__empty">Loading stored rankings…</div> : error ? <div className="standings-panel__empty" role="alert">{error}</div> : poll?.available ? <>
+      <p>{selection === "latest" ? "Latest stored" : "Historical snapshot"} · {pollLabels[poll.kind]} · {pollLabel(poll)} · {poll.source}</p>
+      <p>Published: {poll.publishedAt ? new Date(poll.publishedAt).toLocaleString("en-GB", { timeZone: "Europe/London" }) + " UK" : "not supplied"} · Captured: {new Date(poll.capturedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK · Revision {poll.revision}</p>
+      <PollTable entries={poll.entries} />
+    </> : <div className="standings-panel__empty">{selection !== "latest" ? "That snapshot has not been archived." : pollKind === "cfp" ? "No CFP snapshots have been archived yet." : `No ${pollLabels[pollKind]} snapshots have been archived yet.`}</div>}
   </div>;
 }
 
@@ -284,6 +249,6 @@ function StandingTable({ section, sport }: { section: StandingSection; sport: Le
 function PollTable({ entries }: { entries: PollEntry[] }) {
   return <article className="standings-panel__table-wrap"><div className="standings-panel__scroll"><table>
     <thead><tr><th>Rank</th><th>Team</th><th>Record</th><th>Last week</th><th>Points</th></tr></thead>
-    <tbody>{entries.map((entry) => <tr key={entry.abbreviation || entry.team}><td>{entry.rank}</td><td><span className="standings-panel__team">{entry.logo && <img src={entry.logo} alt="" />}{entry.team}</span></td><td>{entry.record}</td><td>{entry.previousRank ?? "NR"}</td><td>{entry.points?.toLocaleString() ?? "—"}</td></tr>)}</tbody>
+    <tbody>{entries.map((entry) => <tr key={entry.abbreviation || entry.team}><td>{entry.rank}</td><td><span className="standings-panel__team">{entry.logo && <img src={entry.logo} alt="" />}{entry.team}</span></td><td>{entry.record}</td><td>{previousRankLabel(entry)}</td><td>{entry.points?.toLocaleString() ?? "—"}</td></tr>)}</tbody>
   </table></div></article>;
 }
