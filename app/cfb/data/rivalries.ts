@@ -770,6 +770,11 @@ export const rivalries = [
     name: "Coastal Carolina–Liberty Rivalry",
     trophy: null,
   },
+    {
+    teams: ["Kennesaw State", "Jacksonville State"],
+    name: "Uncompromised Hate",
+    trophy: null,
+  },
 
   // ─────────────────────────────────────────────
   // NORTHEAST / INDEPENDENTS
