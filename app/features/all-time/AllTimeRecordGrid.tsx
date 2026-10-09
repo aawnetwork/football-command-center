@@ -8,6 +8,7 @@ export type AllTimeRecord = {
 };
 
 type AllTimeRecordGridProps = {
+  period?: "career" | "season" | "single-game";
   categories?: {
     title: string;
     unit?: string;
@@ -17,6 +18,7 @@ type AllTimeRecordGridProps = {
 };
 
 export function AllTimeRecordGrid({
+  period = "career",
   categories = [],
   unavailableMessage,
 }: AllTimeRecordGridProps) {
@@ -27,7 +29,7 @@ export function AllTimeRecordGrid({
   return (
     <div className="all-time-record-grid">
       {categories.map(({ title, unit, records }) => (
-        <article className="all-time-record-card" key={title}>
+        <article className="all-time-record-card" data-desk-export="all-time" data-export-label={`${period === "single-game" ? "Single Game" : period === "season" ? "Season" : "Career"} · ${title}`} key={title}>
           <div className="all-time-record-card__title">
             <span>{title}</span>
             <small>Top {Math.min(10, records.length)} of {records.length}</small>

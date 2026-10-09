@@ -47,6 +47,10 @@ export async function GET(request: Request) {
       return {
         id: Number(event.id),
         startDate: event.date,
+        homeLogo: home?.team?.logo ?? null,
+        awayLogo: away?.team?.logo ?? null,
+        statusDetail: competition?.status?.type?.state === "in"
+          ? competition?.status?.type?.shortDetail ?? null : null,
         homeTeam: home?.team?.displayName ?? "",
         awayTeam: away?.team?.displayName ?? "",
         homePoints: home?.score

@@ -237,7 +237,7 @@ function NflPlayoffPicture({ teams }: { teams: PlayoffTeam[] }) {
 }
 
 function StandingTable({ section, sport }: { section: StandingSection; sport: League }) {
-  return <article className="standings-panel__table-wrap">
+  return <article className="standings-panel__table-wrap" data-desk-export="standings" data-export-label={section.name}>
     <h3>{section.name}</h3>
     <div className="standings-panel__scroll"><table>
       <thead><tr><th>Team</th><th>Overall</th><th>{sport === "NFL" ? "Div" : "Conf"}</th><th>Pct</th><th>Strk</th></tr></thead>

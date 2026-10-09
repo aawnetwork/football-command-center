@@ -13,6 +13,9 @@ export type Game = {
   awayRank: number | null;
   completed: boolean;
   live: boolean;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  statusDetail?: string | null;
 };
 
 export type Milestone = {

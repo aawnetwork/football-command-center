@@ -61,6 +61,7 @@ export function NflPerformanceCard({
 
   return (
     <div
+      data-desk-export="performance" data-export-label={`${performance.player_display_name} · ${getNflTeamName(performance.recent_team)}`}
       style={{
         padding: "18px",
         border: "1px solid #334155",
@@ -82,7 +83,7 @@ export function NflPerformanceCard({
             {getNflTeamName(performance.recent_team)}
           </div>
           {performance.opponent_team && (
-            <div style={{ color: "#cbd5e1", marginTop: "6px" }}>
+            <div data-export-omit style={{ color: "#cbd5e1", marginTop: "6px" }}>
               vs. {getNflTeamName(performance.opponent_team)}
             </div>
           )}
@@ -143,6 +144,7 @@ export function NflPerformanceCard({
       </div>
 
       <div
+        data-export-omit
         style={{
           marginTop: "16px",
           padding: "12px 14px",

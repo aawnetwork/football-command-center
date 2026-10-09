@@ -150,6 +150,7 @@ export function NflAllTimePanel({
       </div>
 
       <AllTimeRecordGrid
+        period={period}
         unavailableMessage={
           records
             ? undefined

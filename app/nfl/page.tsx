@@ -291,8 +291,13 @@ export default function NFLPage() {
   }, [gameIds]);
 
   useEffect(() => {
-    async function loadStats() {
-      setStatsLoading(true);
+    let cancelled = false;
+    let pending = false;
+
+    async function loadStats(initialLoad = false) {
+      if (pending) return;
+      pending = true;
+      if (initialLoad) setStatsLoading(true);
 
       try {
         const playerResponse =
@@ -310,6 +315,8 @@ export default function NFLPage() {
 
         const playerData =
           await playerResponse.json();
+
+        if (cancelled) return;
 
         setStats(
           playerData.stats ?? []
@@ -342,6 +349,8 @@ export default function NFLPage() {
         const teamData =
           await teamResponse.json();
 
+        if (cancelled) return;
+
         setTeamStats(
           teamData.stats ?? []
         );
@@ -351,7 +360,8 @@ export default function NFLPage() {
           error
         );
       } finally {
-        setStatsLoading(false);
+        pending = false;
+        if (!cancelled) setStatsLoading(false);
       }
     }
 
@@ -359,11 +369,14 @@ export default function NFLPage() {
       return;
     }
 
-    loadStats();
+    loadStats(true);
 
-    const interval = setInterval(loadStats, 30000);
+    const interval = setInterval(() => loadStats(), 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [activeTab, statsMode, statsWeek]);
 
   useEffect(() => {
@@ -1561,7 +1574,7 @@ function getPerformanceReason(
                     "#64748b",
                 }}
               >
-                Notable individual performances from the current NFL season.
+                Notable individual performances from the current NFL season. Latest available data: Week {latestPerformanceWeek}. The nflverse weekly feed can lag live games; live leaders are in Stats.
               </p>
             </div>
 

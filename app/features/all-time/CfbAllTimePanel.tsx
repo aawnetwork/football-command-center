@@ -143,6 +143,7 @@ export function CfbAllTimePanel({
       </div>
 
       <AllTimeRecordGrid
+        period={period}
         unavailableMessage={
           records
             ? undefined

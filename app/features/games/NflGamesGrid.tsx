@@ -35,7 +35,11 @@ export function NflGamesGrid({
         return (
           <GameCard
             key={game.id}
-            status={game.completed ? "FINAL" : game.status.toUpperCase()}
+            status={game.completed ? "FINAL" : game.live ? "LIVE" : game.status.toLowerCase() === "scheduled" ? "SCHEDULED" : game.status.toUpperCase()}
+            statusKind={game.completed ? "final" : game.live ? "live" : "scheduled"}
+            statusDetail={game.statusDetail}
+            homeLogo={game.homeLogo}
+            awayLogo={game.awayLogo}
             awayTeam={game.awayTeam}
             awayMeta={game.awayRecord ?? "No record available"}
             awayScore={game.awayPoints}

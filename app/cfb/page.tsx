@@ -5,6 +5,9 @@ import Link from "next/link";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
+import { DeckControls } from "../features/games/DeckControls";
+import { curatedDecks } from "./data/curated-decks";
+import { validDeckAssignments, toggleDeckTier, type CuratedDeck } from "../lib/curated-decks";
 import { StandingsPanel } from "../features/standings/StandingsPanel";
 import {
   PerformancePositionControls,
@@ -67,6 +70,22 @@ export default function Home() {
     useState(false);
   const [selectedTier, setSelectedTier] =
     useState("ALL");
+  const [selectedConference, setSelectedConference] = useState("ALL");
+  const [conferenceTeams, setConferenceTeams] = useState<{ name: string; teams: string[] }[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/standings?league=CFB")
+      .then((response) => {
+        if (!response.ok) throw new Error("Conference metadata unavailable");
+        return response.json();
+      })
+      .then((data) => {
+        if (!cancelled) setConferenceTeams((data.sections ?? []).map((section: { name: string; teams: { team: string }[] }) => ({ name: section.name, teams: section.teams.map((team) => team.team) })));
+      })
+      .catch((error) => console.warn(error));
+    return () => { cancelled = true; };
+  }, []);
 
     const [allTimeView, setAllTimeView] = useState<"individual" | "team">(
   "individual"
@@ -77,10 +96,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 );
 
   const [statsMode, setStatsMode] =
-    useState<StatsMode>("season");
+    useState<StatsMode>("weekly");
 
   const [selectedWeek, setSelectedWeek] =
     useState<number | null>(null);
+  const [gameSeason, setGameSeason] = useState<number | null>(null);
+  const [activeDeck, setActiveDeck] = useState<{ id: string; season: number; week: number; assignments: Record<number, Tier> } | null>(null);
+  const [deckError, setDeckError] = useState<string | null>(null);
+  const loadedDeck = activeDeck?.season === gameSeason && activeDeck?.week === selectedWeek ? activeDeck : null;
+  const effectiveTiers = loadedDeck?.assignments ?? tiers;
 
   const [currentWeek, setCurrentWeek] =
     useState<number | null>(null);
@@ -259,33 +283,24 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }
 
   useEffect(() => {
-    const savedTiers =
-      localStorage.getItem(
-        "cfb-game-tiers"
-      );
-    let restoreTimer: number | undefined;
-
-    if (savedTiers) {
-      try {
+    let restored: Record<number, Tier> = {};
+    try {
+      const savedTiers = localStorage.getItem("cfb-game-tiers");
+      if (savedTiers) {
         const parsedTiers: unknown = JSON.parse(savedTiers);
-
-        if (parsedTiers && typeof parsedTiers === "object") {
-          restoreTimer = window.setTimeout(() => {
-            setTiers(parsedTiers as Record<number, Tier>);
-          }, 0);
+        if (parsedTiers && typeof parsedTiers === "object" && !Array.isArray(parsedTiers)) {
+          const assignments = parsedTiers as Record<string, unknown>;
+          restored = validDeckAssignments(assignments, Object.keys(assignments).map(Number));
         }
-      } catch {
-        localStorage.removeItem("cfb-game-tiers");
       }
+    } catch {
+      // Storage can be unavailable; tiers still work for this session.
     }
-
-    setTiersLoaded(true);
-
-    return () => {
-      if (restoreTimer !== undefined) {
-        window.clearTimeout(restoreTimer);
-      }
-    };
+    const restoreTimer = window.setTimeout(() => {
+      setTiers(restored);
+      setTiersLoaded(true);
+    }, 0);
+    return () => window.clearTimeout(restoreTimer);
   }, []);
 
   useEffect(() => {
@@ -293,10 +308,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       return;
     }
 
-    localStorage.setItem(
-      "cfb-game-tiers",
-      JSON.stringify(tiers)
-    );
+    try { localStorage.setItem("cfb-game-tiers", JSON.stringify(tiers)); }
+    catch { console.warn("Personal tiers could not be saved on this browser."); }
   }, [tiers, tiersLoaded]);
 
   useEffect(() => {
@@ -379,6 +392,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         }
 
         setGames(gamesData);
+        setGameSeason(Array.isArray(data) ? null : data.season ?? null);
 
         setRivalryGames(
           gamesData
@@ -573,14 +587,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
       return {
         ...game,
-        tier: tiers[game.id] ?? null,
+        tier: effectiveTiers[game.id] ?? null,
         suggestedTier,
         rankedTeamLost,
         rankedMatchup,
         top10Matchup,
       };
     });
-  }, [games, tiers]);
+  }, [games, effectiveTiers]);
 
   const filteredGames = useMemo(() => {
     const tierFilteredGames =
@@ -592,12 +606,17 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
     // Preserve the scoreboard's normal order, but keep completed games out
     // of the middle of an active slate.
-    return [...tierFilteredGames].sort(
+    const members = conferenceTeams.find((conference) => conference.name === selectedConference)?.teams;
+    const conferenceFilteredGames = selectedConference === "ALL" ? tierFilteredGames
+      : tierFilteredGames.filter((game) => members?.includes(game.homeTeam) || members?.includes(game.awayTeam));
+    return [...conferenceFilteredGames].sort(
       (left, right) => Number(left.completed) - Number(right.completed)
     );
   }, [
     gamesWithSignals,
     selectedTier,
+    selectedConference,
+    conferenceTeams,
   ]);
 
   const leaders = useMemo(() => {
@@ -694,6 +713,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     gameId: number,
     tier: Tier
   ) {
+    if (loadedDeck) {
+      setActiveDeck({ ...loadedDeck, assignments: toggleDeckTier(loadedDeck.assignments, gameId, tier) });
+      return;
+    }
     setTiers((current) => {
       const next = { ...current };
 
@@ -708,7 +731,19 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }
 
   function clearGameTiers() {
-    setTiers({});
+    if (loadedDeck) setActiveDeck({ ...loadedDeck, assignments: {} });
+    else setTiers({});
+    setSelectedTier("ALL");
+  }
+
+  function loadDeck(deck: CuratedDeck) {
+    const assignments = validDeckAssignments(deck.assignments, games.map((game) => game.id));
+    if (!Object.keys(assignments).length) {
+      setDeckError("This deck has no valid games in the selected week.");
+      return;
+    }
+    setDeckError(null);
+    setActiveDeck({ id: deck.id, season: deck.season, week: deck.week, assignments });
     setSelectedTier("ALL");
   }
 
@@ -1143,14 +1178,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               ))}
               <button
                 onClick={clearGameTiers}
-                disabled={Object.keys(tiers).length === 0}
+                disabled={Object.keys(effectiveTiers).length === 0}
                 style={{
                   padding: "8px 14px",
                   borderRadius: "8px",
                   border: "1px solid #475569",
                   background: "transparent",
-                  color: Object.keys(tiers).length === 0 ? "#64748b" : "#cbd5e1",
-                  cursor: Object.keys(tiers).length === 0 ? "not-allowed" : "pointer",
+                  color: Object.keys(effectiveTiers).length === 0 ? "#64748b" : "#cbd5e1",
+                  cursor: Object.keys(effectiveTiers).length === 0 ? "not-allowed" : "pointer",
                   fontWeight: 700,
                 }}
               >
@@ -1158,6 +1193,21 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               </button>
             </div>
 
+            {!gamesLoading && !gamesError && gameSeason !== null && selectedWeek !== null && <DeckControls
+              key={`${gameSeason}:${selectedWeek}:${loadedDeck?.id ?? "personal"}`}
+              season={gameSeason} week={selectedWeek} decks={curatedDecks} games={games}
+              tiers={effectiveTiers} activeDeckId={loadedDeck?.id} onLoad={loadDeck}
+              onRestore={() => { setActiveDeck(null); setDeckError(null); setSelectedTier("ALL"); }}
+            />}
+            {deckError && <p role="status">{deckError}</p>}
+            {conferenceTeams.length > 0 && <label className="games-conference-filter">
+              Conference
+              <select value={selectedConference} onChange={(event) => setSelectedConference(event.target.value)}>
+                <option value="ALL">All Conferences</option>
+                {conferenceTeams.map((conference) => <option key={conference.name} value={conference.name}>{conference.name}</option>)}
+              </select>
+            </label>}
+            {!gamesLoading && !gamesError && filteredGames.length === 0 && <p>No games match these filters.</p>}
             {gamesError ? (
               <div
                 style={{
@@ -1370,6 +1420,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       performance
                     ) => (
                       <div
+                        data-desk-export="performance" data-export-label={performance.player ? `${performance.player} · ${performance.team}` : performance.team}
                         key={
                           performance.id
                         }
@@ -1416,6 +1467,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                             </div>
 
                             <div
+                              data-export-omit
                               style={{
                                 color:
                                   "#cbd5e1",
@@ -1522,6 +1574,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                         </div>
 
                         <div
+                          data-export-omit
                           style={{
                             marginTop:
                               "16px",
@@ -1632,6 +1685,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             }
           />
             <div
+              data-desk-export="stats" data-export-label={`${statsView === "team" ? "Team" : "Individual"} ${currentCategories.find((category) => category.id === selectedCategory)?.name ?? "Stats"} · ${statsMode === "season" ? "2026 season" : `Week ${selectedWeek ?? "—"}`}`}
               style={{
                 background:
                   "#0f172a",

@@ -1,0 +1,16 @@
+.export-studio { max-width: 1440px; margin: 0 auto; padding: 32px 24px; width: 100%; box-sizing: border-box; }
+.export-studio h1 { font-family: var(--font-bebas-neue), sans-serif; font-size: 56px; margin: 0; }
+.export-studio h2 { margin: 22px 0 8px; font-size: 22px; }
+.export-studio p { color: #94a3b8; line-height: 1.6; }
+.export-studio header > p:first-child { color: #ff6b00; font-weight: 800; letter-spacing: .12em; }
+.export-studio__controls { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 20px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; }
+.export-studio__controls label { display: flex; flex-direction: column; gap: 8px; max-width: 100%; }
+.export-studio select { max-width: 620px; width: 100%; }
+.export-studio select, .export-studio button, .export-studio__controls a { padding: 10px 14px; background: #0b1f33; border: 1px solid #475569; border-radius: 6px; color: #f8fafc; font: inherit; }
+.export-studio button { cursor: pointer; border-color: #ff6b00; }
+.export-studio button:disabled, .export-studio select:disabled { opacity: .5; cursor: not-allowed; }
+.export-studio__controls p { flex-basis: 100%; margin: 0; }
+.export-studio__source { overflow-x: auto; border: 1px solid #334155; }
+.export-studio iframe { display: block; width: 1360px; height: 950px; border: 0; }
+.export-studio__preview > div { padding: 16px; overflow: auto; background-color: #cbd5e1; background-image: conic-gradient(#94a3b8 25%, transparent 0 50%, #94a3b8 0 75%, transparent 0); background-size: 20px 20px; }
+.export-studio__preview img { display: block; max-width: 100%; height: auto; max-height: 900px; object-fit: contain; }

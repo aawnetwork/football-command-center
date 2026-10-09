@@ -20,6 +20,9 @@ type CfbGame = {
   awayRank: number | null;
   completed: boolean;
   live: boolean;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  statusDetail?: string | null;
   tier?: CfbTier;
   suggestedTier: CfbTier;
   top10Matchup?: boolean;
@@ -105,6 +108,10 @@ export function CfbGamesGrid({
           <GameCard
             key={game.id}
             status={getStatus(game)}
+            statusKind={game.completed ? "final" : game.live ? "live" : "scheduled"}
+            statusDetail={game.statusDetail}
+            homeLogo={game.homeLogo}
+            awayLogo={game.awayLogo}
             awayTeam={game.awayRank ? `#${game.awayRank} ${game.awayTeam}` : game.awayTeam}
             awayMeta={formatRecord(game.awayRecord, game.awayConferenceRecord)}
             awayScore={game.awayPoints}

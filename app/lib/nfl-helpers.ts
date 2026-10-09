@@ -20,6 +20,9 @@ export type NFLGame = {
   completed: boolean;
   live: boolean;
   status: string;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  statusDetail?: string | null;
 
   importance?: "S" | "A" | "B" | "C";
   importanceReasons?: string[];

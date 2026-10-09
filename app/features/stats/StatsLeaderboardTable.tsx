@@ -35,6 +35,7 @@ export function StatsLeaderboardTable({
 }: StatsLeaderboardTableProps) {
   return (
     <div
+      data-desk-export="stats" data-export-label={`${title} · ${subtitle}`}
       style={{
         background: "#0f172a",
         border: "1px solid #1e293b",
