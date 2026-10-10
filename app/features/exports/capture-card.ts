@@ -1,4 +1,5 @@
 import { toCanvas } from "html-to-image";
+import { compactStats } from "./compact-stats";
 
 export async function captureCard(source: HTMLElement) {
   const sourceWindow = source.ownerDocument.defaultView;
@@ -24,6 +25,7 @@ export async function captureCard(source: HTMLElement) {
   clone.querySelectorAll<HTMLElement>("div").forEach((node) => {
     if (node.querySelector("table")) { node.style.overflow = "visible"; node.style.maxHeight = "none"; }
   });
+  await compactStats(source, clone);
   // Require visible logos to embed successfully rather than silently dropping them.
   await Promise.all(Array.from(clone.querySelectorAll<HTMLImageElement>("img")).map(async (image) => {
     if (image.hidden || image.style.display === "none") return;
