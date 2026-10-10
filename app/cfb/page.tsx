@@ -44,6 +44,7 @@ import type {
 import { rivalries } from "./data/rivalries";
 import type { BroadcastAvailability } from "../lib/broadcast-availability";
 import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
+import { detectUpsets, isUpsetLoss } from "../lib/cfb-upsets";
 
 export default function Home() {
   const [activeTab, setActiveTab] =
@@ -232,67 +233,6 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           gameId: stat.gameId,
           opponent: stat.opponent,
           message,
-        };
-      });
-  }
-
-  function isUpsetLoss(
-    losingTeamRank: number | null,
-    winningTeamRank: number | null
-  ) {
-    return (
-      losingTeamRank !== null &&
-      losingTeamRank <= 25 &&
-      (winningTeamRank === null ||
-        winningTeamRank > losingTeamRank)
-    );
-  }
-
-  function detectUpsets(games: Game[]) {
-    return games
-      .filter((game) => {
-        if (
-          !game.completed ||
-          game.homePoints === null ||
-          game.awayPoints === null
-        ) {
-          return false;
-        }
-
-        return (
-          (game.homePoints < game.awayPoints &&
-            isUpsetLoss(game.homeRank, game.awayRank)) ||
-          (game.awayPoints < game.homePoints &&
-            isUpsetLoss(game.awayRank, game.homeRank))
-        );
-      })
-      .map((game) => {
-        const homeUpset =
-          game.homePoints! < game.awayPoints! &&
-          isUpsetLoss(game.homeRank, game.awayRank);
-
-        const rank = homeUpset
-          ? game.homeRank!
-          : game.awayRank!;
-
-        const rankedTeam = homeUpset
-          ? game.homeTeam
-          : game.awayTeam;
-
-        const opponent = homeUpset
-          ? game.awayTeam
-          : game.homeTeam;
-
-        const result = homeUpset
-          ? `${game.awayPoints}-${game.homePoints}`
-          : `${game.homePoints}-${game.awayPoints}`;
-
-        return {
-          gameId: game.id,
-          rank,
-          rankedTeam,
-          opponent,
-          result,
         };
       });
   }

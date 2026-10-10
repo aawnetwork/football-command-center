@@ -1,6 +1,7 @@
 import { GameCard } from "../../components/GameCard";
 import type { BroadcastAvailability } from "../../lib/broadcast-availability";
 import { formatGameTime } from "../../lib/cfb-helpers";
+import { upsetLabel } from "../../lib/cfb-upsets";
 import { GameTierControls } from "./GameTierControls";
 
 type CfbTier = "S" | "A" | "B" | "C" | "D";
@@ -88,7 +89,7 @@ export function CfbGamesGrid({
         const rivalryGame = rivalryGames.find((item) => item.game.id === game.id);
         const indicator = upsetSignal
           ? {
-              label: `🚨 ${game.completed ? "UPSET" : "UPSET ALERT"} — #${upsetSignal.rank} ${upsetSignal.rankedTeam} lost to ${upsetSignal.opponent} ${upsetSignal.result}`,
+              label: upsetLabel(upsetSignal, game.completed),
               color: "#f87171",
             }
           : rivalryGame
