@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { allTimeMovementDetail } from "../../lib/all-time-comparison";
 
 import { rivalries } from "../../cfb/data/rivalries";
 import { cfbAllTimeCareerProgram } from "../../cfb/data/cfb-all-time-program";
@@ -268,7 +269,7 @@ export function ContentPanel({ sport }: ContentPanelProps) {
         ? `${signal.player} is the new all-time record holder.`
         : signal.type === "new-entry"
           ? `${signal.player} entered the all-time Top 25.`
-          : `${signal.player} rose from #${signal.previousRank} to #${signal.currentRank} all-time.`,
+          : allTimeMovementDetail(signal),
     })), [signals, sport]);
 
   return (

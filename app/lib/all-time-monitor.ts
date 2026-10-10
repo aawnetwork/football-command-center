@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { compareSnapshot } from "./all-time-comparison";
 
 import {
   cfbAllTimeCareerIndividual,
@@ -272,59 +273,6 @@ const writeStore = async (store: MonitorStore) => {
   const temporaryPath = `${storePath}.tmp`;
   await writeFile(temporaryPath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
   await rename(temporaryPath, storePath);
-};
-
-const compareSnapshot = (
-  previous: AllTimeSnapshot | undefined,
-  current: AllTimeSnapshot,
-): AllTimeSignal[] => {
-  if (!previous) return [];
-
-  const previousEntries = new Map(previous.entries.map((entry) => [entry.id, entry]));
-  const events: AllTimeSignal[] = [];
-
-  for (const entry of current.entries) {
-    const prior = previousEntries.get(entry.id);
-    const base = {
-      league: current.league,
-      audience: current.audience,
-      period: current.period,
-      category: current.category,
-      player: entry.name,
-      isActive: entry.isActive,
-      currentRank: entry.rank,
-      createdAt: current.checkedAt,
-    };
-
-    if (!prior) {
-      events.push({
-        ...base,
-        id: `${current.id}:${entry.id}:new-entry:${current.checkedAt}`,
-        type: "new-entry",
-      });
-      continue;
-    }
-
-    if (prior.rank !== entry.rank) {
-      events.push({
-        ...base,
-        id: `${current.id}:${entry.id}:rank-movement:${current.checkedAt}`,
-        type: "rank-movement",
-        previousRank: prior.rank,
-      });
-    }
-
-    if (entry.rank === 1 && prior.rank !== 1) {
-      events.push({
-        ...base,
-        id: `${current.id}:${entry.id}:record-holder:${current.checkedAt}`,
-        type: "record-holder",
-        previousRank: prior.rank,
-      });
-    }
-  }
-
-  return events;
 };
 
 export async function getAllTimeMonitorStatus() {
