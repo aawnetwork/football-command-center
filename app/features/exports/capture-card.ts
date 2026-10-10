@@ -1,4 +1,4 @@
-import { toPng } from "html-to-image";
+import { toCanvas } from "html-to-image";
 
 export async function captureCard(source: HTMLElement) {
   const sourceWindow = source.ownerDocument.defaultView;
@@ -51,7 +51,29 @@ export async function captureCard(source: HTMLElement) {
     const width = Math.ceil(canvasArea.getBoundingClientRect().width);
     const height = Math.ceil(canvasArea.getBoundingClientRect().height);
     if (width * height * 4 > 32_000_000 || height * 2 > 16_000) throw new Error("This table is too large for one PNG at 2× resolution.");
-    const dataUrl = await toPng(canvasArea, { width, height, pixelRatio: 2, preferredFontFormat: "woff2" });
+    const logos = Array.from(clone.querySelectorAll<HTMLImageElement>("img")).filter(
+      (image) => !image.hidden && image.style.display !== "none" && image.style.visibility !== "hidden" && image.style.objectFit === "contain"
+    );
+    // Reserve their space but render these once, directly, to avoid doubling
+    // translucent edges in browsers whose foreignObject images do work.
+    logos.forEach((image) => { image.style.visibility = "hidden"; });
+    const canvas = await toCanvas(canvasArea, { width, height, pixelRatio: 2, preferredFontFormat: "woff2" });
+    logos.forEach((image) => { image.style.visibility = "visible"; });
+    // WebKit can omit decoded images inside the library's SVG foreignObject.
+    // Paint contained team logos directly onto the final canvas at the same
+    // rendered coordinates; this does not change their layout or appearance.
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("The export canvas is unavailable.");
+    const area = canvasArea.getBoundingClientRect();
+    for (const image of logos) {
+      const bounds = image.getBoundingClientRect();
+      if (!bounds.width || !bounds.height || !image.naturalWidth) continue;
+      const scale = Math.min(bounds.width / image.naturalWidth, bounds.height / image.naturalHeight);
+      const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
+      context.drawImage(image, (bounds.left - area.left + (bounds.width - w) / 2) * 2,
+        (bounds.top - area.top + (bounds.height - h) / 2) * 2, w * 2, h * 2);
+    }
+    const dataUrl = canvas.toDataURL("image/png");
     return { dataUrl, width: width * 2, height: height * 2 };
   } finally { host.remove(); }
 }

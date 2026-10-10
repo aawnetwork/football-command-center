@@ -1,4 +1,4 @@
-# Local Export Studio
+# Private Export Studio
 
 Run the usual Desk development server and open `/admin/exports` on its localhost port (currently `http://localhost:3001/admin/exports`). No public navigation links are added.
 
@@ -12,11 +12,11 @@ Capture uses the rendered card and computed styles, not a separately maintained 
 
 One card per PNG at 2× resolution with a 12px transparent gutter (24 output pixels). Entire tables are captured even beyond the iframe viewport. Oversized captures fail explicitly; no rows are silently dropped. Do not treat the preview as confirmation of fresh/current data: select the intended source week and check its actual values first.
 
-Access is gated on the server: `NODE_ENV` must equal `development` AND the request Host must be loopback. A production build returns not-found, even for localhost or a spoofed localhost Host. There are no export-specific API endpoints, upload services or accounts. This is not an authentication system; do not expose the development server to untrusted networks or tunnel it publicly.
+Development loopback access remains available without a password. All other access requires HTTP Basic authentication, checked by the route proxy and again by the server page. Username: `aaw`. Set server-only `EXPORT_STUDIO_PASSWORD` in Vercel Production to a unique password of at least 16 characters, then redeploy. Missing or shorter configuration fails closed. Preview deployments require their own environment setting if access is wanted. Never prefix this variable with NEXT_PUBLIC_. Use HTTPS remotely and do not expose the development server publicly.
 
-The capture module is separate from the route gate so a future authenticated workflow can reuse it. That future workflow is not implemented.
+Contained logos are decoded and drawn directly onto the output canvas at their existing positions, bypassing browser-dependent SVG foreignObject image rendering. The card design is unchanged.
 
-## Local verification — 9 October 2026
+## Historical local verification — 9 October 2026 (previous local-only gate)
 
 Generated and visually inspected real CFB game, performance, weekly stats, conference standings and All-Time PNGs, plus NFL All-Time with ACTIVE rows and season stats. Verified full-table capture, transparent outer pixels and an actual PNG download. Type checking and the six deck/access tests passed. Export-specific lint has no errors (one intentional plain-image preview warning).
 
