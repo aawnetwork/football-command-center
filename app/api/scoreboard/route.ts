@@ -8,12 +8,19 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const week = searchParams.get("week");
   const requestedWeek = week === null ? null : Number(week);
+  const season = searchParams.get("season");
+  if ((season !== null && (!/^\d{4}$/.test(season) || Number(season) < 2000 || Number(season) > new Date().getUTCFullYear() + 1)) ||
+      (week !== null && (!/^\d+$/.test(week) || Number(week) > 16)) ||
+      (requestedWeek === 0 && season !== null && season !== "2026")) {
+    return NextResponse.json({ error: "Invalid season/week. Week 0 is supported for 2026 only." }, { status: 400 });
+  }
   try {
     const scoreboardUrl = new URL(
       "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
     );
     scoreboardUrl.searchParams.set("seasontype", "2");
     scoreboardUrl.searchParams.set("groups", "80");
+    if (season !== null) scoreboardUrl.searchParams.set("year", season);
 
     if (week !== null && week !== "") {
       // ESPN combines the 2026 Week 0 and Week 1 schedules under Week 1.
@@ -113,12 +120,12 @@ export async function GET(request: Request) {
     );
 
     const filteredGames =
-      requestedWeek === 0
+      requestedWeek === 0 && data.season?.year === 2026
         ? games.filter(
             (game: { startDate: string }) =>
               game.startDate < WEEK_ZERO_2026_CUTOFF
           )
-        : requestedWeek === 1
+        : requestedWeek === 1 && data.season?.year === 2026
           ? games.filter(
               (game: { startDate: string }) =>
                 game.startDate >= WEEK_ZERO_2026_CUTOFF

@@ -103,6 +103,21 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   const [gameSeason, setGameSeason] = useState<number | null>(null);
   const [activeDeck, setActiveDeck] = useState<{ id: string; season: number; week: number; assignments: Record<number, Tier> } | null>(null);
   const [deckError, setDeckError] = useState<string | null>(null);
+  const [deckResponse, setDeckResponse] = useState<{ key: string; decks: CuratedDeck[]; error: string | null }>({ key: "", decks: [], error: null });
+  const deckKey = `${gameSeason}/${selectedWeek}`;
+  const decksLoading = gameSeason !== null && selectedWeek !== null && deckResponse.key !== deckKey;
+  const publishedDecks = deckResponse.key === deckKey ? deckResponse.decks : [];
+  const deckLoadError = deckResponse.key === deckKey ? deckResponse.error : null;
+  useEffect(() => {
+    if (gameSeason === null || selectedWeek === null || activeTab !== "games") return;
+    let cancelled = false;
+    fetch(`/api/decks?season=${gameSeason}&week=${selectedWeek}`, { cache: "no-store" })
+      .then(async (response) => { if (!response.ok) throw new Error("Published decks are temporarily unavailable. Personal selections and prepared presets still work."); return response.json(); })
+      .then((data) => { if (!cancelled) setDeckResponse({ key: `${gameSeason}/${selectedWeek}`, decks: data.decks, error: null }); })
+      .catch((error) => { if (!cancelled) setDeckResponse({ key: `${gameSeason}/${selectedWeek}`, decks: [], error: error.message }); });
+    return () => { cancelled = true; };
+  }, [gameSeason, selectedWeek, activeTab]);
+  const availableCuratedDecks = [...curatedDecks.filter((preset) => !publishedDecks.some((deck) => deck.id === preset.id)), ...publishedDecks];
   const loadedDeck = activeDeck?.season === gameSeason && activeDeck?.week === selectedWeek ? activeDeck : null;
   const effectiveTiers = loadedDeck?.assignments ?? tiers;
 
@@ -1195,11 +1210,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
             {!gamesLoading && !gamesError && gameSeason !== null && selectedWeek !== null && <DeckControls
               key={`${gameSeason}:${selectedWeek}:${loadedDeck?.id ?? "personal"}`}
-              season={gameSeason} week={selectedWeek} decks={curatedDecks} games={games}
+              season={gameSeason} week={selectedWeek} decks={availableCuratedDecks} games={games}
               tiers={effectiveTiers} activeDeckId={loadedDeck?.id} onLoad={loadDeck}
               onRestore={() => { setActiveDeck(null); setDeckError(null); setSelectedTier("ALL"); }}
             />}
             {deckError && <p role="status">{deckError}</p>}
+            {decksLoading && <p role="status">Loading published decks…</p>}
+            {deckLoadError && <p role="status">{deckLoadError}</p>}
             {conferenceTeams.length > 0 && <label className="games-conference-filter">
               Conference
               <select value={selectedConference} onChange={(event) => setSelectedConference(event.target.value)}>

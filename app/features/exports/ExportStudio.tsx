@@ -74,7 +74,7 @@ export function ExportStudio() {
   }
 
   return <main className="export-studio">
-    <header><p>AAW · PRIVATE EXPORTS</p><h1>Export Studio</h1><p>One real Desk card or table per transparent PNG. Nothing is uploaded or published.</p></header>
+    <header><p>AAW · PRIVATE EXPORTS</p><h1>Export Studio</h1><p>One real Desk card or table per transparent PNG. Nothing is uploaded or published.</p><a href="/admin/decks">Deck Manager</a></header>
     <section className="export-studio__controls" aria-label="Export controls">
       <label>League <select value={league} disabled={busy} onChange={(event) => {
         setCards([]); setSelected(""); setResult(null); setLeague(event.target.value);
