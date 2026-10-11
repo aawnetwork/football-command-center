@@ -1337,6 +1337,9 @@
 .deck-controls textarea { box-sizing: border-box; width: 100%; margin-top: 14px; padding: 10px; color: #cbd5e1; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font: inherit; }
 
 /* Responsive application chrome; exported cards retain their own layout. */
+.weekly-leader--playing { background: linear-gradient(90deg, var(--cc-accent-soft), transparent 58%); }
+.weekly-leader--playing > td:first-child,
+.weekly-leader--playing > td:last-child { color: var(--cc-accent); }
 .command-center__header,
 .command-center__header-content { align-items: center !important; }
 .command-center__header-content > div:first-child { min-width: 0; flex: 1 1 340px; }

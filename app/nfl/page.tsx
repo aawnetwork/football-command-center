@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { DataCheckIndicator } from "../components/DataCheckIndicator";
+import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { NflGamesGrid } from "../features/games/NflGamesGrid";
@@ -40,6 +42,9 @@ import type {
 } from "../lib/nfl-helpers";
 
 export default function NFLPage() {
+  const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
+  const [playerStatsCheck, setPlayerStatsCheck] = useState(emptyDataCheck);
+  const [teamStatsCheck, setTeamStatsCheck] = useState(emptyDataCheck);
   const [games, setGames] =
     useState<NFLGame[]>([]);
 
@@ -236,6 +241,7 @@ export default function NFLPage() {
         });
 
         setGames(preparedGames);
+        setGamesCheck((previous) => recordDataCheck(previous, String(data.week ?? selectedGameWeek ?? "latest"), true, Date.now()));
         scheduleRefresh(preparedGames);
       } catch (error) {
         if (!cancelled) {
@@ -246,6 +252,7 @@ export default function NFLPage() {
           setGamesError(
             "Live NFL games are temporarily unavailable. We’ll retry automatically."
           );
+          setGamesCheck((previous) => recordDataCheck(previous, String(selectedGameWeek ?? "latest"), false, Date.now()));
           refreshTimer = window.setTimeout(() => {
             void loadGames(false);
           }, 60_000);
@@ -295,6 +302,7 @@ export default function NFLPage() {
     let pending = false;
 
     async function loadStats(initialLoad = false) {
+      let playerSucceeded = false;
       if (pending) return;
       pending = true;
       if (initialLoad) setStatsLoading(true);
@@ -321,6 +329,8 @@ export default function NFLPage() {
         setStats(
           playerData.stats ?? []
         );
+        if (statsMode === "weekly") setPlayerStatsCheck((previous) => recordDataCheck(previous, String(playerData.week ?? statsWeek ?? "latest"), true, Date.now()));
+        playerSucceeded = true;
         setAvailableStatsWeeks(playerData.availableWeeks ?? []);
         setStatsWeek((currentWeek) => {
           if (statsMode !== "weekly") {
@@ -354,11 +364,16 @@ export default function NFLPage() {
         setTeamStats(
           teamData.stats ?? []
         );
+        if (statsMode === "weekly") setTeamStatsCheck((previous) => recordDataCheck(previous, String(playerData.week ?? statsWeek ?? "latest"), true, Date.now()));
       } catch (error) {
         console.error(
           "NFL stats error:",
           error
         );
+        if (!cancelled && statsMode === "weekly") {
+          if (!playerSucceeded) setPlayerStatsCheck((previous) => recordDataCheck(previous, String(statsWeek ?? "latest"), false, Date.now()));
+          setTeamStatsCheck((previous) => recordDataCheck(previous, String(statsWeek ?? "latest"), false, Date.now()));
+        }
       } finally {
         pending = false;
         if (!cancelled) setStatsLoading(false);
@@ -1103,6 +1118,7 @@ function getPerformanceReason(
 
           return {
             id: player.player_id,
+            playingNow: statsMode === "weekly" && player.playingNow === true,
             name: player.player_display_name,
             team: getNflTeamName(player.recent_team),
             value: valueLabel,
@@ -1346,6 +1362,7 @@ function getPerformanceReason(
                 }}
               >
                 Updates every 30 seconds
+                <DataCheckIndicator check={gamesCheck} scope={String(selectedGameWeek ?? "latest")} />
               </div>
             </div>
 
@@ -2488,6 +2505,7 @@ function getPerformanceReason(
 
         {activeTab === "stats" && (
           <section>
+            {statsMode === "weekly" && <DataCheckIndicator check={statsView === "players" ? playerStatsCheck : teamStatsCheck} scope={String(statsWeek ?? "latest")} />}
             <StatsPanelControls
               title="Stats"
               description={

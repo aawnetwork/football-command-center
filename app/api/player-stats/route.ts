@@ -1,4 +1,6 @@
+import {loadCfbPreviousHighs,seasonHighEligible} from '../../lib/cfb-history';
 import { NextResponse } from "next/server";
+import { isTeamPlaying } from "../../lib/gameday-status";
 
 export const revalidate = 30;
 
@@ -43,6 +45,9 @@ export async function GET(request: Request) {
     const events = scoreboard.events ?? [];
 
     const playerStats: any[] = [];
+    const historyPromise=loadCfbPreviousHighs(events.map((event: any)=>String(event.id)));
+    const completion=new Map<number,boolean>();
+    const playerTeams=new Map<string,string>();
     const teamStats: any[] = [];
 
     // Fetch all game's full box scores in parallel.
@@ -125,6 +130,7 @@ export async function GET(request: Request) {
         awayTeam?.team?.shortDisplayName ??
         "";
 
+      completion.set(gameId,competition.status?.type?.completed===true);
       const boxscorePlayers =
         summary.boxscore?.players ?? [];
 
@@ -271,6 +277,7 @@ if (defensiveStats?.totals) {
                     ? "FR"
                     : label;
 
+              playerTeams.set(`${player.id}:${gameId}`,String(teamBox.team?.id??''));
               playerStats.push({
                 playerId: Number(
                   player.id
@@ -278,6 +285,7 @@ if (defensiveStats?.totals) {
                 player:
                   player.displayName,
                 team: teamName,
+                playingNow: isTeamPlaying(events.find((event: any) => Number(event.id) === gameId)?.competitions?.[0], teamBox.team?.id),
                 category:
                   categoryName === "defensive" ||
                   categoryName === "interceptions" ||
@@ -295,6 +303,8 @@ if (defensiveStats?.totals) {
       }
     }
 
+    const history=await historyPromise;
+    for(const stat of playerStats)if(seasonHighEligible(stat,history,completion.get(stat.gameId)===true,playerTeams.get(`${stat.playerId}:${stat.gameId}`)??''))stat.seasonHigh=true;
     return NextResponse.json([
   ...playerStats,
   ...teamStats,

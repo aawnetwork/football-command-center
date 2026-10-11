@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 type GameCardProps = {
+  possession?: "home" | "away" | null;
   status: string;
   statusKind?: "live" | "final" | "scheduled";
   statusDetail?: string | null;
@@ -22,6 +23,7 @@ type GameCardProps = {
 };
 
 export function GameCard({
+  possession,
   status,
   statusKind = "scheduled",
   statusDetail,
@@ -56,7 +58,7 @@ export function GameCard({
       <div className="game-card__teams">
         <div className="game-card__team-row">
           <div>
-            <div className="game-card__team-name">{awayLogo && <img className="game-card__logo" src={awayLogo} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}{awayTeam}</div>
+            <div className="game-card__team-name">{awayLogo && <img className="game-card__logo" src={awayLogo} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}{awayTeam}{statusKind === "live" && possession === "away" && <span aria-label="Has possession">🏈</span>}</div>
             <div className="game-card__team-meta">{awayMeta}</div>
           </div>
           <div className="game-card__score">{awayScore ?? "—"}</div>
@@ -66,7 +68,7 @@ export function GameCard({
 
         <div className="game-card__team-row">
           <div>
-            <div className="game-card__team-name">{homeLogo && <img className="game-card__logo" src={homeLogo} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}{homeTeam}</div>
+            <div className="game-card__team-name">{homeLogo && <img className="game-card__logo" src={homeLogo} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}{homeTeam}{statusKind === "live" && possession === "home" && <span aria-label="Has possession">🏈</span>}</div>
             <div className="game-card__team-meta">{homeMeta}</div>
           </div>
           <div className="game-card__score">{homeScore ?? "—"}</div>

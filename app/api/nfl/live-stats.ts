@@ -1,3 +1,4 @@
+import { isTeamPlaying } from "../../lib/gameday-status";
 const SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 const SUMMARY_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary";
 
@@ -7,6 +8,7 @@ const value = (input: unknown) => {
 };
 
 type LivePlayer = {
+  playingNow: boolean;
   player_id: string;
   player_display_name: string;
   recent_team: string;
@@ -51,6 +53,7 @@ export async function loadLiveNflStats() {
             player_id: athleteInfo.id,
             player_display_name: athleteInfo.displayName ?? "",
             recent_team: team,
+            playingNow: events.some((event: any) => isTeamPlaying(event.competitions?.[0], teamBox.team?.id)),
             passing_yards: 0, passing_tds: 0, rushing_yards: 0, rushing_tds: 0,
             receiving_yards: 0, receiving_tds: 0, tackles: 0, sacks: 0, interceptions: 0,
           };

@@ -35,6 +35,7 @@ export function NflGamesGrid({
         return (
           <GameCard
             key={game.id}
+            possession={game.possession}
             status={game.completed ? "FINAL" : game.live ? "LIVE" : game.status.toLowerCase() === "scheduled" ? "SCHEDULED" : game.status.toUpperCase()}
             statusKind={game.completed ? "final" : game.live ? "live" : "scheduled"}
             statusDetail={game.statusDetail}

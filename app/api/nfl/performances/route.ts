@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { nflSeasonHighs } from "../../../lib/nfl-season-highs";
 
 export const revalidate = 60;
 
@@ -430,6 +431,7 @@ export async function GET() {
       }
     }
 
+    const seasonHighs = nflSeasonHighs(currentSeasonStats, currentSeasonSchedule, 2026, new Date().toISOString().slice(0, 10));
     const performances =
       currentSeasonStats
         .filter(
@@ -600,6 +602,7 @@ export async function GET() {
           }
 
           return {
+            seasonHighs: seasonHighs.get(`${stat.player_id}:${stat.game_id}`) ?? [],
             player_id:
               stat.player_id,
 

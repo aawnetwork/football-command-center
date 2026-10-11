@@ -138,6 +138,7 @@ export function NflPerformanceCard({
               }}
             >
               {stat.value}
+              {performance.seasonHighs?.includes(stat.label) && <span data-export-omit className="all-time-record-row__active">SEASON HIGH</span>}
             </div>
           </div>
         ))}

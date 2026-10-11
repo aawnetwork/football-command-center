@@ -1,4 +1,5 @@
 type LeaderboardRow = {
+  playingNow?: boolean;
   id: string;
   name: string;
   team?: string;
@@ -88,10 +89,11 @@ export function StatsLeaderboardTable({
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr key={row.id}>
+              <tr key={row.id} className={showTeam && row.playingNow ? "weekly-leader--playing" : undefined}>
                 <td style={bodyCellStyle}>{index + 1}</td>
                 <td style={{ ...bodyCellStyle, fontWeight: 700 }}>
                   {row.name}
+                  {showTeam && row.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
                 </td>
                 {showTeam && <td style={bodyCellStyle}>{row.team}</td>}
                 <td style={{ ...bodyCellStyle, fontWeight: 800 }}>

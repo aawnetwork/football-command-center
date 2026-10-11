@@ -31,7 +31,11 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
     element("p", `${subtitle} · Top 10`, "margin:5px 0 0;color:#94a3b8;font-size:14px;font-weight:400;"));
   clone.append(header);
   for (const row of rows.slice(0, 10)) {
-    const [rank, player, team, stat] = Array.from(row.cells).map((cell) => cell.textContent?.trim() ?? "");
+    const [rank, player, team, stat] = Array.from(row.cells).map((cell) => {
+      const copy = cell.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll("[data-export-omit]").forEach((node) => node.remove());
+      return copy.textContent?.trim() ?? "";
+    });
     const item = element("div", "", "display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid #334155;");
     item.append(element("div", rank, "width:24px;flex-shrink:0;color:#94a3b8;font-size:18px;font-weight:600;"));
     const logo = logos.get(team);

@@ -5,6 +5,7 @@ import { nflTeamNameByAbbreviation } from "../nfl/data/divisions";
 // Nothing here touches React state — all pure functions.
 
 export type NFLGame = {
+  possession?: "home" | "away" | null;
   id: number;
   startDate: string;
   homeTeam: string;
@@ -29,6 +30,7 @@ export type NFLGame = {
 };
 
 export type NFLPlayerStat = {
+  playingNow?: boolean;
   player_id: string;
   player_display_name: string;
   recent_team: string;
@@ -44,6 +46,7 @@ export type NFLPlayerStat = {
 };
 
 export type NFLPerformance = NFLPlayerStat & {
+  seasonHighs?: string[];
   week: number;
   opponent_team: string;
   game_id: string;

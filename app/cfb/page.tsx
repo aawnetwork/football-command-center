@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { DataCheckIndicator } from "../components/DataCheckIndicator";
+import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
 import { ContentPanel } from "../features/content/ContentPanel";
 import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
@@ -47,6 +49,8 @@ import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 import { detectUpsets, isUpsetLoss } from "../lib/cfb-upsets";
 
 export default function Home() {
+  const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
+  const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
   const [activeTab, setActiveTab] =
     useState("games");
 
@@ -347,6 +351,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         }
 
         setGames(gamesData);
+        setGamesCheck((previous) => recordDataCheck(previous, String(data.week ?? selectedWeek ?? "latest"), true, Date.now()));
         setGameSeason(Array.isArray(data) ? null : data.season ?? null);
 
         setRivalryGames(
@@ -390,6 +395,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           setGamesError(
             "Live college football games are temporarily unavailable. We’ll retry automatically."
           );
+          setGamesCheck((previous) => recordDataCheck(previous, String(selectedWeek ?? "latest"), false, Date.now()));
           refreshTimer = window.setTimeout(() => {
             void loadGames(false);
           }, 60_000);
@@ -446,6 +452,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       return;
     }
 
+    let checkCancelled = false;
     async function loadPlayerStats() {
       try {
         const response = await fetch(
@@ -462,11 +469,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         const data = await response.json();
 
+        if (!checkCancelled) setStatsCheck((previous) => recordDataCheck(previous, String(selectedWeek ?? "latest"), true, Date.now()));
+
         setPlayerStats(data);
         setMilestones(
           detectMilestones(data)
         );
       } catch (error) {
+        if (!checkCancelled) setStatsCheck((previous) => recordDataCheck(previous, String(selectedWeek ?? "latest"), false, Date.now()));
         console.error(error);
       } finally {
         setPlayerStatsLoading(false);
@@ -480,8 +490,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       30000
     );
 
-    return () =>
+    return () => {
+      checkCancelled = true;
       clearInterval(interval);
+    };
   }, [
     activeTab,
     statsMode,
@@ -993,6 +1005,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 }}
               >
                 Updates every 30 seconds
+                <DataCheckIndicator check={gamesCheck} scope={String(selectedWeek ?? "latest")} />
               </div>
             </div>
 
@@ -1509,6 +1522,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                       stat
                                     )
                                   }
+                                  {stat.seasonHigh && <span data-export-omit className="all-time-record-row__active"> SEASON HIGH</span>}
                                 </div>
 
                                 <div
@@ -1603,6 +1617,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {activeTab === "stats" && (
           <section>
+          {statsMode === "weekly" && <DataCheckIndicator check={statsCheck} scope={String(selectedWeek ?? "latest")} />}
           <StatsPanelControls
             title="Stats"
             description={statsMode === "weekly" ? `Week ${selectedWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders"}
@@ -1832,6 +1847,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                             index
                           ) => (
                             <tr
+                              className={statsMode === "weekly" && statsView === "individual" && leader.playingNow ? "weekly-leader--playing" : undefined}
                               key={
                                 leader.playerId
                               }
@@ -1855,6 +1871,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                 {
                                   leader.player
                                 }
+                                {statsMode === "weekly" && statsView === "individual" && leader.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
                               </td>
 
                               {statsView ===

@@ -7,6 +7,7 @@ import { GameTierControls } from "./GameTierControls";
 type CfbTier = "S" | "A" | "B" | "C" | "D";
 
 type CfbGame = {
+  possession?: "home" | "away" | null;
   id: number;
   startDate: string;
   homeTeam: string;
@@ -108,6 +109,7 @@ export function CfbGamesGrid({
         return (
           <GameCard
             key={game.id}
+            possession={game.possession}
             status={getStatus(game)}
             statusKind={game.completed ? "final" : game.live ? "live" : "scheduled"}
             statusDetail={game.statusDetail}

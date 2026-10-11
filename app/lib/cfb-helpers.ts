@@ -1,4 +1,5 @@
 export type Game = {
+  possession?: "home" | "away" | null;
   id: number;
   startDate: string;
   homeTeam: string;
@@ -48,6 +49,8 @@ export type SeasonStat = {
 };
 
 export type PlayerStat = {
+  seasonHigh?: boolean;
+  playingNow?: boolean;
   playerId: number;
   player: string;
   team: string;
@@ -70,6 +73,7 @@ export type PlayerStat = {
 export type Tier = "S" | "A" | "B" | "C" | "D";
 
 export type Leader = {
+  playingNow?: boolean;
   playerId: string;
   player: string;
   team: string;
@@ -265,6 +269,7 @@ export function buildWeeklyIndividualLeaders(
     )
     .map((stat) => ({
       playerId: `${stat.playerId}-${stat.gameId}`,
+      playingNow: stat.playingNow === true,
       player: stat.player,
       team: stat.team,
       value: Number(stat.value) || 0,
