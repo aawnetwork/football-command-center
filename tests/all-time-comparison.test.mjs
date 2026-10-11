@@ -51,3 +51,36 @@ test('Missing/equal previous ranks never claim a rise', () => {
   assert.equal(allTimeMovementDetail({ player: 'Player', currentRank: 5 }), 'Player is ranked #5 all-time.');
   assert.equal(allTimeMovementDetail({ player: 'Player', previousRank: 5, currentRank: 5 }), 'Player is ranked #5 all-time.');
 });
+
+const mahomes = snapshot([5312, 5109].map((value, index) => ({
+  id: 'CFB:individual:season:total-offense-yards:patrick-mahomes-texas-tech-2016',
+  name: 'Patrick Mahomes', context: 'Texas Tech', years: '2016',
+  value, rank: index === 0 ? 10 : 23, isActive: false,
+})), { id: 'CFB:individual:season:total-offense-yards', league: 'CFB', period: 'season', category: 'total-offense-yards' });
+
+test('Actual Mahomes duplicate-ID fixture generates no signals unchanged or reordered', () => {
+  const original = structuredClone(mahomes);
+  assert.deepEqual(compareSnapshot(mahomes, structuredClone(mahomes)), []);
+  assert.deepEqual(compareSnapshot(mahomes, { ...mahomes, entries: [...mahomes.entries].reverse() }), []);
+  assert.deepEqual(mahomes, original);
+});
+test('Repeated unchanged comparisons at different refresh timestamps generate zero signals', () => {
+  let previous = mahomes;
+  for (const checkedAt of ['2026-10-11T02:00:00Z', '2026-10-11T03:00:00Z']) {
+    const next = { ...structuredClone(mahomes), checkedAt };
+    assert.deepEqual(compareSnapshot(previous, next), []);
+    previous = next;
+  }
+});
+test('Distinct totals establish genuine duplicate-ID historical movement one-to-one', () => {
+  const current = { ...mahomes, entries: mahomes.entries.map(e => ({ ...e, rank: e.rank - 1 })) };
+  assert.deepEqual(compareSnapshot(mahomes, current).map(s => [s.previousRank, s.currentRank]), [[10, 9], [23, 22]]);
+});
+test('Ambiguous duplicate identities suppress unsupported movement and new-entry claims', () => {
+  const ambiguous = { ...mahomes, entries: mahomes.entries.map(e => ({ ...e, value: 5312 })) };
+  assert.deepEqual(compareSnapshot(ambiguous, { ...ambiguous, entries: ambiguous.entries.map(e => ({ ...e, rank: e.rank - 1 })) }), []);
+  const changed = { ...mahomes, entries: mahomes.entries.map(e => ({ ...e, value: e.value + 1, rank: e.rank - 1 })) };
+  assert.deepEqual(compareSnapshot(mahomes, changed), []);
+  // A single old row cannot be guessed as the baseline for two colliding rows.
+  assert.deepEqual(compareSnapshot({ ...ambiguous, entries: ambiguous.entries.slice(0, 1) }, ambiguous), []);
+});
