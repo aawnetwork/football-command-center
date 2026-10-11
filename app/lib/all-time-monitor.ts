@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { compareSnapshot } from "./all-time-comparison";
+import { retainAllTimeSignals } from "./all-time-signal-retention";
 
 import {
   cfbAllTimeCareerIndividual,
@@ -316,16 +317,13 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
   const retainedSnapshots = league
     ? store.snapshots.filter((snapshot) => snapshot.league !== league)
     : [];
-  const retainedSignals = league
-    ? store.signals.filter((signal) => signal.league !== league)
-    : [];
 
   const updatedStore: MonitorStore = {
     version: 1,
     catalogVersion:
       league === "CFB" ? store.catalogVersion : monitorCatalogVersion,
     snapshots: [...retainedSnapshots, ...currentSnapshots],
-    signals: [...signals, ...retainedSignals].slice(0, 250),
+    signals: retainAllTimeSignals(store.signals, signals),
     lastCheckedAt: checkedAt,
   };
   await writeStore(updatedStore);
