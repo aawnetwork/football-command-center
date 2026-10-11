@@ -1235,10 +1235,10 @@ function getPerformanceReason(
             >
               Switch to CFB <span aria-hidden="true">→</span>
             </Link>
-            <div
+            <a
               className="command-center__brand-logo"
-              role="img"
-              aria-label="AAW Network"
+              href="https://aawnetwork.co.uk"
+              aria-label="AAW Network home"
             />
             <div className="command-center__source">
               Live data powered by ESPN & nflverse
@@ -1351,6 +1351,7 @@ function getPerformanceReason(
 
             {currentGameWeek !== null && (
               <div
+                className="cc-week-controls"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1368,7 +1369,7 @@ function getPerformanceReason(
                   Week:
                 </span>
 
-                <div
+                <div className="cc-week-strip"
                   style={{
                     display: "flex",
                     gap: "8px",
@@ -1411,7 +1412,7 @@ function getPerformanceReason(
               </div>
             )}
 
-            <div
+            <div className="cc-tier-filters"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1578,7 +1579,7 @@ function getPerformanceReason(
               </p>
             </div>
 
-            <div
+            <div className="cc-week-strip"
               style={{
                 display:
                   "flex",

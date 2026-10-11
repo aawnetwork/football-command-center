@@ -1335,3 +1335,71 @@
 .deck-controls legend { margin-bottom: 10px; }
 .deck-controls input { accent-color: #ff6b00; }
 .deck-controls textarea { box-sizing: border-box; width: 100%; margin-top: 14px; padding: 10px; color: #cbd5e1; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font: inherit; }
+
+/* Responsive application chrome; exported cards retain their own layout. */
+.command-center__header,
+.command-center__header-content { align-items: center !important; }
+.command-center__header-content > div:first-child { min-width: 0; flex: 1 1 340px; }
+.command-center__header-brand {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 10px 16px;
+}
+.command-center__brand-logo { display: block; grid-column: 1; grid-row: 1; }
+.command-center__league-switch { grid-column: 2; grid-row: 1; white-space: nowrap; }
+.command-center__source { grid-column: 1 / -1; justify-self: end; }
+.command-center__brand-logo:focus-visible,
+.command-center button:focus-visible,
+.command-center select:focus-visible { outline: 2px solid var(--cc-accent); outline-offset: 3px; }
+.command-center__nav {
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: thin;
+}
+.command-center__nav button { flex: 0 0 auto; white-space: nowrap; }
+.cc-week-controls { min-width: 0; flex-wrap: nowrap !important; }
+.cc-week-controls > label,
+.cc-week-controls > span { flex-shrink: 0; }
+.cc-week-strip,
+.stats-panel-week-selector {
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  scrollbar-width: thin;
+}
+.cc-week-strip button,
+.stats-panel-week-selector > * { flex-shrink: 0; white-space: nowrap; }
+.command-center .stats-leaderboard td { overflow-wrap: anywhere; }
+.command-center .stats-leaderboard td:last-child { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 780px) {
+  .command-center { padding: 24px 16px !important; }
+  .command-center__header { gap: 16px !important; margin-bottom: 20px !important; }
+  .command-center__header-content { gap: 16px !important; }
+  .command-center__header-brand { width: 100%; grid-template-columns: 1fr auto; }
+  .command-center__brand-logo { width: 160px; height: 36px; background-size: 160px 160px; }
+  .command-center__source { width: auto; justify-self: start; padding: 6px 0 !important; background: none !important; border: 0 !important; }
+  .command-center__subtitle { font-size: 14px !important; line-height: 1.5; }
+  .command-center__nav { gap: 2px !important; margin-bottom: 22px !important; }
+  .command-center__nav button { padding: 12px 14px !important; }
+  .cc-tier-filters { gap: 6px !important; }
+  .cc-tier-filters button { min-height: 40px; padding: 8px 10px !important; }
+  .games-conference-filter { gap: 8px; }
+  .games-conference-filter select { width: 100%; min-width: 0; }
+  .deck-controls { padding: 12px; }
+  .deck-controls__actions { align-items: stretch; gap: 8px; }
+  .deck-controls__actions > label { width: 100%; display: grid; grid-template-columns: 1fr; }
+  .deck-controls select { width: 100%; min-width: 0; max-width: 100%; }
+  .deck-controls__actions > button { flex: 1 1 140px; }
+  .command-center .stats-leaderboard table { min-width: 360px; }
+  .command-center .stats-leaderboard--individual table { min-width: 480px; }
+  .command-center .stats-leaderboard th,
+  .command-center .stats-leaderboard td { padding: 10px 12px !important; font-size: 13px; }
+  .command-center .stats-leaderboard td:first-child,
+  .command-center .stats-leaderboard td:last-child { white-space: nowrap; }
+  .all-time-record-row { min-width: 0; }
+}

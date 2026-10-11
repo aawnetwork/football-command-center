@@ -35,6 +35,7 @@ export function StatsLeaderboardTable({
 }: StatsLeaderboardTableProps) {
   return (
     <div
+      className={`stats-leaderboard${showTeam ? " stats-leaderboard--individual" : ""}`}
       data-desk-export="stats" data-export-label={`${title} · ${subtitle}`}
       style={{
         background: "#0f172a",

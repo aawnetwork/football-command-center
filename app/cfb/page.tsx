@@ -886,10 +886,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               >
                 Switch to NFL <span aria-hidden="true">→</span>
               </Link>
-              <div
+              <a
                 className="command-center__brand-logo"
-                role="img"
-                aria-label="AAW Network"
+                href="https://aawnetwork.co.uk"
+                aria-label="AAW Network home"
               />
               <div
                 className="command-center__source"
@@ -998,6 +998,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {currentWeek !== null && (
           <div
+            className="cc-week-controls"
             style={{
               display: "flex",
               alignItems: "center",
@@ -1015,7 +1016,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               Week:
             </label>
 
-            <div
+            <div className="cc-week-strip"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1056,7 +1057,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             </div>
           </div>
         )}
-            <div
+            <div className="cc-tier-filters"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1229,6 +1230,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {currentWeek !== null && (
           <div
+            className="cc-week-strip"
             style={{
               display: "flex",
               gap: "8px",
