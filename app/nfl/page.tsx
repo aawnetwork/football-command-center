@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
@@ -43,6 +44,9 @@ import type {
 } from "../lib/nfl-helpers";
 
 export default function NFLPage() {
+  return <Suspense fallback={<main className="command-center" role="status">Loading NFL Hub…</main>}><NFLPageContent /></Suspense>;
+}
+function NFLPageContent() {
   const teamLogo = useTeamLogos("NFL");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [playerStatsCheck, setPlayerStatsCheck] = useState(emptyDataCheck);
@@ -71,8 +75,7 @@ export default function NFLPage() {
   const [performancesLoading, setPerformancesLoading] =
     useState(false);
 
-  const [activeTab, setActiveTab] =
-    useState<Tab>("games");
+  const [activeTab, setActiveTab] = useHubSection();
 
   const [gameTiers, setGameTiers] = useState<Record<number, NFLTier>>({});
   const [gameTiersLoaded, setGameTiersLoaded] = useState(false);

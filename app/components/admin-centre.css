@@ -1,0 +1,15 @@
+.hub-admin { background:#0b1f33; color:#f8fafc; min-height:100vh; }
+.hub-admin__header { display:flex; flex-wrap:wrap; align-items:center; gap:16px; padding:16px 24px; border-bottom:1px solid #334155; }
+.hub-admin__header > span { color:#ffc720; font-size:12px; font-weight:800; letter-spacing:.08em; }
+.hub-admin__header nav { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.hub-admin__header a { color:#f8fafc; text-decoration:none; padding:10px 12px; border:1px solid transparent; border-radius:6px; font-size:14px; }
+.hub-admin__header a[aria-current="page"] { color:#ffc720; border-color:#ffc720; background:#ffc72012; }
+.hub-admin__header a:hover { background:#ffffff0a; }
+.hub-admin a:focus-visible { outline:2px solid #ffc720; outline-offset:3px; }
+.hub-admin__intro { max-width:1000px; margin:auto; padding:32px 24px; }
+.hub-admin__intro h1 { font-size:32px; margin-bottom:12px; }
+.hub-admin__intro p { color:#cbd5e1; line-height:1.6; }
+.hub-admin__cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:24px; }
+.hub-admin__cards a { display:block; padding:22px; color:#f8fafc; border:1px solid #334155; border-radius:8px; text-decoration:none; }
+.hub-admin__cards h2 { color:#ffc720; font-size:20px; }
+@media(max-width:600px) { .hub-admin__header { padding:12px; gap:8px; } .hub-admin__header nav { flex-basis:100%; } .hub-admin__intro { padding:24px 16px; } }

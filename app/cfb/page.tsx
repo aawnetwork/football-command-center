@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
 import { TeamLogo } from "../components/TeamLogo";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
@@ -51,12 +52,14 @@ import type { BroadcastAvailability } from "../lib/broadcast-availability";
 import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 import { detectUpsets, isUpsetLoss } from "../lib/cfb-upsets";
 
-export default function Home() {
+export default function CfbPage() {
+  return <Suspense fallback={<main className="command-center" role="status">Loading CFB Hub…</main>}><Home /></Suspense>;
+}
+function Home() {
   const teamLogo = useTeamLogos("CFB");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
-  const [activeTab, setActiveTab] =
-    useState("games");
+  const [activeTab, setActiveTab] = useHubSection();
 
   const [games, setGames] = useState<Game[]>([]);
   const [upsets, setUpsets] = useState<UpsetSignal[]>([]);
@@ -294,7 +297,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }, [gameIds]);
 
   useEffect(() => {
-    if (activeTab !== "games") {
+    // Direct Stats/Performances links still need the initial week/game context
+    // that previously came from visiting Games first. Do not poll it off Games.
+    if (activeTab !== "games" && (!gamesLoading || !["stats", "performances"].includes(activeTab))) {
       return;
     }
 
@@ -302,6 +307,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     let refreshTimer: number | undefined;
 
     function scheduleRefresh(gamesData: Game[]) {
+      if (activeTab !== "games") return;
       const delay = getScoreboardRefreshDelay(gamesData);
 
       if (delay !== null) {
@@ -448,7 +454,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       (activeTab === "stats" &&
         statsMode === "weekly");
 
-    if (!needsPlayerStats) {
+    if (!needsPlayerStats || gamesLoading) {
       return;
     }
 
@@ -498,6 +504,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     activeTab,
     statsMode,
     selectedWeek,
+    gamesLoading,
   ]);
 
   const gamesWithSignals = useMemo(() => {
