@@ -1,4 +1,6 @@
+import type { GameContext } from "./game-context";
 export type Game = {
+  context?: GameContext;
   possession?: "home" | "away" | null;
   id: number;
   startDate: string;

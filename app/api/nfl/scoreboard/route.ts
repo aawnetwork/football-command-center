@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { possessionSide } from "../../../lib/gameday-status";
+import { contextSelection, normalizeGameContext } from "../../../lib/game-context";
 
 export const revalidate = 30;
 
@@ -9,10 +10,14 @@ const ESPN_SCOREBOARD_URL =
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const week = searchParams.get("week");
+  let selection;
+  try { selection = contextSelection(searchParams, "NFL"); }
+  catch { return NextResponse.json({ error: "Invalid season/week/season type." }, { status: 400 }); }
 
   try {
     const scoreboardUrl = new URL(ESPN_SCOREBOARD_URL);
-    scoreboardUrl.searchParams.set("seasontype", "2");
+    scoreboardUrl.searchParams.set("seasontype", String(selection.seasonType));
+    if (selection.season !== undefined) scoreboardUrl.searchParams.set("year", String(selection.season));
 
     if (week) {
       scoreboardUrl.searchParams.set("week", week);
@@ -33,6 +38,7 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
+    const sourceCheckedAt = new Date().toISOString();
 
     const games = (data.events ?? []).map((event: any) => {
       const competition = event.competitions?.[0];
@@ -47,6 +53,7 @@ export async function GET(request: Request) {
 
       return {
         id: Number(event.id),
+        context: normalizeGameContext("NFL", event, data, selection, sourceCheckedAt),
         possession: possessionSide(competition),
         startDate: event.date,
         homeLogo: home?.team?.logo ?? null,
@@ -82,8 +89,11 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({
-      games,
-      week: data.week?.number ?? (week ? Number(week) : null),
+      games: selection.seasonType === 3 ? games.filter((game: any) => game.context.verified && game.context.seasonType === "postseason") : games,
+      season: data.season?.year ?? null,
+      seasonType: data.season?.type ?? null,
+      contextCoverage: { sourceCheckedAt, complete: false, limitations: ["Upstream publication time is unavailable.", ...(selection.seasonType === 3 && !games.some((game: any) => game.context.verified && game.context.seasonType === "postseason") ? ["No verified NFL postseason coverage returned by this feed selection."] : [])] },
+      week: selection.seasonType === 3 ? null : data.week?.number ?? (week ? Number(week) : null),
     });
   } catch (error) {
     console.error("ESPN NFL scoreboard error:", error);

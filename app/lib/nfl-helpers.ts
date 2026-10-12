@@ -1,10 +1,12 @@
 import { nflTeamNameByAbbreviation } from "../nfl/data/divisions";
+import type { GameContext } from "./game-context";
 
 // Shared NFL types and pure helper functions.
 // Extracted from app/nfl/page.tsx on [today's date].
 // Nothing here touches React state — all pure functions.
 
 export type NFLGame = {
+  context?: GameContext;
   possession?: "home" | "away" | null;
   id: number;
   startDate: string;

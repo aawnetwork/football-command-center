@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { possessionSide } from "../../lib/gameday-status";
+import { contextSelection, normalizeGameContext } from "../../lib/game-context";
 
 export const revalidate = 30;
 
@@ -10,8 +11,11 @@ export async function GET(request: Request) {
   const week = searchParams.get("week");
   const requestedWeek = week === null ? null : Number(week);
   const season = searchParams.get("season");
+  let selection;
+  try { selection = contextSelection(searchParams, "CFB"); }
+  catch { return NextResponse.json({ error: "Invalid season/week/season type." }, { status: 400 }); }
   if ((season !== null && (!/^\d{4}$/.test(season) || Number(season) < 2000 || Number(season) > new Date().getUTCFullYear() + 1)) ||
-      (week !== null && (!/^\d+$/.test(week) || Number(week) > 16)) ||
+      (week !== null && (!/^\d+$/.test(week) || Number(week) > (selection.seasonType === 3 ? 30 : 16))) ||
       (requestedWeek === 0 && season !== null && season !== "2026")) {
     return NextResponse.json({ error: "Invalid season/week. Week 0 is supported for 2026 only." }, { status: 400 });
   }
@@ -19,9 +23,10 @@ export async function GET(request: Request) {
     const scoreboardUrl = new URL(
       "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
     );
-    scoreboardUrl.searchParams.set("seasontype", "2");
+    scoreboardUrl.searchParams.set("seasontype", String(selection.seasonType));
     scoreboardUrl.searchParams.set("groups", "80");
     if (season !== null) scoreboardUrl.searchParams.set("year", season);
+    if (season !== null && selection.seasonType === 3) scoreboardUrl.searchParams.set("dates", season);
 
     if (week !== null && week !== "") {
       // ESPN combines the 2026 Week 0 and Week 1 schedules under Week 1.
@@ -49,6 +54,7 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
+    const sourceCheckedAt = new Date().toISOString();
 
     const games = (data.events ?? []).map(
       (event: any) => {
@@ -69,6 +75,7 @@ export async function GET(request: Request) {
 
         return {
           id: Number(event.id),
+          context: normalizeGameContext("CFB", event, data, selection, sourceCheckedAt),
           possession: possessionSide(competition),
           startDate: event.date,
           homeLogo: home?.team?.logo ?? null,
@@ -135,8 +142,10 @@ export async function GET(request: Request) {
           : games;
 
     return NextResponse.json({
-      games: filteredGames,
-      week: requestedWeek ?? data.week?.number ?? null,
+      games: selection.seasonType === 3 ? filteredGames.filter((game: any) => game.context.verified && game.context.seasonType === "postseason") : filteredGames,
+      seasonType: data.season?.type ?? null,
+      contextCoverage: { sourceCheckedAt, complete: false, limitations: ["Upstream publication time is unavailable.", ...(selection.seasonType === 3 && !filteredGames.some((game: any) => game.context.verified && game.context.seasonType === "postseason") ? ["No verified CFB postseason coverage returned by this feed selection."] : [])] },
+      week: selection.seasonType === 3 ? null : requestedWeek ?? data.week?.number ?? null,
       season: data.season?.year ?? null,
     });
   } catch (error) {
