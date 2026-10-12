@@ -1,4 +1,7 @@
 import { GameCard } from "../../components/GameCard";
+import { useHubPreferences } from "../preferences/HubPreferences";
+import { favouriteSides } from "../../lib/local-preferences";
+import type { GameContext } from "../../lib/game-context";
 import type { BroadcastAvailability } from "../../lib/broadcast-availability";
 import { formatGameTime } from "../../lib/cfb-helpers";
 import { upsetLabel } from "../../lib/cfb-upsets";
@@ -7,6 +10,7 @@ import { GameTierControls } from "./GameTierControls";
 type CfbTier = "S" | "A" | "B" | "C" | "D";
 
 type CfbGame = {
+  context?: GameContext;
   possession?: "home" | "away" | null;
   id: number;
   startDate: string;
@@ -83,6 +87,7 @@ export function CfbGamesGrid({
   onSetTier,
   getStatus,
 }: CfbGamesGridProps) {
+  const { favourites, interact } = useHubPreferences();
   return (
     <div className="command-center__game-grid command-center__game-grid--cfb">
       {games.map((game) => {
@@ -108,6 +113,7 @@ export function CfbGamesGrid({
 
         return (
           <GameCard
+            favourite={Object.values(favouriteSides(game.context, "CFB", favourites.CFB)).some(Boolean)}
             key={game.id}
             possession={game.possession}
             status={getStatus(game)}
@@ -133,7 +139,7 @@ export function CfbGamesGrid({
                 tier={game.tier}
                 suggestedTier={game.suggestedTier}
                 tiers={tierInfo}
-                onSelect={(tier) => onSetTier(game.id, tier)}
+                onSelect={(tier) => { onSetTier(game.id, tier); interact(); }}
               />
             }
           />

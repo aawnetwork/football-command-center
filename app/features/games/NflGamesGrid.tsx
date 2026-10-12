@@ -1,4 +1,6 @@
 import { GameCard } from "../../components/GameCard";
+import { useHubPreferences } from "../preferences/HubPreferences";
+import { favouriteSides } from "../../lib/local-preferences";
 import type { BroadcastAvailability } from "../../lib/broadcast-availability";
 import {
   formatGameTime,
@@ -23,6 +25,7 @@ export function NflGamesGrid({
   broadcastAvailability,
   onSetTier,
 }: NflGamesGridProps) {
+  const { favourites, interact } = useHubPreferences();
   return (
     <div className="command-center__game-grid">
       {games.map((game) => {
@@ -34,6 +37,7 @@ export function NflGamesGrid({
 
         return (
           <GameCard
+            favourite={Object.values(favouriteSides(game.context, "NFL", favourites.NFL)).some(Boolean)}
             key={game.id}
             possession={game.possession}
             status={game.completed ? "FINAL" : game.live ? "LIVE" : game.status.toLowerCase() === "scheduled" ? "SCHEDULED" : game.status.toUpperCase()}
@@ -59,7 +63,7 @@ export function NflGamesGrid({
                 tier={tier}
                 suggestedTier={suggestedTier}
                 tiers={tierInfo}
-                onSelect={(nextTier) => onSetTier(game.id, nextTier)}
+                onSelect={(nextTier) => { onSetTier(game.id, nextTier); interact(); }}
               />
             }
           />

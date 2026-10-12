@@ -1,0 +1,16 @@
+.hub-preferences-button { color:#ffc720; background:#0b1f33; border:1px solid #334155; border-radius:6px; padding:10px 14px; cursor:pointer; font:inherit; font-weight:700; }
+.hub-preferences-dialog { margin:auto; width:min(560px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; background:#0b1f33; color:#f8fafc; padding:24px; border:1px solid #334155; border-radius:12px; }
+.hub-preferences-dialog::backdrop { background:#0009; }
+.hub-preferences-dialog header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.hub-preferences-dialog h1 { color:#ffc720; font-size:26px; }
+.hub-preferences-dialog h2 { font-size:18px; margin-bottom:8px; }
+.hub-preferences-dialog section { border-top:1px solid #334155; padding-top:16px; margin-top:16px; }
+.hub-preferences-dialog p { color:#cbd5e1; line-height:1.5; margin:10px 0; }
+.hub-preferences-dialog label { display:block; font-weight:700; margin-bottom:8px; }
+.hub-preferences-dialog select { width:100%; min-height:44px; padding:10px; background:#10283e; color:#f8fafc; border:1px solid #64748b; border-radius:6px; font:inherit; }
+.hub-preferences-dialog button,.hub-preferences-invitation button { padding:8px 12px; background:#10283e; color:#ffc720; border:1px solid #64748b; border-radius:6px; cursor:pointer; margin:8px 0; }
+.hub-preferences-dialog small { display:block; margin-top:8px; color:#cbd5e1; }
+.hub-preferences-button:focus-visible,.hub-preferences-dialog :focus-visible { outline:2px solid #ffc720; outline-offset:3px; }
+.hub-preferences-invitation { position:fixed; z-index:50; bottom:16px; right:16px; width:min(340px,calc(100vw - 32px)); background:#0b1f33; color:#f8fafc; border:1px solid #ffc720; border-radius:8px; padding:16px; font-size:14px; }
+.hub-preferences-invitation p { line-height:1.5; margin:8px 0; }
+@media(max-width:600px) { .hub-preferences-dialog { padding:16px; } }

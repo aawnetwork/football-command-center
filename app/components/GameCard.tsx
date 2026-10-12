@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 type GameCardProps = {
+  favourite?: boolean;
   possession?: "home" | "away" | null;
   status: string;
   statusKind?: "live" | "final" | "scheduled";
@@ -23,6 +24,7 @@ type GameCardProps = {
 };
 
 export function GameCard({
+  favourite,
   possession,
   status,
   statusKind = "scheduled",
@@ -46,6 +48,7 @@ export function GameCard({
         <div className="game-card__status-left">
           <div className={`game-card__status game-card__status--${statusKind}`}>{status}</div>
           {statusDetail && <span className="game-card__clock">{statusDetail}</span>}
+          {favourite && <span data-export-omit style={{ color: "#ffc720", fontSize: "12px", fontWeight: 700 }} aria-label="Features your favourite team">★ Favourite</span>}
           {indicator && (
             <div className="game-card__indicator" style={{ color: indicator.color }}>
               {indicator.label}

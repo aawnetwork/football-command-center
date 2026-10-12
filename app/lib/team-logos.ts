@@ -1,4 +1,4 @@
-export type LogoTeam = { team: string; logo?: string | null; abbreviation?: string; shortName?: string; location?: string };
+export type LogoTeam = { id?: string; team: string; logo?: string | null; abbreviation?: string; shortName?: string; location?: string };
 const normalize = (name: string) => name.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").replace(/\bst\.?$/, "state");
 export function preferredTeamLogo(logos: { href?: string; rel?: string[] }[] = [], fallback?: string | null): string | null {
   return logos.find((logo) => logo.rel?.includes("dark") && logo.href)?.href ??

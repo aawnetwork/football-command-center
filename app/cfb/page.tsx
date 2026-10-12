@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
+import { PreferencesButton } from "../features/preferences/HubPreferences";
 import { TeamLogo } from "../components/TeamLogo";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { loadTeamDirectory } from "../lib/team-logos";
@@ -969,6 +970,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               {label}
             </button>
           ))}
+          <PreferencesButton />
         </nav>
 
         {activeTab === "games" && (

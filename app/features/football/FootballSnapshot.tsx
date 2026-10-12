@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PreferencesButton } from "../preferences/HubPreferences";
 import { useEffect, useMemo, useState } from "react";
 import type { Game as CfbGame } from "../../lib/cfb-helpers";
 import {
@@ -189,6 +190,7 @@ export function FootballSnapshot() {
             <p className="football-snapshot__subtitle">Your combined NFL and college football weekly snapshot.</p>
           </div>
           <div className="football-snapshot__brand" aria-label="AAW Network" />
+          <PreferencesButton />
         </header>
 
         <section className="football-snapshot__intro">

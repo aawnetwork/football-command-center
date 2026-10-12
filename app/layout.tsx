@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Montserrat } from "next/font/google";
 import "./globals.css";
+import { HubPreferencesProvider } from "./features/preferences/HubPreferences";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${montserrat.variable} ${bebasNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><HubPreferencesProvider>{children}</HubPreferencesProvider></body>
     </html>
   );
 }

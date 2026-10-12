@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
+import { PreferencesButton } from "../features/preferences/HubPreferences";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
@@ -1324,6 +1325,7 @@ function getPerformanceReason(
               </button>
             )
           )}
+          <PreferencesButton />
         </nav>
 
         {activeTab === "games" && (
