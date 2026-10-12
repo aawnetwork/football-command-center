@@ -94,10 +94,10 @@ export function StatsLeaderboardTable({
               <tr key={row.id} className={showTeam && row.playingNow ? "weekly-leader--playing" : undefined}>
                 <td style={bodyCellStyle}>{index + 1}</td>
                 <td style={{ ...bodyCellStyle, fontWeight: 700 }}>
-                  {!showTeam && <TeamLogo src={row.logo} />}{row.name}
+                  {!showTeam ? <TeamLogo src={row.logo} name={row.name} /> : row.name}
                   {showTeam && row.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
                 </td>
-                {showTeam && <td style={bodyCellStyle}><TeamLogo src={row.logo} />{row.team}</td>}
+                {showTeam && <td style={bodyCellStyle}><TeamLogo src={row.logo} name={row.team ?? ""} /></td>}
                 <td style={{ ...bodyCellStyle, fontWeight: 800 }}>
                   {row.value}
                 </td>

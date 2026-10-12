@@ -1868,7 +1868,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                     700,
                                 }}
                               >
-                                {statsView === "team" && <TeamLogo src={teamLogo(leader.team || leader.player)} />}{leader.player}
+                                {statsView === "team" ? <TeamLogo src={teamLogo(leader.team || leader.player)} name={leader.player} /> : leader.player}
                                 {statsMode === "weekly" && statsView === "individual" && leader.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
                               </td>
 
@@ -1879,7 +1879,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                     tdStyle
                                   }
                                 >
-                                  <TeamLogo src={teamLogo(leader.team)} />{leader.team}
+                                  <TeamLogo src={teamLogo(leader.team)} name={leader.team} />
                                 </td>
                               )}
 
