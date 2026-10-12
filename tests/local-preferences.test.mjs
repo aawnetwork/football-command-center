@@ -35,7 +35,7 @@ test('Invitation requires an interaction, an enabled preview and an unseen visit
 test('Preferences have no audience writes, analytics or consent cookies; dialog has keyboard/focus and cross-tab handling', async () => {
   const source=await readFile(new URL('../app/features/preferences/HubPreferences.tsx',import.meta.url),'utf8');
   assert.doesNotMatch(source,/document\.cookie|gtag|sendBeacon|\/api\/audience|method:\s*["']POST/);
-  assert.match(source,/NEXT_PUBLIC_AAW_PARTICIPATION_PREVIEW === "true"/);
+  assert.match(source,/audience\.available/);
   assert.match(source,/showModal\(\)/);assert.match(source,/onCancel=/);assert.match(source,/previous\.focus\(\)/);
   assert.match(source,/addEventListener\("storage"/);assert.match(source,/Coming Soon · Unavailable/);
 });

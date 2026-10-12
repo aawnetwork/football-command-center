@@ -3,8 +3,10 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { favouriteKeys, invitationKey, parseFavourite, writeFavourite, validTeamId, shouldInvite, type PreferenceLeague } from "../../lib/local-preferences";
 import { loadTeamDirectory, type LogoTeam } from "../../lib/team-logos";
 import "./preferences.css";
+import { useParticipation } from "./useParticipation";
+import { consentText } from "../../lib/participation-contract";
 
-type Preferences = { favourites: Record<PreferenceLeague, string | null>; open: boolean; show: () => void; hide: () => void; change: (league: PreferenceLeague, id: string | null) => void; interact: () => void; storageWarning: boolean };
+type Preferences = { favourites: Record<PreferenceLeague, string | null>; open: boolean; show: () => void; hide: () => void; change: (league: PreferenceLeague, id: string | null) => void; interact: () => void; storageWarning: boolean; audience: ReturnType<typeof useParticipation> };
 const Context = createContext<Preferences | null>(null);
 export function useHubPreferences() {
   const value = useContext(Context);
@@ -12,12 +14,12 @@ export function useHubPreferences() {
   return value;
 }
 export function HubPreferencesProvider({ children }: { children: ReactNode }) {
+  const audience = useParticipation();
   const [favourites, setFavourites] = useState<Record<PreferenceLeague, string | null>>({ NFL: null, CFB: null });
   const [open, setOpen] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const [invitation, setInvitation] = useState(false);
   const seen = useRef(false);
-  const previewEnabled = process.env.NEXT_PUBLIC_AAW_PARTICIPATION_PREVIEW === "true";
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
@@ -34,9 +36,9 @@ export function HubPreferencesProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; window.removeEventListener("storage", sync); };
   }, []);
   function interact() {
-    if (!previewEnabled || seen.current) return;
+    if (!audience.available || audience.active || audience.pending || seen.current) return;
     try { seen.current = sessionStorage.getItem(invitationKey) === "1"; } catch { /* In-memory once-per-visit fallback. */ }
-    if (!shouldInvite(previewEnabled, seen.current, true)) return;
+    if (!shouldInvite(audience.available, seen.current, true)) return;
     seen.current = true;
     try { sessionStorage.setItem(invitationKey, "1"); } catch { /* No identifier or remote record. */ }
     setInvitation(true);
@@ -47,11 +49,12 @@ export function HubPreferencesProvider({ children }: { children: ReactNode }) {
     try { if (!writeFavourite(localStorage, league, id)) setStorageWarning(true); } catch { setStorageWarning(true); }
     interact();
   }
-  return <Context.Provider value={{ favourites, open, show: () => setOpen(true), hide: () => setOpen(false), change, interact, storageWarning }}>
+  return <Context.Provider value={{ favourites, open, show: () => setOpen(true), hide: () => setOpen(false), change, interact, storageWarning, audience }}>
     {children}
     {open && <PreferencesPanel />}
-    {invitation && <aside className="hub-preferences-invitation" aria-label="Audience participation preview">
-      <strong>Participation preview · Coming Soon</strong><p>In future, you’ll be able to choose to contribute new ratings to AAW audience statistics. Nothing is being collected now.</p>
+    {invitation && audience.available && !audience.active && !audience.pending && <aside className="hub-preferences-invitation" aria-label="Voluntary audience participation">
+      <strong>Optional audience participation</strong><p>You can agree to future aggregate audience insights. No existing selections, ratings or favourites are collected at this stage.</p>
+      <button type="button" onClick={() => { setInvitation(false); setOpen(true); }}>Learn more</button>
       <button type="button" onClick={() => setInvitation(false)}>Dismiss</button>
     </aside>}
   </Context.Provider>;
@@ -61,7 +64,8 @@ export function PreferencesButton() {
   return <button type="button" className="hub-preferences-button" aria-haspopup="dialog" aria-expanded={open} onClick={show}>Preferences</button>;
 }
 function PreferencesPanel() {
-  const { favourites, change, hide, storageWarning } = useHubPreferences();
+  const { favourites, change, hide, storageWarning, audience } = useHubPreferences();
+  const [agree,setAgree] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const [teams, setTeams] = useState<Record<PreferenceLeague, LogoTeam[]>>({ NFL: [], CFB: [] });
   const [errors, setErrors] = useState<Partial<Record<PreferenceLeague, string>>>({});
@@ -91,7 +95,15 @@ function PreferencesPanel() {
       {!teams[league].length && <small role="status">{errors[league] ?? "Loading teams…"}</small>}
     </section>)}
     {storageWarning && <p role="status">Browser storage is unavailable. Changes work for this visit but may not survive a refresh.</p>}
-    <section><h2>Audience participation</h2><strong>Coming Soon · Unavailable</strong><p>No ratings or favourite choices are submitted. Voluntary participation will have its own separate control.</p></section>
+    <section><h2>Audience participation</h2>
+      <p>{consentText}</p>
+      <p>A pseudonymous browser credential hash and consent version/time are stored—not your name or email. This is browser-scoped participation, not a verified identity. The credential lasts up to one year; contribution retention will use confirmed season end plus 90 days once later stages exist. Clearing cookies loses access to this browser’s records and may prevent a deletion request.</p>
+      {audience.pending ? <><strong>Withdrawal/deletion pending</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Retry deletion</button></> : audience.active ? <><strong>Participation consent active · No ratings or favourites collected yet</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Withdraw and delete participation records</button></> : audience.available ? <>
+        <label><input type="checkbox" checked={agree} onChange={(event)=>setAgree(event.target.checked)} /> I agree to this voluntary participation wording.</label>
+        <button type="button" disabled={!agree||audience.busy} onClick={audience.optIn}>{audience.busy?'Confirming…':'Opt in voluntarily'}</button>
+      </> : <strong>Unavailable pending privacy and launch approval</strong>}
+      {audience.error && <p role="status">{audience.error}</p>}
+    </section>
     <section><h2>Analytics permission</h2><strong>Coming Soon · Unavailable</strong><p>GA4 is not enabled. No analytics permission is requested or recorded here.</p></section>
     <section id="hub-local-privacy"><h2>Privacy</h2><p>Your two favourite-team IDs stay in browser storage. They are not sent to AAW. Team lists come from Hub’s existing public metadata; your choices are not included in those requests.</p><p>Removing a favourite leaves personal game tiers untouched. Clearing browser storage removes local preferences. Different browsers and devices have independent favourites.</p></section>
   </dialog>;
