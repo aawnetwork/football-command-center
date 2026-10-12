@@ -23,7 +23,7 @@ export function parseContribution(value: unknown): ContributionRequest | null {
 
 // Called only by deliberate controls, never hydration, defaults or curated overlays.
 export function personalTierChange(context: GameContext | undefined, league: League, tier: "S" | "A" | "B" | "C" | "D" | null): ContributionChange | null {
-  if (!context?.verified || context.league !== league || context.season === null || !context.eventId || context.identity !== `${league}:${context.season}:${context.eventId}`) return null;
+  if (!context || (!context.verified && tier !== null) || context.league !== league || context.season === null || !context.eventId || context.identity !== `${league}:${context.season}:${context.eventId}`) return null;
   return { kind: "tier", league, season: context.season, eventId: context.eventId, identity: context.identity, tier };
 }
 

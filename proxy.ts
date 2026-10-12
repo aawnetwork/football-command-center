@@ -15,4 +15,4 @@ export function proxy(request: NextRequest) {
   });
 }
 
-export const config = { matcher: ["/admin", "/admin/user-stats/:path*", "/admin/exports/:path*", "/admin/decks/:path*", "/api/admin/decks/:path*"] };
+export const config = { matcher: ["/admin", "/admin/user-stats/:path*", "/admin/exports/:path*", "/admin/decks/:path*", "/api/admin/decks/:path*", "/api/admin/audience/:path*"] };

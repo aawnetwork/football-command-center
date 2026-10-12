@@ -31,17 +31,32 @@ export async function POST(request: Request) {
     const gate = await participationRpc("hub_audience_contribution_gate", { p_hash: hash, p_granted_at: change.consentGrantedAt, p_receipt: change.consentReceipt });
     if (gate === "inactive") return reply({ error: "Active participation is required." }, 401);
     if (gate !== "ready") return reply({ error: "Too many selections. Please wait before making another change." }, 429);
-    const verified = await validateContribution(change);
+    let verified: Awaited<ReturnType<typeof validateContribution>>;
+    if (change.kind === "tier" && change.tier === null) {
+      // Deletion uses cookie-owned, previously verified database identity, not a new phase.
+      verified = { season: change.season, seasonType: null };
+    } else {
+      try { verified = await validateContribution(change); }
+      catch (error) {
+        if (change.kind !== "clearTiers") throw error;
+        // The database can use its existing verified seasons to clear owned records.
+        // If neither source can establish a season, it fails without inventing one.
+        verified = { season: null, seasonType: null };
+      }
+    }
     // Recheck the launch boundary and consent inside the write transaction after any feed wait.
     if (!participationEnabled(process.env)) return reply({ error: "Audience collection is not enabled." }, 503);
-    const result = await participationRpc("hub_audience_write_selection", {
+    const result = await participationRpc("hub_audience_write_phase_selection", {
       p_hash: hash, p_granted_at: change.consentGrantedAt, p_receipt: change.consentReceipt, p_kind: change.kind, p_league: change.league,
       p_season: change.kind === "tier" ? change.season : verified.season,
       p_event_id: change.kind === "tier" ? change.eventId : null,
       p_value: change.kind === "tier" ? change.tier : change.kind === "favourite" ? change.teamId : null,
       p_season_type: verified.seasonType, p_revision: change.revision,
+      p_phase: verified.phase ?? null, p_checked_at: verified.checkedAt ?? null, p_kickoff_at: verified.kickoffAt ?? null,
     });
     if (result === "inactive") return reply({ error: "Participation ended; selection was not collected." }, 401);
+    if (result === "expired") return reply({ error: "This season's contribution retention window has ended." }, 410);
+    if (result === "unverified") return reply({ error: "Game phase or retention season could not be verified." }, 422);
     if (result !== "saved") return reply({ error: "Selection superseded or conflicted with a newer change." }, 409);
     return reply({ saved: true });
   } catch (error) {

@@ -12,6 +12,7 @@ const store=compile('export class ParticipationError extends Error { constructor
 let validator=await read('app/lib/audience-validation.ts');
 validator=validator.replace('import "server-only";','').replace('"./game-context"',JSON.stringify(file('app/lib/game-context.ts').href))
  .replace('"./team-logos"',JSON.stringify(file('app/lib/team-logos.ts').href)).replace('"./participation-store"',JSON.stringify(store));
+validator=validator.replace('"./audience-phases"',JSON.stringify(compile((await read('app/lib/audience-phases.ts')).replace('"./game-context"',JSON.stringify(file('app/lib/game-context.ts').href)))));
 const validatorUrl=compile(validator),validation=await import(validatorUrl);
 let source=await read('app/api/audience/contributions/route.ts');
 source=source.replace('"../../../lib/audience-contributions"',JSON.stringify(file('app/lib/audience-contributions.ts').href))
@@ -25,7 +26,7 @@ const request=(body=base,headers={})=>new Request('https://hub.test/api/audience
 
 test('Contribution payload is strict, canonical, bounded and league-separated',()=>{
  assert.deepEqual(parseContribution(base),base);
- for(const bad of [{...base,league:'NBA'},{...base,identity:'CFB:2026:401772833'},{...base,eventId:'../x'},{...base,tier:'F'},{...base,season:2025},{...base,revision:-1},{...base,status:'live'},{...base,consentReceipt:null},{...base,participantId:'x'}]) assert.equal(parseContribution(bad),null);
+ for(const bad of [{...base,phase:'pregame'},{...base,league:'NBA'},{...base,identity:'CFB:2026:401772833'},{...base,eventId:'../x'},{...base,tier:'F'},{...base,season:2025},{...base,revision:-1},{...base,status:'live'},{...base,consentReceipt:null},{...base,participantId:'x'}]) assert.equal(parseContribution(bad),null);
  assert.ok(parseContribution({...base,tier:null}));
  assert.equal(parseContribution({kind:'favourite',league:'NFL',teamId:'Chiefs',revision:1,consentGrantedAt:base.consentGrantedAt,consentReceipt:receipt}),null);
  assert.equal(personalTierChange(undefined,'NFL','S'),null);
@@ -73,13 +74,14 @@ test('Server verifies consent before feeds; transactional writes recheck consent
   assert.equal((await route.POST(request())).status,401);assert.equal(fetches,0);
   gate='limited';assert.equal((await route.POST(request())).status,429);assert.equal(fetches,0);
   gate='ready';const response=await route.POST(request());assert.deepEqual(await response.json(),{saved:true});
-  const write=calls.find(call=>call.name==='hub_audience_write_selection');assert.notEqual(write.params.p_hash,'a'.repeat(64));assert.equal(write.params.p_season_type,'regular');assert.equal(write.params.p_receipt,receipt);
+  const write=calls.find(call=>call.name==='hub_audience_write_phase_selection');assert.notEqual(write.params.p_hash,'a'.repeat(64));assert.equal(write.params.p_season_type,'regular');assert.equal(write.params.p_receipt,receipt);assert.equal(write.params.p_phase,'postgame');assert.ok(write.params.p_checked_at);
   written='conflict';assert.equal((await route.POST(request())).status,409);
   written='inactive';assert.equal((await route.POST(request())).status,401);
+  written='saved';const before=fetches;const removal=await route.POST(request({...base,tier:null}));assert.equal(removal.status,200);assert.equal(fetches,before);assert.equal(calls.at(-1).params.p_phase,null);
   globalThis.__selectionRpc=()=>{throw Error('SECRET must not escape')};const failed=await route.POST(request());assert.equal(failed.status,503);assert.doesNotMatch(await failed.text(),/SECRET/);
  }finally{globalThis.fetch=oldFetch;if(old===undefined)delete process.env.AAW_AUDIENCE_PARTICIPATION_ENABLED;else process.env.AAW_AUDIENCE_PARTICIPATION_ENABLED=old;}
 });
-test('Canonical fetch cache shares unchanged checks; stale/missing responses fail closed; removal has no feed lookup',async()=>{
+test('Canonical cache preserves observation time; stale/missing responses fail closed; favourite removal needs no feed lookup',async()=>{
  const oldFetch=globalThis.fetch;let calls=0;
  globalThis.fetch=async()=>{calls++;return Response.json(summary('CFB','777'),{headers:{date:new Date().toUTCString()}});};
  try{
@@ -92,7 +94,8 @@ test('Canonical fetch cache shares unchanged checks; stale/missing responses fai
   await assert.rejects(validation.validateContribution({...change,eventId:'779'}),/stale/);
   globalThis.fetch=async()=>{throw Error('network offline')};await assert.rejects(validation.validateContribution({...change,eventId:'780'}));
   assert.deepEqual(await validation.validateContribution({kind:'favourite',league:'NFL',teamId:null}),{season:null,seasonType:null});
-  assert.deepEqual(await validation.validateContribution({kind:'clearTiers',league:'NFL'}),{season:null,seasonType:null});
+  globalThis.fetch=async()=>Response.json({uid:'s:20~l:28~g:9',season:{year:2026}},{headers:{date:new Date().toUTCString()}});
+  assert.deepEqual(await validation.validateContribution({kind:'clearTiers',league:'NFL'}),{season:2026,seasonType:null});
  }finally{globalThis.fetch=oldFetch;}
 });
 test('Only personal event handlers submit: hydration, decks, exports and sharing stay separate',async()=>{

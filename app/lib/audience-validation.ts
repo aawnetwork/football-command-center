@@ -3,6 +3,7 @@ import { assessGameContext, normalizeGameContext, type League } from "./game-con
 import { standingsEntries } from "./team-logos";
 import { ParticipationError } from "./participation-store";
 import type { ContributionRequest } from "./audience-contributions";
+import { audiencePhase, type AudiencePhase } from "./audience-phases";
 
 const sport = { NFL: "nfl", CFB: "college-football" };
 const leagueId = { NFL: "28", CFB: "23" };
@@ -19,7 +20,7 @@ async function metadata(url: string) {
     const age = Number(response.headers.get("age") ?? 0);
     if (!Number.isFinite(date) || Math.abs(Date.now() - date) > 60_000 || !Number.isFinite(age) || age > 60)
       throw new ParticipationError("Canonical football data is stale. Please try a new selection later.");
-    const value = await response.json();
+    const value = { data: await response.json(), checkedAt: new Date().toISOString() };
     if (cache.size >= 256) cache.delete(cache.keys().next().value!);
     cache.set(url, { until: Date.now() + 30_000, value });
     return value;
@@ -38,26 +39,32 @@ export function verifiedSummary(league: League, season: number, eventId: string,
   return context;
 }
 
-export function verifiedFavourite(league: League, teamId: string, data: any): number {
+export function verifiedDirectorySeason(league: League, data: any): number {
   if (data?.uid !== (league === "CFB" ? "s:20~l:23~g:80" : "s:20~l:28~g:9") ||
       !Number.isInteger(data.season?.year) || data.season.year < 2000 || data.season.year > 2100)
     throw new ParticipationError("Team and season metadata could not be verified.", 422);
+  return data.season.year;
+}
+export function verifiedFavourite(league: League, teamId: string, data: any): number {
+  const season = verifiedDirectorySeason(league, data);
   const entries = (data.children ?? []).flatMap((group: any) => standingsEntries<any>(group));
   if (entries.filter((entry: any) => entry.team?.id === teamId).length !== 1)
     throw new ParticipationError("This team is not recognised in the selected league.", 422);
-  return data.season.year;
+  return season;
 }
 
-export async function validateContribution(change: ContributionRequest): Promise<{ season: number | null; seasonType: string | null }> {
+export async function validateContribution(change: ContributionRequest): Promise<{ season: number | null; seasonType: string | null; phase?: AudiencePhase; checkedAt?: string; kickoffAt?: string }> {
   if (change.kind === "tier") {
-    const data = await metadata(`https://site.api.espn.com/apis/site/v2/sports/football/${sport[change.league]}/summary?event=${change.eventId}`);
-    const context = verifiedSummary(change.league, change.season, change.eventId, data, new Date().toISOString());
-    return { season: context.season, seasonType: context.seasonType };
+    const observation = await metadata(`https://site.api.espn.com/apis/site/v2/sports/football/${sport[change.league]}/summary?event=${change.eventId}`);
+    const context = verifiedSummary(change.league, change.season, change.eventId, observation.data, observation.checkedAt);
+    const phase = audiencePhase(context, new Date().toISOString());
+    if (!phase || !context.kickoffAt) throw new ParticipationError("Game phase cannot be verified; selection was not collected.", 422);
+    return { season: context.season, seasonType: context.seasonType, phase, checkedAt: observation.checkedAt, kickoffAt: context.kickoffAt };
   }
-  if (change.kind === "favourite" && change.teamId !== null) {
-    const data = await metadata(`https://site.api.espn.com/apis/v2/sports/football/${sport[change.league]}/standings${change.league === "CFB" ? "?groups=80" : ""}`);
-    return { season: verifiedFavourite(change.league, change.teamId, data), seasonType: null };
+  if (change.kind === "clearTiers" || (change.kind === "favourite" && change.teamId !== null)) {
+    const observation = await metadata(`https://site.api.espn.com/apis/v2/sports/football/${sport[change.league]}/standings${change.league === "CFB" ? "?groups=80" : ""}`);
+    return { season: change.kind === "clearTiers" ? verifiedDirectorySeason(change.league, observation.data) : verifiedFavourite(change.league, change.teamId!, observation.data), seasonType: null };
   }
-  // Removal needs no speculative feed lookup: it only deletes owned records.
+  // Favourite removal only deletes owned records; no feed lookup is needed.
   return { season: null, seasonType: null };
 }

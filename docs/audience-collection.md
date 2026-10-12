@@ -1,5 +1,8 @@
 # Stage 29 — current audience selections
 
+This is the Stage 29 delivery record. [Stage 30](./audience-phase-retention.md)
+supersedes its pending phase/retention implementation statements.
+
 ## Release status
 
 Application implementation is local only: not committed or deployed by this task.
