@@ -1,5 +1,15 @@
 export type LogoTeam = { team: string; logo?: string | null; abbreviation?: string; shortName?: string; location?: string };
-const normalize = (name: string) => name.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ");
+const normalize = (name: string) => name.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").replace(/\bst\.?$/, "state");
+export function preferredTeamLogo(logos: { href?: string; rel?: string[] }[] = [], fallback?: string | null): string | null {
+  return logos.find((logo) => logo.rel?.includes("dark") && logo.href)?.href ??
+    logos.find((logo) => logo.rel?.includes("default") && logo.href)?.href ??
+    logos.find((logo) => logo.href)?.href ?? fallback ?? null;
+}
+type StandingsGroup<T> = { standings?: { entries?: T[] }; children?: StandingsGroup<T>[] };
+export function standingsEntries<T>(group: StandingsGroup<T>): T[] {
+  const entries = group.standings?.entries ?? [];
+  return entries.length ? entries : (group.children ?? []).flatMap((child) => standingsEntries<T>(child));
+}
 export function resolveTeamLogo(name: string, teams: LogoTeam[]): string | undefined {
   const value = normalize(name);
   if (!value) return undefined;

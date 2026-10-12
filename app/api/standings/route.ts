@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { preferredTeamLogo, standingsEntries } from "../../lib/team-logos";
 
 import { getArchivePolls, parseSelection } from "../../lib/cfb-polls";
 import { nflDivisionByTeam } from "../../nfl/data/divisions";
@@ -30,7 +31,7 @@ const normaliseEntry = (entry: any, league: League) => {
   return {
     team: entry.team?.displayName ?? "Unknown team",
     abbreviation: entry.team?.abbreviation ?? "",
-    logo: entry.team?.logos?.[0]?.href ?? null,
+    logo: preferredTeamLogo(entry.team?.logos),
     shortName: entry.team?.shortDisplayName ?? "",
     location: entry.team?.location ?? "",
     overall,
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     const sections = (data.children ?? []).flatMap((group: any) => {
-      const entries = group.standings?.entries ?? [];
+      const entries = standingsEntries<any>(group);
       if (!entries.length) return [];
 
       if (league === "NFL") {
