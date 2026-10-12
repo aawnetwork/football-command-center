@@ -1,13 +1,21 @@
 // Export-only presentation: the source table and its 25 rows remain untouched.
+import { loadTeamDirectory, resolveTeamLogo } from "../../lib/team-logos";
 export async function compactStats(source: HTMLElement, clone: HTMLElement) {
   if (source.dataset.deskExport !== "stats") return;
   const rows = Array.from(source.querySelectorAll<HTMLTableRowElement>("tbody tr"));
   if (!rows.length || rows[0].cells.length !== 4) return;
   const league = source.ownerDocument.location.pathname === "/nfl" ? "NFL" : "CFB";
-  const response = await fetch(`/api/standings?league=${league}`);
-  if (!response.ok) throw new Error("Team logos could not load. Please try again.");
-  const data = await response.json() as { sections: { teams: { team: string; logo?: string }[] }[] };
-  const logos = new Map(data.sections.flatMap((section) => section.teams.map((team) => [team.team, team.logo] as const)));
+  const hasLogo = (row: HTMLTableRowElement) => {
+    const image = row.cells[2].querySelector<HTMLImageElement>("img[data-team-logo]");
+    return image && !image.hidden;
+  };
+  const data = rows.slice(0, 10).every(hasLogo) ? { sections: [] } : await loadTeamDirectory(league).catch(() => ({ sections: [] }));
+  const teams = data.sections.flatMap((section) => section.teams);
+  const logos = new Map(rows.map((row) => {
+    const team = row.cells[2].textContent?.trim() ?? "";
+    const image = row.cells[2].querySelector<HTMLImageElement>("img[data-team-logo]");
+    return [team, image && !image.hidden ? image.src : resolveTeamLogo(team, teams)] as const;
+  }));
   if (rows.slice(0, 10).some((row) => !logos.get(row.cells[2].textContent?.trim() ?? ""))) {
     const week = source.dataset.exportLabel?.match(/Week (\d+)/)?.[1];
     const gamesResponse = await fetch(`${league === "NFL" ? "/api/nfl/scoreboard" : "/api/scoreboard"}${week ? `?week=${week}` : ""}`);

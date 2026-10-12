@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { TeamLogo } from "../components/TeamLogo";
+import { useTeamLogos } from "../features/stats/useTeamLogos";
+import { loadTeamDirectory } from "../lib/team-logos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
@@ -49,6 +52,7 @@ import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 import { detectUpsets, isUpsetLoss } from "../lib/cfb-upsets";
 
 export default function Home() {
+  const teamLogo = useTeamLogos("CFB");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
   const [activeTab, setActiveTab] =
@@ -80,11 +84,7 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/standings?league=CFB")
-      .then((response) => {
-        if (!response.ok) throw new Error("Conference metadata unavailable");
-        return response.json();
-      })
+    loadTeamDirectory("CFB")
       .then((data) => {
         if (!cancelled) setConferenceTeams((data.sections ?? []).map((section: { name: string; teams: { team: string }[] }) => ({ name: section.name, teams: section.teams.map((team) => team.team) })));
       })
@@ -1868,9 +1868,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                     700,
                                 }}
                               >
-                                {
-                                  leader.player
-                                }
+                                {statsView === "team" && <TeamLogo src={teamLogo(leader.team || leader.player)} />}{leader.player}
                                 {statsMode === "weekly" && statsView === "individual" && leader.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
                               </td>
 
@@ -1881,9 +1879,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                     tdStyle
                                   }
                                 >
-                                  {
-                                    leader.team
-                                  }
+                                  <TeamLogo src={teamLogo(leader.team)} />{leader.team}
                                 </td>
                               )}
 

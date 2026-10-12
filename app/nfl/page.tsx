@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
@@ -42,6 +43,7 @@ import type {
 } from "../lib/nfl-helpers";
 
 export default function NFLPage() {
+  const teamLogo = useTeamLogos("NFL");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [playerStatsCheck, setPlayerStatsCheck] = useState(emptyDataCheck);
   const [teamStatsCheck, setTeamStatsCheck] = useState(emptyDataCheck);
@@ -1121,6 +1123,7 @@ function getPerformanceReason(
             playingNow: statsMode === "weekly" && player.playingNow === true,
             name: player.player_display_name,
             team: getNflTeamName(player.recent_team),
+            logo: teamLogo(getNflTeamName(player.recent_team)),
             value: valueLabel,
           };
         })
@@ -1140,6 +1143,7 @@ function getPerformanceReason(
 
           return {
             id: getTeamName(team),
+            logo: teamLogo(getTeamName(team)),
             name: getTeamName(team),
             value: valueLabel,
           };

@@ -31,6 +31,8 @@ const normaliseEntry = (entry: any, league: League) => {
     team: entry.team?.displayName ?? "Unknown team",
     abbreviation: entry.team?.abbreviation ?? "",
     logo: entry.team?.logos?.[0]?.href ?? null,
+    shortName: entry.team?.shortDisplayName ?? "",
+    location: entry.team?.location ?? "",
     overall,
     conference: stat(entry.stats, "vs. Conf."),
     division: stat(entry.stats, "vs. Div."),
