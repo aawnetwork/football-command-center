@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
-import { PreferencesButton } from "../features/preferences/HubPreferences";
+import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
+import { personalTierChange } from "../lib/audience-contributions";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
@@ -48,6 +49,7 @@ export default function NFLPage() {
   return <Suspense fallback={<main className="command-center" role="status">Loading NFL Hub…</main>}><NFLPageContent /></Suspense>;
 }
 function NFLPageContent() {
+  const { audience } = useHubPreferences();
   const teamLogo = useTeamLogos("NFL");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [playerStatsCheck, setPlayerStatsCheck] = useState(emptyDataCheck);
@@ -79,6 +81,8 @@ function NFLPageContent() {
   const [activeTab, setActiveTab] = useHubSection();
 
   const [gameTiers, setGameTiers] = useState<Record<number, NFLTier>>({});
+  const personalTiers = useRef(gameTiers);
+  personalTiers.current = gameTiers;
   const [gameTiersLoaded, setGameTiersLoaded] = useState(false);
   const [selectedGameTier, setSelectedGameTier] = useState<"ALL" | NFLTier>(
     "ALL"
@@ -460,20 +464,17 @@ function NFLPageContent() {
   }
 
   function setGameTier(gameId: number, tier: NFLTier) {
-    setGameTiers((current) => {
-      const next = { ...current };
-
-      if (next[gameId] === tier) {
-        delete next[gameId];
-      } else {
-        next[gameId] = tier;
-      }
-
-      return next;
-    });
+    const next = { ...personalTiers.current };
+    const chosen = next[gameId] === tier ? null : tier;
+    if (chosen === null) delete next[gameId]; else next[gameId] = chosen;
+    personalTiers.current = next;
+    setGameTiers(next);
+    void audience.contribute(personalTierChange(games.find(game => game.id === gameId)?.context, "NFL", chosen));
   }
 
   function clearGameTiers() {
+    if (Object.keys(personalTiers.current).length) void audience.contribute({kind:"clearTiers",league:"NFL"});
+    personalTiers.current = {};
     setGameTiers({});
     setSelectedGameTier("ALL");
   }

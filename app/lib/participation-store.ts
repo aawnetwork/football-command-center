@@ -1,6 +1,6 @@
 import "server-only";
 export class ParticipationError extends Error { constructor(message: string, public status = 503) { super(message); } }
-export async function participationRpc(name: "hub_audience_state" | "hub_audience_prepare" | "hub_audience_grant" | "hub_audience_withdraw" | "hub_audience_limit", params: Record<string, unknown>) {
+export async function participationRpc(name: "hub_audience_state" | "hub_audience_prepare" | "hub_audience_grant" | "hub_audience_withdraw" | "hub_audience_limit" | "hub_audience_contribution_gate" | "hub_audience_write_selection", params: Record<string, unknown>) {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secret = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !secret) throw new ParticipationError("Participation service unavailable.");

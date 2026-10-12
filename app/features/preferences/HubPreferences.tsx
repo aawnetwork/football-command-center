@@ -47,13 +47,15 @@ export function HubPreferencesProvider({ children }: { children: ReactNode }) {
     if ((id !== null && !validTeamId(id)) || favourites[league] === id) return;
     setFavourites((previous) => ({ ...previous, [league]: id }));
     try { if (!writeFavourite(localStorage, league, id)) setStorageWarning(true); } catch { setStorageWarning(true); }
+    void audience.contribute({kind:"favourite",league,teamId:id});
     interact();
   }
   return <Context.Provider value={{ favourites, open, show: () => setOpen(true), hide: () => setOpen(false), change, interact, storageWarning, audience }}>
     {children}
+    {audience.contributionWarning && <aside className="hub-preferences-invitation" aria-label="Audience selection not saved" role="status"><p>{audience.contributionWarning}</p><button type="button" onClick={audience.dismissContributionWarning}>Dismiss</button></aside>}
     {open && <PreferencesPanel />}
     {invitation && audience.available && !audience.active && !audience.pending && <aside className="hub-preferences-invitation" aria-label="Voluntary audience participation">
-      <strong>Optional audience participation</strong><p>You can agree to future aggregate audience insights. No existing selections, ratings or favourites are collected at this stage.</p>
+      <strong>Optional audience participation</strong><p>Only new personal tier and favourite changes after opt-in can contribute. Existing selections are never uploaded.</p>
       <button type="button" onClick={() => { setInvitation(false); setOpen(true); }}>Learn more</button>
       <button type="button" onClick={() => setInvitation(false)}>Dismiss</button>
     </aside>}
@@ -83,7 +85,7 @@ function PreferencesPanel() {
   }, []);
   return <dialog ref={dialog} className="hub-preferences-dialog" aria-labelledby="hub-preferences-title" onCancel={(event) => { event.preventDefault(); hide(); }}>
     <header><h1 id="hub-preferences-title">Preferences</h1><button type="button" onClick={hide} autoFocus aria-label="Close Preferences">Close</button></header>
-    <p>Make Hub yours. Favourites are saved only in this browser.</p>
+    <p>Make Hub yours. Favourites work locally whether or not you participate.</p>
     {(["NFL", "CFB"] as const).map((league) => <section key={league}>
       <label htmlFor={`favourite-${league}`}>Favourite {league} team</label>
       <select id={`favourite-${league}`} value={favourites[league] ?? ""} disabled={!teams[league].length} onChange={(event) => change(league, event.target.value || null)}>
@@ -97,14 +99,14 @@ function PreferencesPanel() {
     {storageWarning && <p role="status">Browser storage is unavailable. Changes work for this visit but may not survive a refresh.</p>}
     <section><h2>Audience participation</h2>
       <p>{consentText}</p>
-      <p>A pseudonymous browser credential hash and consent version/time are stored—not your name or email. This is browser-scoped participation, not a verified identity. The credential lasts up to one year; contribution retention will use confirmed season end plus 90 days once later stages exist. Clearing cookies loses access to this browser’s records and may prevent a deletion request.</p>
-      {audience.pending ? <><strong>Withdrawal/deletion pending</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Retry deletion</button></> : audience.active ? <><strong>Participation consent active · No ratings or favourites collected yet</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Withdraw and delete participation records</button></> : audience.available ? <>
+      <p>A pseudonymous browser credential hash and consent version/time are stored—not your name or email. While collection is enabled, new or changed personal tiers and favourite-team IDs after consent may be stored centrally. Opting in sends no existing selections. Presets never contribute. Withdrawal deletes individual records and leaves local choices intact. This is browser-scoped participation, not a verified identity. The credential lasts up to one year; retention enforcement for confirmed season end plus 90 days must be approved before public collection launches. Clearing cookies loses access to this browser’s records and may prevent a deletion request.</p>
+      {audience.pending ? <><strong>Withdrawal/deletion pending</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Retry deletion</button></> : audience.active ? <><strong>Participation consent active{!audience.available?' · Collection disabled':''}</strong><button type="button" disabled={audience.busy} onClick={audience.withdraw}>Withdraw and delete participation records</button></> : audience.available ? <>
         <label><input type="checkbox" checked={agree} onChange={(event)=>setAgree(event.target.checked)} /> I agree to this voluntary participation wording.</label>
         <button type="button" disabled={!agree||audience.busy} onClick={audience.optIn}>{audience.busy?'Confirming…':'Opt in voluntarily'}</button>
       </> : <strong>Unavailable pending privacy and launch approval</strong>}
       {audience.error && <p role="status">{audience.error}</p>}
     </section>
     <section><h2>Analytics permission</h2><strong>Coming Soon · Unavailable</strong><p>GA4 is not enabled. No analytics permission is requested or recorded here.</p></section>
-    <section id="hub-local-privacy"><h2>Privacy</h2><p>Your two favourite-team IDs stay in browser storage. They are not sent to AAW. Team lists come from Hub’s existing public metadata; your choices are not included in those requests.</p><p>Removing a favourite leaves personal game tiers untouched. Clearing browser storage removes local preferences. Different browsers and devices have independent favourites.</p></section>
+    <section id="hub-local-privacy"><h2>Privacy</h2><p>Without active participation and enabled collection, tiers and favourites stay local. Only deliberate new changes after opt-in can be submitted; loading or synchronising saved choices never submits them. Team lists come from Hub’s existing public metadata.</p><p>Removing a favourite leaves personal game tiers untouched. Clearing browser storage removes local preferences but is not server withdrawal. Different browsers and devices have independent favourites.</p></section>
   </dialog>;
 }

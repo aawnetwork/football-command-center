@@ -10,10 +10,10 @@ async function limit(scope: string, maximum: number) {
 }
 export async function GET(request: Request) {
   const enabled = participationEnabled(process.env), token = participationToken(request);
-  if (!enabled && !token) return reply({ available: false, active: false, consentVersion: null, grantedAt: null });
+  if (!enabled && !token) return reply({ available: false, active: false, consentVersion: null, grantedAt: null, consentReceipt: null });
   try {
     const state = await participationRpc("hub_audience_state", { p_hash: token ? hashParticipationToken(token) : null });
-    return reply({ available: enabled, active: state.active === true, consentVersion: state.consentVersion ?? null, grantedAt: state.grantedAt ?? null });
+    return reply({ available: enabled, active: state.active === true, consentVersion: state.consentVersion ?? null, grantedAt: state.grantedAt ?? null, consentReceipt: state.consentReceipt ?? null });
   } catch (error) { return failure(error); }
 }
 export async function POST(request: Request) {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     await limit(body.action, 60);
     if (token) {
       const state = await participationRpc("hub_audience_state", { p_hash: hashParticipationToken(token) });
-      if (state.active === true) return reply({ available: true, active: true, consentVersion: state.consentVersion, grantedAt: state.grantedAt });
+      if (state.active === true) return reply({ available: true, active: true, consentVersion: state.consentVersion, grantedAt: state.grantedAt, consentReceipt: state.consentReceipt ?? null });
       if (body.action === "prepare" && state.prepared === true) return reply({ prepared: true });
     }
     if (body.action === "prepare") {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     if (!token) return reply({ error: "A secure participation cookie is required. Check browser settings and retry." }, 409);
     const state = await participationRpc("hub_audience_grant", { p_hash: hashParticipationToken(token), p_version: consentVersion, p_text_hash: hashParticipationToken(consentText) });
     if (!state.active) return reply({ error: "This participation credential has expired. Start a new opt-in." }, 409);
-    return reply({ available: true, active: true, consentVersion: state.consentVersion, grantedAt: state.grantedAt }, 200, participationSetCookie(token, true));
+    return reply({ available: true, active: true, consentVersion: state.consentVersion, grantedAt: state.grantedAt, consentReceipt: state.consentReceipt ?? null }, 200, participationSetCookie(token, true));
   } catch (error) { return failure(error); }
 }
 export async function DELETE(request: Request) {

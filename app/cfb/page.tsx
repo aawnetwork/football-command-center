@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
-import { PreferencesButton } from "../features/preferences/HubPreferences";
+import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
+import { personalTierChange } from "../lib/audience-contributions";
 import { TeamLogo } from "../components/TeamLogo";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { loadTeamDirectory } from "../lib/team-logos";
@@ -57,6 +58,7 @@ export default function CfbPage() {
   return <Suspense fallback={<main className="command-center" role="status">Loading CFB Hub…</main>}><Home /></Suspense>;
 }
 function Home() {
+  const { audience } = useHubPreferences();
   const teamLogo = useTeamLogos("CFB");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
@@ -79,6 +81,8 @@ function Home() {
 
   const [tiers, setTiers] =
     useState<Record<number, Tier>>({});
+  const personalTiers = useRef(tiers);
+  personalTiers.current = tiers;
   const [tiersLoaded, setTiersLoaded] =
     useState(false);
   const [selectedTier, setSelectedTier] =
@@ -692,22 +696,21 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       setActiveDeck({ ...loadedDeck, assignments: toggleDeckTier(loadedDeck.assignments, gameId, tier) });
       return;
     }
-    setTiers((current) => {
-      const next = { ...current };
-
-      if (next[gameId] === tier) {
-        delete next[gameId];
-      } else {
-        next[gameId] = tier;
-      }
-
-      return next;
-    });
+    const next = { ...personalTiers.current };
+    const chosen = next[gameId] === tier ? null : tier;
+    if (chosen === null) delete next[gameId]; else next[gameId] = chosen;
+    personalTiers.current = next;
+    setTiers(next);
+    void audience.contribute(personalTierChange(games.find(game => game.id === gameId)?.context, "CFB", chosen));
   }
 
   function clearGameTiers() {
     if (loadedDeck) setActiveDeck({ ...loadedDeck, assignments: {} });
-    else setTiers({});
+    else {
+      if (Object.keys(personalTiers.current).length) void audience.contribute({kind:"clearTiers",league:"CFB"});
+      personalTiers.current = {};
+      setTiers({});
+    }
     setSelectedTier("ALL");
   }
 
