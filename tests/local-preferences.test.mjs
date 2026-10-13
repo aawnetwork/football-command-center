@@ -37,5 +37,5 @@ test('Preferences have no audience writes, analytics or consent cookies; dialog 
   assert.doesNotMatch(source,/document\.cookie|gtag|sendBeacon|\/api\/audience|method:\s*["']POST/);
   assert.match(source,/audience\.available/);
   assert.match(source,/showModal\(\)/);assert.match(source,/onCancel=/);assert.match(source,/previous\.focus\(\)/);
-  assert.match(source,/addEventListener\("storage"/);assert.match(source,/Coming Soon · Unavailable/);
+  assert.match(source,/addEventListener\("storage"/);assert.match(source,/Website analytics/);assert.match(source,/analytics\.choose\('denied'\)/);
 });

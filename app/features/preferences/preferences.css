@@ -14,3 +14,9 @@
 .hub-preferences-invitation { position:fixed; z-index:50; bottom:16px; right:16px; width:min(340px,calc(100vw - 32px)); background:#0b1f33; color:#f8fafc; border:1px solid #ffc720; border-radius:8px; padding:16px; font-size:14px; }
 .hub-preferences-invitation p { line-height:1.5; margin:8px 0; }
 @media(max-width:600px) { .hub-preferences-dialog { padding:16px; } }
+.hub-analytics-invitation { padding:12px 24px; background:#0b1f33; color:#cbd5e1; border-bottom:1px solid #334155; font-size:13px; }
+.hub-analytics-invitation p { line-height:1.5; max-width:1100px; margin:0 auto 8px; }
+.hub-analytics-invitation div { display:flex; flex-wrap:wrap; gap:8px; max-width:1100px; margin:auto; }
+.hub-analytics-invitation button { font:inherit; padding:8px 12px; color:#ffc720; background:#10283e; border:1px solid #64748b; border-radius:6px; cursor:pointer; }
+.hub-analytics-invitation button:focus-visible { outline:2px solid #ffc720; outline-offset:3px; }
+@media(max-width:600px) { .hub-analytics-invitation { padding:12px 16px; } }

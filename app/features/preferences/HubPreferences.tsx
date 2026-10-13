@@ -1,20 +1,23 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, Suspense, type ReactNode } from "react";
 import { favouriteKeys, invitationKey, parseFavourite, writeFavourite, validTeamId, shouldInvite, type PreferenceLeague } from "../../lib/local-preferences";
 import { loadTeamDirectory, type LogoTeam } from "../../lib/team-logos";
 import "./preferences.css";
 import { useParticipation } from "./useParticipation";
 import { consentText } from "../../lib/participation-contract";
+import {analyticsWording,type AnalyticsConfig} from '../../lib/analytics-consent';
+import {useAnalytics,AnalyticsNavigation} from './useAnalytics';
 
-type Preferences = { favourites: Record<PreferenceLeague, string | null>; open: boolean; show: () => void; hide: () => void; change: (league: PreferenceLeague, id: string | null) => void; interact: () => void; storageWarning: boolean; audience: ReturnType<typeof useParticipation> };
+type Preferences = { favourites: Record<PreferenceLeague, string | null>; open: boolean; show: () => void; hide: () => void; change: (league: PreferenceLeague, id: string | null) => void; interact: () => void; storageWarning: boolean; audience: ReturnType<typeof useParticipation>; analytics:ReturnType<typeof useAnalytics> };
 const Context = createContext<Preferences | null>(null);
 export function useHubPreferences() {
   const value = useContext(Context);
   if (!value) throw new Error("Hub preferences provider is missing.");
   return value;
 }
-export function HubPreferencesProvider({ children }: { children: ReactNode }) {
+export function HubPreferencesProvider({ children,analyticsConfig }: { children: ReactNode;analyticsConfig:AnalyticsConfig }) {
   const audience = useParticipation();
+  const analytics=useAnalytics(analyticsConfig);
   const [favourites, setFavourites] = useState<Record<PreferenceLeague, string | null>>({ NFL: null, CFB: null });
   const [open, setOpen] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
@@ -36,6 +39,7 @@ export function HubPreferencesProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; window.removeEventListener("storage", sync); };
   }, []);
   function interact() {
+    if(analytics.invite && analytics.choice==='unknown')return; // Never show competing invitations.
     if (!audience.available || audience.active || audience.pending || seen.current) return;
     try { seen.current = sessionStorage.getItem(invitationKey) === "1"; } catch { /* In-memory once-per-visit fallback. */ }
     if (!shouldInvite(audience.available, seen.current, true)) return;
@@ -48,13 +52,19 @@ export function HubPreferencesProvider({ children }: { children: ReactNode }) {
     setFavourites((previous) => ({ ...previous, [league]: id }));
     try { if (!writeFavourite(localStorage, league, id)) setStorageWarning(true); } catch { setStorageWarning(true); }
     void audience.contribute({kind:"favourite",league,teamId:id});
+    analytics.action('favourite_interaction');
     interact();
   }
-  return <Context.Provider value={{ favourites, open, show: () => setOpen(true), hide: () => setOpen(false), change, interact, storageWarning, audience }}>
+  return <Context.Provider value={{ favourites, open, show: () => {analytics.action('preferences_open');setOpen(true);}, hide: () => setOpen(false), change, interact, storageWarning, audience,analytics }}>
+    <Suspense fallback={null}><AnalyticsNavigation analytics={analytics}/></Suspense>
+    {analytics.hydrated && analytics.eligible && analytics.available && analytics.invite && analytics.choice==='unknown' && !open && !audience.contributionWarning && <aside className="hub-analytics-invitation" aria-label="Optional website analytics">
+      <p><strong>Optional website analytics</strong> · {analyticsWording}{!analytics.enabled && ' Measurement is currently disabled pending approval.'}</p>
+      <div><button type="button" onClick={()=>analytics.choose('granted')}>Allow analytics</button><button type="button" onClick={()=>analytics.choose('denied')}>Decline</button><button type="button" onClick={()=>setOpen(true)}>Details in Preferences</button><button type="button" onClick={()=>analytics.choose('dismissed')} aria-label="Dismiss analytics invitation">Dismiss</button></div>
+    </aside>}
     {children}
     {audience.contributionWarning && <aside className="hub-preferences-invitation" aria-label="Audience selection not saved" role="status"><p>{audience.contributionWarning}</p><button type="button" onClick={audience.dismissContributionWarning}>Dismiss</button></aside>}
     {open && <PreferencesPanel />}
-    {invitation && audience.available && !audience.active && !audience.pending && <aside className="hub-preferences-invitation" aria-label="Voluntary audience participation">
+    {invitation && audience.available && !audience.active && !audience.pending && !(analytics.invite && analytics.choice==='unknown') && <aside className="hub-preferences-invitation" aria-label="Voluntary audience participation">
       <strong>Optional audience participation</strong><p>Only new personal tier and favourite changes after opt-in can contribute. Existing selections are never uploaded.</p>
       <button type="button" onClick={() => { setInvitation(false); setOpen(true); }}>Learn more</button>
       <button type="button" onClick={() => setInvitation(false)}>Dismiss</button>
@@ -66,7 +76,7 @@ export function PreferencesButton() {
   return <button type="button" className="hub-preferences-button" aria-haspopup="dialog" aria-expanded={open} onClick={show}>Preferences</button>;
 }
 function PreferencesPanel() {
-  const { favourites, change, hide, storageWarning, audience } = useHubPreferences();
+  const { favourites, change, hide, storageWarning, audience,analytics } = useHubPreferences();
   const [agree,setAgree] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const [teams, setTeams] = useState<Record<PreferenceLeague, LogoTeam[]>>({ NFL: [], CFB: [] });
@@ -106,7 +116,13 @@ function PreferencesPanel() {
       </> : <strong>Unavailable pending privacy and launch approval</strong>}
       {audience.error && <p role="status">{audience.error}</p>}
     </section>
-    <section><h2>Analytics permission</h2><strong>Coming Soon · Unavailable</strong><p>GA4 is not enabled. No analytics permission is requested or recorded here.</p></section>
+    <section><h2>Website analytics</h2><p>{analyticsWording}</p>
+      <p>Choice: {analytics.choice==='granted'?'Allowed':analytics.choice==='denied'?'Declined':analytics.choice==='dismissed'?'Dismissed — not allowed':'Not chosen — not allowed'}. {!analytics.enabled && 'GA4 is not enabled; measurement is disabled pending configuration and privacy approval.'}</p>
+      {!analytics.available && <p role="status">Consent storage is unavailable. Analytics stays disabled.</p>}
+      <button type="button" onClick={()=>analytics.choose('granted')}>Allow analytics</button>{' '}
+      <button type="button" onClick={()=>analytics.choose('denied')}>{analytics.choice==='granted'?'Withdraw analytics consent':'Decline analytics'}</button>
+      <p>You can change this choice here at any time. Withdrawal stops future measurement and clears Hub’s accessible analytics cookies. It does not automatically erase information already sent to Google. Your tiers, favourites and audience participation are unaffected.</p>
+    </section>
     <section id="hub-local-privacy"><h2>Privacy</h2><p>Without active participation and enabled collection, tiers and favourites stay local. Only deliberate new changes after opt-in can be submitted; loading or synchronising saved choices never submits them. Team lists come from Hub’s existing public metadata.</p><p>Removing a favourite leaves personal game tiers untouched. Clearing browser storage removes local preferences but is not server withdrawal. Different browsers and devices have independent favourites.</p></section>
   </dialog>;
 }

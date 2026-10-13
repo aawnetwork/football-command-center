@@ -49,7 +49,7 @@ export default function NFLPage() {
   return <Suspense fallback={<main className="command-center" role="status">Loading NFL Hub…</main>}><NFLPageContent /></Suspense>;
 }
 function NFLPageContent() {
-  const { audience } = useHubPreferences();
+  const { audience, analytics } = useHubPreferences();
   const teamLogo = useTeamLogos("NFL");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [playerStatsCheck, setPlayerStatsCheck] = useState(emptyDataCheck);
@@ -464,6 +464,7 @@ function NFLPageContent() {
   }
 
   function setGameTier(gameId: number, tier: NFLTier) {
+    analytics.action('tier_interaction');
     const next = { ...personalTiers.current };
     const chosen = next[gameId] === tier ? null : tier;
     if (chosen === null) delete next[gameId]; else next[gameId] = chosen;

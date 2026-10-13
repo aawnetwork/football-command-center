@@ -58,7 +58,7 @@ export default function CfbPage() {
   return <Suspense fallback={<main className="command-center" role="status">Loading CFB Hub…</main>}><Home /></Suspense>;
 }
 function Home() {
-  const { audience } = useHubPreferences();
+  const { audience, analytics } = useHubPreferences();
   const teamLogo = useTeamLogos("CFB");
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
@@ -692,6 +692,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     gameId: number,
     tier: Tier
   ) {
+    analytics.action('tier_interaction');
     if (loadedDeck) {
       setActiveDeck({ ...loadedDeck, assignments: toggleDeckTier(loadedDeck.assignments, gameId, tier) });
       return;
