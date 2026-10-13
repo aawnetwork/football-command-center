@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { nflSeasonHighs } from "../../../lib/nfl-season-highs";
+import { nflPerformanceCache } from "../../../lib/nfl-performance-cache";
 
-export const revalidate = 60;
+// Cache the complete computed response through the helper + Vercel CDN.
+// Both CSVs exceed Next's 2 MB fetch-cache limit; do not cache their raw bodies.
+export const dynamic = "force-dynamic";
 
 const NFLVERSE_PLAYER_URL =
   "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv";
@@ -155,7 +158,7 @@ function formatRecord(
   return `${wins}-${losses}`;
 }
 
-export async function GET() {
+async function buildPerformanceResponse() {
   try {
     const [
       playerResponse,
@@ -164,13 +167,13 @@ export async function GET() {
       fetch(
         NFLVERSE_PLAYER_URL,
         {
-          cache: "no-store",
+          next: { revalidate: 0 },
         }
       ),
       fetch(
         NFLVERSE_SCHEDULE_URL,
         {
-          cache: "no-store",
+          next: { revalidate: 0 },
         }
       ),
     ]);
@@ -701,4 +704,9 @@ export async function GET() {
       }
     );
   }
+}
+
+const cachedPerformances = nflPerformanceCache(buildPerformanceResponse);
+export async function GET() {
+  return cachedPerformances();
 }
