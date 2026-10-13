@@ -3,7 +3,7 @@ set local role service_role;
 do $phases$
 declare h text:=repeat('1',64); t timestamptz; receipt uuid; pid uuid; r bigint; result text;
 begin
-  perform public.hub_audience_prepare(h); perform public.hub_audience_grant(h,'stage28-v1',repeat('e',64));
+  perform public.hub_audience_prepare(h); perform public.hub_audience_grant(h,'stage35-v1',repeat('e',64));
   select p.id,c.granted_at,c.consent_receipt into pid,t,receipt from public.hub_audience_participants p join public.hub_audience_consent c on c.participant_id=p.id where token_hash=h;
   r:=floor(extract(epoch from clock_timestamp())*1000)::bigint*1000+1000;
   result:=public.hub_audience_write_phase_selection(h,t,receipt,'tier','NFL',2026,'401000001','A','regular',r,'pregame',clock_timestamp(),clock_timestamp()+interval '1 day');
@@ -38,7 +38,7 @@ end $phases$;
 do $retention$
 declare h text:=repeat('2',64); t timestamptz; receipt uuid; pid uuid; r bigint; result jsonb; finish timestamptz:=clock_timestamp()-interval '2160 hours'+interval '1 hour';
 begin
-  perform public.hub_audience_prepare(h); perform public.hub_audience_grant(h,'stage28-v1',repeat('e',64));
+  perform public.hub_audience_prepare(h); perform public.hub_audience_grant(h,'stage35-v1',repeat('e',64));
   select p.id,c.granted_at,c.consent_receipt into pid,t,receipt from public.hub_audience_participants p join public.hub_audience_consent c on c.participant_id=p.id where token_hash=h;
   r:=floor(extract(epoch from clock_timestamp())*1000)::bigint*1000+1000;
   perform public.hub_audience_write_phase_selection(h,t,receipt,'tier','NFL',2025,'401000004','S','postseason',r,'postgame',clock_timestamp(),clock_timestamp()-interval '1 day');

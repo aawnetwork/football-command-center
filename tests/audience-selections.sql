@@ -5,7 +5,7 @@ declare h text:=repeat('d',64); t timestamptz; receipt uuid; r bigint; result te
 begin
   if public.hub_audience_contribution_gate(h,clock_timestamp(),null)<>'inactive' then raise exception 'Missing consent accepted'; end if;
   perform public.hub_audience_prepare(h);
-  perform public.hub_audience_grant(h,'stage28-v1',repeat('e',64));
+  perform public.hub_audience_grant(h,'stage35-v1',repeat('e',64));
   select c.granted_at,c.consent_receipt into t,receipt from public.hub_audience_consent c join public.hub_audience_participants p on p.id=c.participant_id where p.token_hash=h;
   if public.hub_audience_contribution_gate(h,t-interval '1 second',receipt)<>'inactive' then raise exception 'Wrong consent epoch accepted'; end if;
   if public.hub_audience_contribution_gate(h,t,receipt)<>'ready' then raise exception 'Gate failed'; end if;
@@ -45,7 +45,7 @@ begin
   if exists(select 1 from public.hub_audience_game_tiers) or exists(select 1 from public.hub_audience_favourites) or exists(select 1 from public.hub_audience_selection_versions) then raise exception 'Withdrawal did not cascade'; end if;
   if public.hub_audience_write_selection(h,t,receipt,'tier','NFL',2026,'401772833','S','regular',r+12)<>'inactive' then raise exception 'In-flight write resurrected participant'; end if;
   perform public.hub_audience_prepare(repeat('f',64));
-  perform public.hub_audience_grant(repeat('f',64),'stage28-v1',repeat('e',64));
+  perform public.hub_audience_grant(repeat('f',64),'stage35-v1',repeat('e',64));
   if public.hub_audience_contribution_gate(repeat('f',64),t,receipt)<>'inactive' then raise exception 'Old opt-in epoch reused'; end if;
   if exists(select 1 from public.hub_audience_game_tiers) or exists(select 1 from public.hub_audience_favourites) then raise exception 'Rejoin restored data'; end if;
 end $test$;

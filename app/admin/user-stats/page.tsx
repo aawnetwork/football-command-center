@@ -32,7 +32,7 @@ export default async function UserStatsPage({searchParams}:{searchParams:Promise
       <label>Favourite sorting<select name="sort" defaultValue={filters.sort}><option value="popular">Most popular</option><option value="alphabetical">Alphabetical</option></select></label>
       <button type="submit">Apply / refresh</button><a href="/admin/user-stats">Reset</a>
     </form>
-    <section aria-labelledby="overview"><h2 id="overview">Overview</h2><p>League and season filters apply below. Active participating browsers is the global count of current, unwithdrawn consent records; it does not measure recent visits. Game/view filters apply only to game exploration.</p>
+    <section aria-labelledby="overview"><h2 id="overview">Overview</h2><p>League and season filters apply below. Active participating browsers is the global count of current, unexpired, unwithdrawn consent records; it does not measure recent visits. Game/view filters apply only to game exploration.</p>
       <dl className="audience-overview">{[['Active participating browsers (all)',o.activeBrowsers],['Current game ratings',o.currentRatings],['NFL favourites',o.nflFavourites],['CFB favourites',o.cfbFavourites],['Games receiving contributions',o.games],['Pregame snapshots',o.pregame],['Live snapshots',o.live],['Postgame snapshots',o.postgame]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
       <p>Latest retained contribution: {o.latestContribution?new Date(o.latestContribution).toLocaleString('en-GB',{timeZone:'Europe/London'}):'None'}.</p>
       <p>Trends are unavailable: overwritten current selections and bounded phase snapshots are not a complete activity time series. Phase counts are not added together as unique browsers.</p>

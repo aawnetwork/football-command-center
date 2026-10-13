@@ -6,7 +6,7 @@ begin
   before_count:=(public.hub_audience_report()->'overview'->>'activeBrowsers')::integer;
   insert into public.hub_audience_participants(token_hash) values(h) returning id into a;
   insert into public.hub_audience_participants(token_hash) values(md5(random()::text)||md5(random()::text)) returning id into b;
-  insert into public.hub_audience_consent(participant_id,version,text_hash) values(a,'stage28-v1',repeat('a',64)),(b,'stage28-v1',repeat('b',64));
+  insert into public.hub_audience_consent(participant_id,version,text_hash) values(a,'stage35-v1',repeat('a',64)),(b,'stage35-v1',repeat('b',64));
   insert into public.hub_audience_favourites(participant_id,league,team_id,season) values(a,'NFL','12',2099),(b,'NFL','6',2099),(a,'CFB','12',2099);
   insert into public.hub_audience_game_tiers(participant_id,league,season,event_id,canonical_game_id,season_type,tier)
     values(a,'NFL',2099,'991','NFL:2099:991','regular','S'),(b,'NFL',2099,'991','NFL:2099:991','regular','A');

@@ -122,7 +122,7 @@ test('Actual participation hook submits only post-consent events; sync/opt-in ne
  globalThis.window={addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{locks:{request:async(name,fn)=>fn()}}});
  let active=false,offline=false,deleting=false,release;const sent=[];
- const current=()=>({available:true,active,grantedAt:active?base.consentGrantedAt:null,consentVersion:active?'stage28-v1':null,consentReceipt:active?receipt:null});
+ const current=()=>({available:true,active,grantedAt:active?base.consentGrantedAt:null,consentVersion:active?'stage35-v1':null,consentReceipt:active?receipt:null});
  globalThis.fetch=async(url,options={})=>{
   if(url.endsWith('/participation')){
    if(options.method==='POST'){const body=JSON.parse(options.body);if(body.action==='confirm')active=true;return Response.json(body.action==='prepare'?{prepared:true}:current());}
