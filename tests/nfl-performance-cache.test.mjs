@@ -29,7 +29,7 @@ const compile=source=>`data:text/javascript;base64,${Buffer.from(ts.transpileMod
 const original=await readFile(new URL('../app/api/nfl/performances/route.ts',import.meta.url),'utf8');
 async function route(clock){
   const key='__nflCacheClock'+Math.random().toString(36).slice(2);globalThis[key]=clock;
-  const source=original.replace('import { NextResponse } from "next/server";','const NextResponse={json:Response.json};')
+  const source=original.replace("import {loadNflverseSnapshot} from '../../../lib/nflverse-snapshots';",`import {createNflverseSnapshots} from ${JSON.stringify(new URL('../app/lib/nflverse-snapshots.ts',import.meta.url).href)};const loadNflverseSnapshot=createNflverseSnapshots((...args)=>fetch(...args),()=>globalThis[${JSON.stringify(key)}]());`).replace('import { NextResponse } from "next/server";','const NextResponse={json:Response.json};')
     .replace('"../../../lib/nfl-season-highs"',JSON.stringify(new URL('../app/lib/nfl-season-highs.ts',import.meta.url).href))
     .replace('import { nflPerformanceCache } from "../../../lib/nfl-performance-cache";',`import {nflPerformanceCache as makeCache} from ${JSON.stringify(new URL('../app/lib/nfl-performance-cache.ts',import.meta.url).href)};const nflPerformanceCache=load=>makeCache(load,()=>globalThis[${JSON.stringify(key)}]());`);
   return {api:await import(compile(source)),cleanup:()=>delete globalThis[key]};
@@ -38,7 +38,7 @@ const schedule='game_id,alt_game_id,season,game_type,week,gameday,home_team,away
 const players=value=>'player_id,player_display_name,player_name,season,season_type,week,game_id,team,opponent_team,passing_yards,passing_tds,rushing_yards,rushing_tds,receiving_yards,receiving_tds,def_tackles_solo,def_tackle_assists,def_sacks\np1,"Player, One",backup,2026,REG,1,first,KC,JAC,200,2,10,0,0,0,1,2,0.5\np1,"Player, One",backup,2026,REG,2,second,KC,JAC,'+value+',3,20,1,5,0,2,3,1\np1,"Player, One",backup,2026,REG,3,third,KC,JAC,5,0,0,0,0,0,0,0,0\nold,Old,,2025,REG,1,old,KC,JAC,999,9,0,0,0,0,0,0,0\npost,Post,,2026,POST,4,post,KC,JAC,999,9,0,0,0,0,0,0,0';
 test('Actual route reuses parsing/results, preserves stats/records and refreshes source data after five minutes',async()=>{
   let clock=Date.now(),calls=0,value=300;const loaded=await route(()=>clock),oldFetch=globalThis.fetch;
-  globalThis.fetch=async(url,options)=>{calls++;assert.equal(options.next.revalidate,0);return new Response(url.includes('stats_player')?players(value):schedule);};
+  globalThis.fetch=async(url,options)=>{calls++;assert.equal(options.cache,'no-store');return new Response(url.includes('stats_player')?players(value):schedule);};
   try{
     const [a,b]=await Promise.all([loaded.api.GET(),loaded.api.GET()]);const first=await a.json();assert.deepEqual(first,await b.json());assert.equal(calls,2);
     assert.equal(first.season,2026);assert.equal(first.performances.length,3);
@@ -55,3 +55,5 @@ test('Actual route preserves source error shape/status without poisoning the res
   try{const r=await loaded.api.GET();assert.equal(r.status,503);assert.deepEqual(await r.json(),{error:'NFL 2026 performance data request failed.',status:503});fail=false;assert.equal((await loaded.api.GET()).status,200);}
   finally{globalThis.fetch=oldFetch;loaded.cleanup();}
 });
+
+test('performance/CDN expiry never extends an already-aged source snapshot',async()=>{let clock=1000000,calls=0;const cached=nflPerformanceCache(async()=>{calls++;return Response.json({ok:true},{headers:{'X-AAW-Snapshot-Expires-At':String(clock+10000)}})},()=>clock);const first=await cached();assert.equal(first.headers.get('Vercel-CDN-Cache-Control'),'public, s-maxage=10');assert.equal(first.headers.has('X-AAW-Snapshot-Expires-At'),false);clock+=9000;await cached();assert.equal(calls,1);clock+=1000;await cached();assert.equal(calls,2)});

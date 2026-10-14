@@ -12,7 +12,8 @@ export function nflPerformanceCache(load: () => Promise<Response>, now = Date.no
     const response = await load();
     const body = await response.text();
     const generated = now();
-    const entry = { body, headers: new Headers(response.headers), status: response.status, expires: generated + lifetime };
+    const entry = { body, headers: new Headers(response.headers), status: response.status, expires: Math.min(generated + lifetime, Number(response.headers.get("X-AAW-Snapshot-Expires-At")) || Infinity) };
+    entry.headers.delete("X-AAW-Snapshot-Expires-At");
     if (response.ok) {
       entry.headers.set("X-AAW-Performance-Generated-At", new Date(generated).toISOString());
       cached = entry;

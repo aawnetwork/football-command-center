@@ -1,3 +1,4 @@
+import {loadNflverseSnapshot} from '../../../lib/nflverse-snapshots';
 import { NextResponse } from "next/server";
 import { nflSeasonHighs } from "../../../lib/nfl-season-highs";
 import { nflPerformanceCache } from "../../../lib/nfl-performance-cache";
@@ -6,11 +7,9 @@ import { nflPerformanceCache } from "../../../lib/nfl-performance-cache";
 // Both CSVs exceed Next's 2 MB fetch-cache limit; do not cache their raw bodies.
 export const dynamic = "force-dynamic";
 
-const NFLVERSE_PLAYER_URL =
-  "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv";
 
-const NFLVERSE_SCHEDULE_URL =
-  "https://github.com/nflverse/nfldata/raw/master/data/games.csv";
+
+
 
 function parseCSVLine(line: string): string[] {
   const values: string[] = [];
@@ -164,18 +163,8 @@ async function buildPerformanceResponse() {
       playerResponse,
       scheduleResponse,
     ] = await Promise.all([
-      fetch(
-        NFLVERSE_PLAYER_URL,
-        {
-          next: { revalidate: 0 },
-        }
-      ),
-      fetch(
-        NFLVERSE_SCHEDULE_URL,
-        {
-          next: { revalidate: 0 },
-        }
-      ),
+      loadNflverseSnapshot('player','performance',parseCSV),
+      loadNflverseSnapshot('schedule','performance',parseCSV),
     ]);
 
     if (!playerResponse.ok) {
@@ -208,20 +197,8 @@ async function buildPerformanceResponse() {
       );
     }
 
-    const [
-      playerCSV,
-      scheduleCSV,
-    ] = await Promise.all([
-      playerResponse.text(),
-      scheduleResponse.text(),
-    ]);
-
-    const weeklyStats =
-      parseCSV(playerCSV);
-
-    const schedule =
-      parseCSV(scheduleCSV);
-
+    const weeklyStats = playerResponse.rows;
+    const schedule = scheduleResponse.rows;
     const currentSeasonStats =
       weeklyStats.filter(
         (stat) =>
@@ -687,7 +664,7 @@ async function buildPerformanceResponse() {
     return NextResponse.json({
       season: 2026,
       performances,
-    });
+    },{headers:{'X-AAW-Snapshot-Expires-At':String(Math.min(playerResponse.expiresAt,scheduleResponse.expiresAt))}});
   } catch (error) {
     console.error(
       "NFL performance data error:",
