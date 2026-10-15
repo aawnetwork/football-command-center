@@ -1317,6 +1317,32 @@
   .game-card__tier-controls { justify-content: space-between; }
 }
 
+/* Shared CFB poll comparison; conference and NFL tables remain unchanged. */
+.cfb-polls__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 14px; }
+.cfb-polls__card { min-width: 0; overflow: hidden; border: 1px solid var(--cc-border); border-radius: 3px; background: var(--cc-surface); }
+.cfb-polls__card header { padding: 16px 14px; border-bottom: 1px solid var(--cc-border); }
+.cfb-polls__card h3 { margin: 0; color: var(--cc-text); font-size: 15px; line-height: 1.4; }
+.cfb-polls__card header p { margin: 5px 0 0; color: var(--cc-muted); font-size: 11px; line-height: 1.5; }
+.cfb-polls__context { margin: 12px 0 18px; color: var(--cc-muted); font-size: 12px; line-height: 1.6; }
+.cfb-polls__rows { list-style: none; margin: 0; padding: 0; }
+.cfb-polls__rows li { display: grid; grid-template-columns: 26px minmax(0, 1fr) 44px; align-items: center; gap: 8px; padding: 10px 12px; min-height: 48px; border-bottom: 1px solid var(--cc-border); }
+.cfb-polls__rows li:last-child { border-bottom: 0; }
+.cfb-polls__rank { color: var(--cc-muted); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cfb-polls__team { display: flex; align-items: center; gap: 9px; min-width: 0; color: var(--cc-text); font-size: 13px; font-weight: 600; line-height: 1.4; }
+.cfb-polls__team > span:last-child { overflow-wrap: anywhere; }
+.cfb-polls__logo { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex: 0 0 26px; }
+.cfb-polls__logo img { display: block; width: 26px; height: 26px; object-fit: contain; }
+.cfb-polls__logo-fallback { color: var(--cc-muted); }
+.cfb-polls__movement { text-align: right; white-space: nowrap; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cfb-polls__movement--up { color: #4ade80; }
+.cfb-polls__movement--down { color: #f87171; }
+.cfb-polls__movement--neutral { color: var(--cc-muted); }
+.cfb-polls__empty { margin: 0; padding: 20px 14px; color: var(--cc-muted); font-size: 13px; line-height: 1.6; }
+.cfb-polls__weeks { flex-wrap: nowrap; overflow-x: auto; min-width: 0; padding-bottom: 4px; }
+.cfb-polls__weeks button { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 1099px) { .cfb-polls__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 679px) { .cfb-polls__grid { grid-template-columns: minmax(0, 1fr); } }
+
 /* Archive selector shares the existing Rankings control styling. */
 .standings-panel__week-switch { align-items: center; }
 .standings-panel__week-switch select {

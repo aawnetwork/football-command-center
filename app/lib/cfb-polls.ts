@@ -6,7 +6,7 @@ export type ArchiveRow = {
   published_at: string | null; captured_at: string; source: string; revision: number;
   entries?: Array<{
     rank: number; previous_rank: number | null; previous_rank_status?: string;
-    team_name: string; team_abbreviation: string | null; team_logo_url: string | null;
+    team_id?: string | null; team_name: string; team_abbreviation: string | null; team_logo_url: string | null;
     record: string | null; points: number | null; first_place_votes: number | null;
   }>;
 };
@@ -24,11 +24,23 @@ export function mapEntries(r: ArchiveRow): PollEntry[] {
     // Null in older archives is ambiguous; never infer NR from it.
     const unranked = e.previous_rank_status === "unranked" || e.previous_rank === 0;
     const known = !unranked && e.previous_rank !== null && Number.isInteger(e.previous_rank) && e.previous_rank > 0;
-    return { rank: e.rank, previousRank: known ? e.previous_rank : null,
+    return { rank: e.rank, teamId: e.team_id == null ? null : String(e.team_id), previousRank: known ? e.previous_rank : null,
       previousRankStatus: unranked ? "unranked" : known ? "ranked" : "unknown",
       team: e.team_name, abbreviation: e.team_abbreviation ?? "", logo: e.team_logo_url,
       record: e.record ?? "—", points: e.points ?? null, firstPlaceVotes: e.first_place_votes ?? null };
   }).sort((a,b) => a.rank - b.rank);
+}
+export function recoverPreviousRanks(entries: PollEntry[], previous: PollEntry[]): PollEntry[] {
+  const prior = previous.filter(entry => entry.rank >= 1 && entry.rank <= 25);
+  const completeIds = prior.length >= 25 && prior.every(entry => entry.teamId) && new Set(prior.map(entry => entry.teamId)).size === prior.length;
+  return entries.map(entry => {
+    if (entry.previousRankStatus !== "unknown") return entry;
+    const matches = prior.filter(old => entry.teamId && old.teamId ? entry.teamId === old.teamId : old.team.trim().toLowerCase() === entry.team.trim().toLowerCase());
+    if (matches.length === 1) return { ...entry, previousRank: matches[0].rank, previousRankStatus: "ranked" };
+    // Absence is evidence only with a complete, uniquely identified prior Top 25.
+    if (matches.length === 0 && completeIds && entry.teamId) return { ...entry, previousRank: null, previousRankStatus: "unranked" };
+    return entry;
+  });
 }
 export function parseSelection(params: URLSearchParams) {
   const kind = params.get("type") ?? "ap";
@@ -76,6 +88,18 @@ export async function getArchivePolls(params: URLSearchParams): Promise<PollResp
   // Read entries by identity rather than id: a replacement remains the same snapshot.
   const saved = selected ? (await read(`poll_type=eq.${selected.kind}&season=eq.${selected.season}&season_phase=eq.${selected.phase}&week=eq.${selected.week}&select=${metadataColumns},entries&limit=1`))[0] : null;
   const poll = saved ? { ...mapMetadata(saved), available: true, entries: mapEntries(saved) } : null;
+  if (saved && poll?.entries.some(entry => entry.previousRankStatus === "unknown")) {
+    // Supplied previous ranks refer to the source's previous release, regardless
+    // of calendar dates. Recover missing markers only from an adjacent archived
+    // source week in the same season/phase; never bridge an unknown archive gap.
+    const previous = rows.find(row => row.season === saved.season && row.season_phase === saved.season_phase && row.week === saved.week - 1);
+    if (previous) {
+      try {
+        const prior = (await read(`poll_type=eq.${previous.poll_type}&season=eq.${previous.season}&season_phase=eq.${previous.season_phase}&week=eq.${previous.week}&select=${metadataColumns},entries&limit=1`))[0];
+        if (prior) poll.entries = recoverPreviousRanks(poll.entries, mapEntries(prior));
+      } catch { /* Current rankings remain usable; missing movement stays unknown. */ }
+    }
+  }
   return { league: "CFB", kind: choice.kind, selectionMode: choice.week === null ? "latest" : "snapshot", latest, selected,
     availableSnapshots: rows.map(mapMetadata),
     availableWeeks: [...new Set(rows.filter(r => r.season === selected?.season && r.season_phase === selected?.phase).map(r => r.week))].sort((a,b) => a-b),

@@ -5,9 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 type League = "CFB" | "NFL";
 type CfbView = "conferences" | "rankings";
 type NflView = "divisions" | "playoffs";
-import { pollKey, pollLabel, previousRankLabel, type PollEntry, type PollKind, type PollResponse } from "./poll-model";
+import { CfbRankings } from "./CfbRankings";
 
 type StandingTeam = {
+  id?: string;
+  shortName?: string;
+  location?: string;
   team: string;
   abbreviation: string;
   logo: string | null;
@@ -26,6 +29,7 @@ type StandingSection = {
 };
 
 type StandingResponse = {
+  season?: number | { year?: number };
   sections?: StandingSection[];
   playoffPictureAvailable?: boolean;
   error?: string;
@@ -33,13 +37,8 @@ type StandingResponse = {
 
 type PlayoffTeam = StandingTeam & { divisionName: string };
 
-const pollLabels: Record<PollKind, string> = {
-  ap: "AP",
-  cfp: "CFP",
-  uki: "UK & Ireland",
-};
-
 export function StandingsPanel({ sport }: { sport: League }) {
+  const [season, setSeason] = useState<number>();
   const [sections, setSections] = useState<StandingSection[]>([]);
   const [selectedConference, setSelectedConference] = useState("All");
   const [cfbView, setCfbView] = useState<CfbView>("conferences");
@@ -64,6 +63,8 @@ export function StandingsPanel({ sport }: { sport: League }) {
       .then((data) => {
         if (cancelled) return;
         setSections(data.sections ?? []);
+        const year = typeof data.season === "number" ? data.season : data.season?.year;
+        if (Number.isInteger(year)) setSeason(year);
         setPlayoffPictureAvailable(Boolean(data.playoffPictureAvailable));
       })
       .catch((reason: Error) => {
@@ -93,6 +94,7 @@ export function StandingsPanel({ sport }: { sport: League }) {
       <p>{sport === "NFL" ? "NFL division races, updated from ESPN." : "FBS conference standings and national rankings."}</p>
     </header>
     {sport === "CFB" ? <CfbStandings
+      season={season}
       view={cfbView}
       onViewChange={setCfbView}
       sections={visibleSections}
@@ -112,7 +114,8 @@ export function StandingsPanel({ sport }: { sport: League }) {
   </section>;
 }
 
-function CfbStandings({ view, onViewChange, sections, allSections, selectedConference, onConferenceChange, loading, error }: {
+function CfbStandings({ view, onViewChange, sections, allSections, selectedConference, onConferenceChange, loading, error, season }: {
+  season?: number;
   view: CfbView;
   onViewChange: (view: CfbView) => void;
   sections: StandingSection[];
@@ -132,7 +135,7 @@ function CfbStandings({ view, onViewChange, sections, allSections, selectedConfe
         {["All", ...allSections.map((section) => section.name)].map((name) => <button key={name} type="button" aria-pressed={selectedConference === name} onClick={() => onConferenceChange(name)}>{name.replace(" Conference", "")}</button>)}
       </div>}
       <StandingsContent sport="CFB" sections={sections} loading={loading} error={error} />
-    </> : <CfbRankings />}
+    </> : <CfbRankings teams={allSections.flatMap(section => section.teams)} season={season} />}
   </>;
 }
 
@@ -154,56 +157,6 @@ function NflStandings({ view, onViewChange, playoffPictureAvailable, sections, l
   </>;
 }
 
-function CfbRankings() {
-  const [pollKind, setPollKind] = useState<PollKind>("ap");
-  const [selection, setSelection] = useState("latest");
-  const [data, setData] = useState<PollResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const params = new URLSearchParams({ league: "CFB", view: "polls", type: pollKind });
-    if (selection !== "latest") {
-      const [, season, phase, week] = selection.split(":");
-      params.set("season", season); params.set("phase", phase); params.set("week", week);
-    }
-    const loadRankings = async (initial = false) => {
-      if (initial) { setLoading(true); setError(null); }
-      try {
-        const response = await fetch(`/api/standings?${params}`, { cache: "no-store" });
-        const payload: PollResponse = await response.json();
-        if (!response.ok) throw new Error(payload.error ?? "Unable to load rankings.");
-        if (!cancelled) { setData(payload); setError(null); }
-      } catch (reason) {
-        if (!cancelled) setError((reason as Error).message);
-      } finally { if (!cancelled) setLoading(false); }
-    };
-    void loadRankings(true);
-    const interval = window.setInterval(() => void loadRankings(), 300_000);
-    return () => { cancelled = true; window.clearInterval(interval); };
-  }, [pollKind, selection]);
-
-  const poll = data?.poll;
-  return <div className="standings-panel__rankings">
-    <div className="standings-panel__rankings-controls">
-      <div className="standings-panel__mode-switch" aria-label="Ranking source">
-        {(Object.keys(pollLabels) as PollKind[]).map(kind => <button key={kind} type="button" aria-pressed={pollKind === kind} onClick={() => { setPollKind(kind); setSelection("latest"); setData(null); setLoading(true); }}>{pollLabels[kind]}</button>)}
-      </div>
-      <label className="standings-panel__week-switch">Poll snapshot{' '}
-        <select aria-label="Poll snapshot" value={selection} onChange={event => setSelection(event.target.value)}>
-          <option value="latest">Latest stored</option>
-          {data?.availableSnapshots.map(snapshot => <option key={pollKey(snapshot)} value={pollKey(snapshot)}>{pollLabel(snapshot)}</option>)}
-        </select>
-      </label>
-    </div>
-    {loading ? <div className="standings-panel__empty">Loading stored rankings…</div> : error ? <div className="standings-panel__empty" role="alert">{error}</div> : poll?.available ? <>
-      <p>{selection === "latest" ? "Latest stored" : "Historical snapshot"} · {pollLabels[poll.kind]} · {pollLabel(poll)} · {poll.source}</p>
-      <p>Published: {poll.publishedAt ? new Date(poll.publishedAt).toLocaleString("en-GB", { timeZone: "Europe/London" }) + " UK" : "not supplied"} · Captured: {new Date(poll.capturedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK · Revision {poll.revision}</p>
-      <PollTable entries={poll.entries} />
-    </> : <div className="standings-panel__empty">{selection !== "latest" ? "That snapshot has not been archived." : pollKind === "cfp" ? "No CFP snapshots have been archived yet." : `No ${pollLabels[pollKind]} snapshots have been archived yet.`}</div>}
-  </div>;
-}
 
 function StandingsContent({ sport, sections, loading, error }: { sport: League; sections: StandingSection[]; loading: boolean; error: string | null }) {
   const groups = sport === "NFL" ? ["AFC", "NFC"] : ["CFB"];
@@ -244,11 +197,4 @@ function StandingTable({ section, sport }: { section: StandingSection; sport: Le
       <tbody>{section.teams.map((team) => <tr key={team.team}><td><span className="standings-panel__team">{team.logo && <img src={team.logo} alt="" />}{team.team}</span></td><td>{team.overall}</td><td>{sport === "NFL" ? team.division : team.conference}</td><td>{team.winPct}</td><td>{team.streak}</td></tr>)}</tbody>
     </table></div>
   </article>;
-}
-
-function PollTable({ entries }: { entries: PollEntry[] }) {
-  return <article className="standings-panel__table-wrap"><div className="standings-panel__scroll"><table>
-    <thead><tr><th>Rank</th><th>Team</th><th>Record</th><th>Last week</th><th>Points</th></tr></thead>
-    <tbody>{entries.map((entry) => <tr key={entry.abbreviation || entry.team}><td>{entry.rank}</td><td><span className="standings-panel__team">{entry.logo && <img src={entry.logo} alt="" />}{entry.team}</span></td><td>{entry.record}</td><td>{previousRankLabel(entry)}</td><td>{entry.points?.toLocaleString() ?? "—"}</td></tr>)}</tbody>
-  </table></div></article>;
 }

@@ -8,6 +8,25 @@ test('Latest ignores historical replacement/publication dates and respects seaso
  const rows=[old,row(6),row(0,'preseason'),row(1,'postseason'),row(0,'preseason',2027)];
  assert.deepEqual(rows.sort(compareSnapshots).map(r=>r.id),['2027-preseason-0','2026-postseason-1','2026-regular-6','2026-regular-2','2026-preseason-0']);
 });
+test('Movement recovery reads the previous source poll only, never bridges gaps or hides current data on failure',async()=>{
+ const oldFetch=globalThis.fetch,oldUrl=process.env.SUPABASE_URL,oldKey=process.env.SUPABASE_POLL_READ_KEY;
+ const previous={...row(6),entries:Array.from({length:25},(_,i)=>({...row(6).entries[0],rank:i+1,team_id:String(i+1),team_name:'School '+(i+1)}))};
+ const current={...row(7),entries:[{...row(7).entries[0],team_id:'99',team_name:'New school'}]};
+ let archive=[previous,current],priorFails=false,priorReads=0;
+ process.env.SUPABASE_URL='https://archive.example';process.env.SUPABASE_POLL_READ_KEY='sb_publishable_test';
+ globalThis.fetch=async url=>{
+  const q=new URL(url).searchParams;assert.equal(q.get('poll_type'),'eq.ap');
+  if(q.get('week')==='eq.6'){priorReads++;if(priorFails)throw Error('Previous poll offline');}
+  return Response.json(archive.filter(r=>!q.has('week')||String(r.week)===q.get('week').slice(3)));
+ };
+ try{
+  assert.equal((await getArchivePolls(new URLSearchParams('type=ap&season=2026&week=7'))).poll.entries[0].previousRankStatus,'unranked');
+  assert.equal(priorReads,1);priorFails=true;
+  assert.equal((await getArchivePolls(new URLSearchParams('type=ap&season=2026&week=7'))).poll.entries[0].previousRankStatus,'unknown');
+  archive=[{...previous,week:5},current];const before=priorReads;
+  assert.equal((await getArchivePolls(new URLSearchParams('type=ap&season=2026&week=7'))).poll.entries[0].previousRankStatus,'unknown');assert.equal(priorReads,before);
+ }finally{globalThis.fetch=oldFetch;if(oldUrl===undefined)delete process.env.SUPABASE_URL;else process.env.SUPABASE_URL=oldUrl;if(oldKey===undefined)delete process.env.SUPABASE_POLL_READ_KEY;else process.env.SUPABASE_POLL_READ_KEY=oldKey;}
+});
 test('Known, unknown and explicit NR are distinct; null points/votes stay null',()=>{
  const r=row(4);r.entries=[null,5,0].map((previous_rank,i)=>({...r.entries[0],rank:i+1,previous_rank}));
  r.entries.push({...r.entries[0],rank:4,previous_rank_status:'unranked'});
