@@ -35,7 +35,7 @@ test('Reporting stays server-only; no public aggregation, participant fields, co
  const sql=await readFile(new URL('../supabase/hub-audience-report.sql',import.meta.url),'utf8');
  assert.match(sql,/security invoker set search_path=''/);assert.match(sql,/from public,anon,authenticated/);assert.match(sql,/e.expires_at>now\(\)/);
  assert.doesNotMatch(sql,/create table|insert into|delete from|update public/i);
- const page=await readFile(new URL('../app/admin/user-stats/page.tsx',import.meta.url),'utf8');assert.match(page,/await requireAdmin\(\)/);assert.match(page,/Insufficient|sampleLabel/);assert.match(page,/not necessarily the same respondents/);assert.doesNotMatch(page,/setInterval|participant_id|token_hash|consent_receipt/);
+ const page=await readFile(new URL('../app/admin/user-stats/page.tsx',import.meta.url),'utf8');assert.match(page,/await requireAdmin\(\)/);assert.match(page,/Insufficient|sampleLabel/);assert.match(page,/GameOpinions/);assert.doesNotMatch(page,/setInterval|participant_id|token_hash|consent_receipt/);
 });
 test('Exact league/team IDs resolve names; missing, stale and failed game metadata never invent status',async()=>{
  let code=await readFile(new URL('../app/lib/audience-report-store.ts',import.meta.url),'utf8');
