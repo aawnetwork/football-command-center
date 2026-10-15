@@ -1,10 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveTeamLogo, loadTeamDirectory, preferredTeamLogo, standingsEntries } from '../app/lib/team-logos.ts';
+import { nflTeamNameByAbbreviation } from '../app/nfl/data/divisions.ts';
 const teams = [
   { team: 'Louisville Cardinals', location: 'Louisville', shortName: 'Louisville', abbreviation: 'LOU', logo: 'https://example.com/lou.png' },
   { team: 'Dallas Cowboys', location: 'Dallas', abbreviation: 'DAL', logo: 'https://example.com/dal.png' },
 ];
+test('NFLverse LA and ESPN LAR both resolve to the Rams name and logo, not the Chargers', () => {
+  const directory = [
+    { team: 'Los Angeles Rams', abbreviation: 'LAR', logo: 'rams.png' },
+    { team: 'Los Angeles Chargers', abbreviation: 'LAC', logo: 'chargers.png' },
+  ];
+  for (const code of ['LA', 'LAR']) {
+    assert.equal(nflTeamNameByAbbreviation[code], 'Los Angeles Rams');
+    assert.equal(resolveTeamLogo(nflTeamNameByAbbreviation[code], directory), 'rams.png');
+  }
+  assert.equal(resolveTeamLogo(nflTeamNameByAbbreviation.LAC, directory), 'chargers.png');
+});
 test('Canonical names and explicit provider aliases resolve for both leagues', () => {
   assert.equal(resolveTeamLogo('Louisville Cardinals', teams), teams[0].logo);
   assert.equal(resolveTeamLogo(' louisville ', teams), teams[0].logo);

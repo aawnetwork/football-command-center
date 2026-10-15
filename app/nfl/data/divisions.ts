@@ -53,6 +53,7 @@ export const nflTeamNameByAbbreviation: Record<string, string> = {
   KC: "Kansas City Chiefs",
   LV: "Las Vegas Raiders",
   LAC: "Los Angeles Chargers",
+  LA: "Los Angeles Rams", // NFLverse uses LA; ESPN uses LAR.
   LAR: "Los Angeles Rams",
   MIA: "Miami Dolphins",
   MIN: "Minnesota Vikings",
