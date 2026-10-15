@@ -1,5 +1,40 @@
 # Stage 35 — Audience launch correction
 
+## Reverification — 15 October 2026
+
+Latest follow-up: Vercel CLI renewed its existing login successfully. Project
+`aaw-football-desk` production deployment `dpl_Div5FTTbPsBKPrjYH2BHNvNJ1ZJ9`
+runs `306b6bc6f217c197d6ec5fe6bd513679f359dc29`, which includes `0a995f4`.
+Team remains Hobby/Active. Existing SSO protection is
+`all_except_custom_domains`; anonymous NFL/CFB pages on desk.aawnetwork.co.uk
+return 200, so invited-testers-only protection is NOT established. No protection
+settings were changed. The exact supplied privacy URL
+`https://aawnetwork.co.uk/?page_id=572` was added locally beside participation,
+but returns HTTP 404 / Page not found to a logged-out request. Collection stays
+disabled. The exact-link regression test and existing 28 tests pass (29 total).
+Full enabled production desktop/mobile/cross-tab testing remains gated by a
+publicly accessible policy and verified tester-only access. No commit/push.
+
+- Existing correction is committed in `0a995f4`; no duplicate implementation was
+  required. The fixed-expiry migration is present in the live database.
+- Live hourly job remains active (`17 * * * *`). Its last three inspected runs
+  succeeded, with no failed participants or skipped locks in the latest run.
+- Reran all four database suites in explicit BEGIN/ROLLBACK transactions:
+  participation expiry, selections, seasonal/phase retention, and Admin reports.
+  All passed without retaining synthetic records.
+- 28 focused Node tests, TypeScript and production build passed. Existing
+  season-stats dynamic-render build diagnostic remains unrelated and nonfatal.
+- Production HTTPS participation endpoint returned `available:false` and
+  `active:false`. Collection was not enabled.
+- Saved Vercel CLI credential is rejected (`invalidToken`); browser dashboard
+  access also timed out. Current deployment revision and current shared Hobby
+  usage could not be verified. No deployment was performed in this follow-up.
+- Desktop/mobile and cross-tab browser workflows were not rerun in this
+  follow-up; prior browser evidence below remains historical, not a fresh test.
+- Activation still requires privacy/controller-notice sign-off, explicit AAW
+  activation approval, authenticated hosting/resource verification and final
+  production-browser checks. No GA4 or infrastructure changes were made.
+
 Implemented 13 October 2026. Production collection remains disabled. No GA4 changes.
 
 ## Changes

@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 test('Proxy covers all consolidated admin paths and leaves Broadcasts separate', async () => {
   const source = await readFile(new URL('../proxy.ts', import.meta.url), 'utf8');
-  for (const path of ['/admin', '/admin/user-stats/:path*', '/admin/exports/:path*', '/admin/decks/:path*', '/api/admin/decks/:path*']) assert.ok(source.includes(`"${path}"`));
-  assert.equal(source.includes('"/admin/:path*"'), false);
-  assert.equal(source.includes('"/admin/broadcasts'), false);
+  assert.match(source,/path === "\/admin"/);
+  assert.match(source,/path\.startsWith\("\/admin\/"\) && !broadcast/);
+  assert.match(source,/path\.startsWith\("\/api\/admin\/"\)/);
+  assert.match(source,/const broadcast = path === "\/admin\/broadcasts"/);
+  assert.match(source,/matcher:.*_next\/static/);
 });
 test('New pages require a server-side gate; original tools and page gates remain', async () => {
   for (const page of ['admin/page.tsx', 'admin/user-stats/page.tsx']) {

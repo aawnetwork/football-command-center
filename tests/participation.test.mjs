@@ -12,6 +12,12 @@ let source=await readFile(new URL('../app/api/audience/participation/route.ts',i
 source=source.replace('"../../../lib/participation-contract"',JSON.stringify(contract)).replace('"../../../lib/participation-security"',JSON.stringify(securityUrl))
  .replace(/import \{ participationRpc, ParticipationError \} from "[^"\n]+";/,'class ParticipationError extends Error { constructor(message:string,public status=503){super(message);} } const participationRpc=(name:string,params:unknown)=>globalThis.__audienceRpc(name,params);');
 const route=await import(compile(source));
+test('Preferences links the exact published policy beside participation controls',async()=>{
+ const preferences=await readFile(new URL('../app/features/preferences/HubPreferences.tsx',import.meta.url),'utf8');
+ assert.match(preferences,/href="https:\/\/aawnetwork\.co\.uk\/privacy-policy-2\/"/);
+ assert.ok(preferences.indexOf('Read the AAW Network Privacy Policy')<preferences.indexOf('Opt in voluntarily'));
+ assert.doesNotMatch(preferences,/aawnetwork\.co\.uk\/\?page_id=572/);
+});
 test('Token is 256-bit random; only hash is suitable for storage; cookie flags and parsing are strict',()=>{
  const a=security.newParticipationToken(),b=security.newParticipationToken();assert.match(a,/^[a-f0-9]{64}$/);assert.notEqual(a,b);
  const hash=security.hashParticipationToken(a);assert.match(hash,/^[a-f0-9]{64}$/);assert.notEqual(hash,a);

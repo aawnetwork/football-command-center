@@ -108,6 +108,7 @@ function PreferencesPanel() {
     </section>)}
     {storageWarning && <p role="status">Browser storage is unavailable. Changes work for this visit but may not survive a refresh.</p>}
     <section><h2>Audience participation</h2>
+      <p><a href="https://aawnetwork.co.uk/privacy-policy-2/" target="_blank" rel="noopener noreferrer">Read the AAW Network Privacy Policy</a> before choosing whether to participate.</p>
       <p>{consentText}</p>
       <p>No names, emails or accounts are collected. A random browser credential is stored as a hash, with your consent version and time. For games, we may keep your latest rating in each pre-game, live and post-game phase. Only deliberate new choices after opt-in contribute; presets and saved choices never upload automatically. These statistics are private to AAW, not displayed on game cards.</p>
       <p>Participation expires 365 days after consent, without automatic renewal. Contributions expire at the earlier of that deadline or 90 days after the relevant season’s confirmed end, and are removed by scheduled hourly cleanup. Withdrawal deletes participation records and preserves personal preferences. Clearing the participation cookie can prevent this browser from finding or deleting earlier records, but automatic expiry still applies. Different browsers participate separately.</p>
