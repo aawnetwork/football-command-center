@@ -7,10 +7,13 @@ const password=compile(await readFile(new URL('../app/lib/export-password.ts',im
 const helper=compile((await readFile(new URL('../app/lib/tester-access.ts',import.meta.url),'utf8')).replace('"./export-password"',JSON.stringify(password)));
 const {testerGateEnabled,validTesterPassword,testerMachineRoute}=await import(helper);
 const basic=p=>'Basic '+Buffer.from('aaw:'+p).toString('base64');
-test('Collection forces tester protection; missing, weak and Admin-identical passwords fail closed',()=>{
+test('Only the invited-testing flag controls the gate; collection is independent',()=>{
  assert.equal(testerGateEnabled({}),false);
- assert.equal(testerGateEnabled({AAW_INVITED_TESTING_ENABLED:'true'}),true);
- assert.equal(testerGateEnabled({AAW_AUDIENCE_PARTICIPATION_ENABLED:'true'}),true);
+ for(const collection of [undefined,'false','true'])for(const testing of [undefined,'false','true']){
+  assert.equal(testerGateEnabled({AAW_INVITED_TESTING_ENABLED:testing,AAW_AUDIENCE_PARTICIPATION_ENABLED:collection}),testing==='true');
+ }
+});
+test('Missing, weak and Admin-identical tester passwords still fail closed',()=>{
  for(const p of [undefined,'short','same-long-admin-password'])assert.equal(validTesterPassword(basic(p??''),{AAW_TESTER_PASSWORD:p,EXPORT_STUDIO_PASSWORD:'same-long-admin-password'}),false);
  const env={AAW_TESTER_PASSWORD:'separate-long-tester-password',EXPORT_STUDIO_PASSWORD:'same-long-admin-password'};
  assert.equal(validTesterPassword(basic(env.AAW_TESTER_PASSWORD),env),true);
@@ -36,6 +39,14 @@ test('Proxy rejects anonymous and tester credentials on private Admin while pres
    assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD),host)).status,200);
   }
   for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/api/admin/audience/report']){
+   assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD))).status,401);
+   assert.equal(proxy(request(path,basic(process.env.EXPORT_STUDIO_PASSWORD))).status,200);
+  }
+  process.env.AAW_INVITED_TESTING_ENABLED='false';
+  process.env.AAW_AUDIENCE_PARTICIPATION_ENABLED='true';
+  for(const path of ['/cfb','/nfl','/api/audience/participation','/api/audience/contributions'])assert.equal(proxy(request(path,null)).status,200);
+  for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/api/admin/audience/report']){
+   assert.equal(proxy(request(path,null)).status,401);
    assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD))).status,401);
    assert.equal(proxy(request(path,basic(process.env.EXPORT_STUDIO_PASSWORD))).status,200);
   }

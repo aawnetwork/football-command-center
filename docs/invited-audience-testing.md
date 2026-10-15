@@ -9,9 +9,10 @@ with testers. A shared tester credential is temporary invitation access, not
 individual accounts; revoke access by rotating it when testing ends.
 
 `AAW_INVITED_TESTING_ENABLED=true` protects pages, direct routes and APIs across
-custom and Vercel hostnames. `AAW_AUDIENCE_PARTICIPATION_ENABLED=true` also forces
-the same protection, even if the testing flag is absent. Missing/weak/conflicting
-tester credentials fail closed. Private Admin routes continue requiring their
+custom and Vercel hostnames. Only this testing flag controls the password gate;
+`AAW_AUDIENCE_PARTICIPATION_ENABLED` is independent and never enables it.
+Missing/weak/conflicting tester credentials fail closed when testing is enabled.
+Private Admin routes continue requiring their
 existing independent Admin password. Build assets/image optimisation remain
 accessible; they do not authorise participation or expose private API records.
 

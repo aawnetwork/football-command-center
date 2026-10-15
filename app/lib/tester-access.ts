@@ -2,7 +2,7 @@ import { validExportPassword } from "./export-password";
 
 /** Sharing tester access must never grant access to the private Admin Centre. */
 export function testerGateEnabled(env: Record<string, string | undefined>) {
-  return env.AAW_INVITED_TESTING_ENABLED === "true" || env.AAW_AUDIENCE_PARTICIPATION_ENABLED === "true";
+  return env.AAW_INVITED_TESTING_ENABLED === "true";
 }
 export function testerMachineRoute(path: string, method: string) {
   // These endpoints retain their existing server-side bearer/secret checks.
