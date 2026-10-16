@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
+import "./nfl-centre.css";
 import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
 import { personalTierChange } from "../lib/audience-contributions";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
@@ -46,7 +47,7 @@ import type {
 } from "../lib/nfl-helpers";
 
 export default function NFLPage() {
-  return <Suspense fallback={<main className="command-center" role="status">Loading NFL Hub…</main>}><NFLPageContent /></Suspense>;
+  return <Suspense fallback={<main className="command-center command-center--nfl" role="status">Loading NFL Hub…</main>}><NFLPageContent /></Suspense>;
 }
 function NFLPageContent() {
   const { audience, analytics } = useHubPreferences();
@@ -1227,8 +1228,8 @@ function getPerformanceReason(
       className="command-center command-center--nfl"
       style={{
         minHeight: "100vh",
-        background: "#020617",
-        color: "#f8fafc",
+        background: "var(--cc-canvas)",
+        color: "var(--cc-text)",
         padding: "40px 24px",
       }}
     >
@@ -1239,58 +1240,49 @@ function getPerformanceReason(
           margin: "0 auto",
         }}
       >
-        <header
-          className="command-center__header"
-          style={{
-            marginBottom: "32px",
-          }}
-        >
-          <div>
-            <div className="command-center__eyebrow">
-              FOOTBALL DESK
-            </div>
-            <h1 className="command-center__title">NFL</h1>
-            <p className="command-center__subtitle">
-              Sunday football intelligence.
-            </p>
-          </div>
-          <div className="command-center__header-brand">
-            <Link
-              className="command-center__league-switch"
-              href="/cfb"
-            >
-              Switch to CFB <span aria-hidden="true">→</span>
+        <header className="nfl-hub-header">
+          <div className="nfl-hub-header__bar">
+            <Link href="/" className="nfl-hub-header__identity" aria-label="AAW Hub home">
+              <span className="nfl-hub-header__logo" aria-hidden="true" />
+              <span className="nfl-hub-header__label">HUB</span>
             </Link>
-            <a
-              className="command-center__brand-logo"
-              href="https://aawnetwork.co.uk"
-              aria-label="AAW Network home"
-            />
-            <div className="command-center__source">
-              Live data powered by ESPN & nflverse
+            <nav className="nfl-hub-header__links" aria-label="Hub navigation">
+              <Link href="/">Overview</Link>
+              <Link href="/cfb">CFB Centre</Link>
+              <Link href="/nfl" aria-current="page">NFL Centre</Link>
+            </nav>
+            <PreferencesButton />
+          </div>
+          <div className="nfl-hub-header__intro">
+            <div>
+              <p>AAW HUB / NFL</p>
+              <h1>NFL Centre<span>.</span></h1>
+              <span>Games, numbers and context for your NFL week.</span>
             </div>
+            <span className="nfl-hub-header__source">Live data powered by ESPN &amp; nflverse</span>
           </div>
         </header>
 
         <nav
           className="command-center__nav"
+          aria-label="NFL sections"
           style={{
             display: "flex",
             gap: "10px",
             marginBottom: "32px",
             borderBottom:
-              "1px solid #1e293b",
+              "1px solid var(--cc-border)",
             paddingBottom: "12px",
           }}
         >
           {(
             [
-              ["games", "🏈 Games"],
-["performances", "🔥 Performances"],
-["stats", "📊 Stats"],
-["standings", "📋 Standings"],
-["all-time", "🏆 All-Time"],
-["content", "🚨 Content"],
+              ["games", "Games"],
+["performances", "Performances"],
+["stats", "Stats"],
+["standings", "Standings"],
+["all-time", "All-Time"],
+["content", "Content"],
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (
@@ -1309,15 +1301,15 @@ function getPerformanceReason(
                   borderColor:
                     activeTab === tab
                       ? "#ef4444"
-                      : "#334155",
+                      : "var(--cc-border-strong)",
                   background:
                     activeTab === tab
                       ? "#3f0d12"
-                      : "#0f172a",
+                      : "var(--cc-surface)",
                   color:
                     activeTab === tab
                       ? "#fca5a5"
-                      : "#94a3b8",
+                      : "var(--cc-muted)",
                   fontWeight: 900,
                   cursor:
                     "pointer",
@@ -1327,11 +1319,10 @@ function getPerformanceReason(
               </button>
             )
           )}
-          <PreferencesButton />
         </nav>
 
         {activeTab === "games" && (
-          <section>
+          <section className="nfl-games-section" aria-label="NFL games">
             <div
               style={{
                 display: "flex",
@@ -1358,7 +1349,7 @@ function getPerformanceReason(
                   style={{
                     margin:
                       "6px 0 0",
-                    color: "#64748b",
+                    color: "var(--cc-muted)",
                   }}
                 >
                   Live NFL scoreboard
@@ -1367,7 +1358,7 @@ function getPerformanceReason(
 
               <div
                 style={{
-                  color: "#64748b",
+                  color: "var(--cc-muted)",
                   fontSize: "13px",
                   fontWeight: 700,
                 }}
@@ -1377,6 +1368,7 @@ function getPerformanceReason(
               </div>
             </div>
 
+            <div className="nfl-games-tools" aria-label="Game filters">
             {currentGameWeek !== null && (
               <div
                 className="cc-week-controls"
@@ -1388,16 +1380,9 @@ function getPerformanceReason(
                   flexWrap: "wrap",
                 }}
               >
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: "#f8fafc",
-                  }}
-                >
-                  Week:
-                </span>
+                <span className="nfl-week-label" id="nfl-week-label">Week:</span>
 
-                <div className="cc-week-strip"
+                <div className="cc-week-strip" role="group" aria-labelledby="nfl-week-label"
                   style={{
                     display: "flex",
                     gap: "8px",
@@ -1411,6 +1396,7 @@ function getPerformanceReason(
                       <button
                         key={week}
                         type="button"
+                        aria-pressed={selectedGameWeek === week}
                         onClick={() => setSelectedGameWeek(week)}
                         style={{
                           padding: "10px 16px",
@@ -1419,15 +1405,15 @@ function getPerformanceReason(
                           borderColor:
                             selectedGameWeek === week
                               ? "#ffc720"
-                              : "#334155",
+                              : "var(--cc-border-strong)",
                           background:
                             selectedGameWeek === week
-                              ? "#ffc7202e"
-                              : "#0f172a",
+                              ? "var(--cc-accent-soft)"
+                              : "var(--cc-surface)",
                           color:
                             selectedGameWeek === week
-                              ? "#ffffff"
-                              : "#94a3b8",
+                              ? "var(--cc-text)"
+                              : "var(--cc-muted)",
                           fontWeight: 900,
                           cursor: "pointer",
                         }}
@@ -1441,6 +1427,7 @@ function getPerformanceReason(
             )}
 
             <div className="cc-tier-filters"
+              role="group" aria-label="Game tier filters"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1454,10 +1441,10 @@ function getPerformanceReason(
                 style={{
                   padding: "8px 14px",
                   borderRadius: "8px",
-                  border: "1px solid #334155",
+                  border: "1px solid var(--cc-border-strong)",
                   background:
-                    selectedGameTier === "ALL" ? "#334155" : "#0f172a",
-                  color: "#fff",
+                    selectedGameTier === "ALL" ? "var(--cc-border-strong)" : "var(--cc-surface)",
+                  color: "var(--cc-text)",
                   cursor: "pointer",
                   fontWeight: 700,
                 }}
@@ -1473,7 +1460,7 @@ function getPerformanceReason(
                   style={{
                     padding: "8px 14px",
                     borderRadius: "8px",
-                    border: "1px solid #334155",
+                    border: "1px solid var(--cc-border-strong)",
                     background:
                       selectedGameTier === tier
                         ? tier === "S"
@@ -1484,9 +1471,9 @@ function getPerformanceReason(
                               ? "#1e3a8a"
                               : tier === "C"
                                 ? "#14532d"
-                                : "#334155"
-                        : "#0f172a",
-                    color: "#fff",
+                                : "var(--cc-border-strong)"
+                        : "var(--cc-surface)",
+                    color: "var(--cc-text)",
                     cursor: "pointer",
                     fontWeight: 700,
                   }}
@@ -1500,9 +1487,9 @@ function getPerformanceReason(
                 style={{
                   padding: "8px 14px",
                   borderRadius: "8px",
-                  border: "1px solid #475569",
+                  border: "1px solid var(--cc-border-strong)",
                   background: "transparent",
-                  color: Object.keys(gameTiers).length === 0 ? "#64748b" : "#cbd5e1",
+                  color: Object.keys(gameTiers).length === 0 ? "var(--cc-muted)" : "var(--cc-muted)",
                   cursor: Object.keys(gameTiers).length === 0 ? "not-allowed" : "pointer",
                   fontWeight: 700,
                 }}
@@ -1511,12 +1498,13 @@ function getPerformanceReason(
               </button>
             </div>
 
+            </div>
             {gamesError ? (
-              <div
+              <div className="nfl-state nfl-state--error" role="alert"
                 style={{
                   padding: "32px",
                   borderRadius: "16px",
-                  background: "#0f172a",
+                  background: "var(--cc-surface)",
                   border: "1px solid #7f1d1d",
                   color: "#fca5a5",
                 }}
@@ -1529,11 +1517,11 @@ function getPerformanceReason(
                   padding: "32px",
                   borderRadius: "16px",
                   background:
-                    "#0f172a",
+                    "var(--cc-surface)",
                   border:
-                    "1px solid #334155",
+                    "1px solid var(--cc-border-strong)",
                   color:
-                    "#94a3b8",
+                    "var(--cc-muted)",
                 }}
               >
                 Loading NFL games...
@@ -1545,11 +1533,11 @@ function getPerformanceReason(
                   padding: "32px",
                   borderRadius: "16px",
                   background:
-                    "#0f172a",
+                    "var(--cc-surface)",
                   border:
-                    "1px solid #334155",
+                    "1px solid var(--cc-border-strong)",
                   color:
-                    "#94a3b8",
+                    "var(--cc-muted)",
                 }}
               >
                 No NFL games found.
@@ -1559,9 +1547,9 @@ function getPerformanceReason(
                 style={{
                   padding: "24px",
                   borderRadius: "12px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
-                  color: "#94a3b8",
+                  background: "var(--cc-surface)",
+                  border: "1px solid var(--cc-border-strong)",
+                  color: "var(--cc-muted)",
                 }}
               >
                 No games have been marked {selectedGameTier} yet.
@@ -1600,7 +1588,7 @@ function getPerformanceReason(
                   margin:
                     "6px 0 0",
                   color:
-                    "#64748b",
+                    "var(--cc-muted)",
                 }}
               >
                 Notable individual performances from the current NFL season. Latest available data: Week {latestPerformanceWeek}. The nflverse weekly feed can lag live games; live leaders are in Stats.
@@ -1625,6 +1613,7 @@ function getPerformanceReason(
                 (week) => (
                   <button
                     key={String(week)}
+                    aria-pressed={performanceWeek === week}
                     onClick={() => setPerformanceWeek(week)}
                     style={{
                       padding:
@@ -1637,17 +1626,17 @@ function getPerformanceReason(
                         performanceWeek ===
                         week
                           ? "#ffc720"
-                          : "#334155",
+                          : "var(--cc-border-strong)",
                       background:
                         performanceWeek ===
                         week
-                          ? "#ffc7202e"
-                          : "#0f172a",
+                          ? "var(--cc-accent-soft)"
+                          : "var(--cc-surface)",
                       color:
                         performanceWeek ===
                         week
-                          ? "#ffffff"
-                          : "#94a3b8",
+                          ? "var(--cc-text)"
+                          : "var(--cc-muted)",
                       fontWeight:
                         900,
                       cursor:
@@ -1671,11 +1660,11 @@ function getPerformanceReason(
                   padding: "32px",
                   borderRadius: "16px",
                   background:
-                    "#0f172a",
+                    "var(--cc-surface)",
                   border:
-                    "1px solid #334155",
+                    "1px solid var(--cc-border-strong)",
                   color:
-                    "#94a3b8",
+                    "var(--cc-muted)",
                 }}
               >
                 Loading NFL performances...
@@ -1687,11 +1676,11 @@ function getPerformanceReason(
                   padding: "32px",
                   borderRadius: "16px",
                   background:
-                    "#0f172a",
+                    "var(--cc-surface)",
                   border:
-                    "1px solid #334155",
+                    "1px solid var(--cc-border-strong)",
                   color:
-                    "#94a3b8",
+                    "var(--cc-muted)",
                 }}
               >
                 No notable performances found for this week.
@@ -1769,9 +1758,9 @@ function getPerformanceReason(
                                     borderRadius:
                                       "16px",
                                     background:
-                                      "#0f172a",
+                                      "var(--cc-surface)",
                                     border:
-                                      "1px solid #334155",
+                                      "1px solid var(--cc-border-strong)",
                                   }}
                                 >
                                   <div
@@ -1834,7 +1823,7 @@ function getPerformanceReason(
                                       <div
                                         style={{
                                           color:
-                                            "#64748b",
+                                            "var(--cc-muted)",
                                           fontSize:
                                             "13px",
                                           marginTop:
@@ -1888,9 +1877,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -1907,7 +1896,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -1926,9 +1915,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -1945,7 +1934,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -1964,9 +1953,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -1983,7 +1972,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2002,9 +1991,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -2023,7 +2012,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2042,9 +2031,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -2063,7 +2052,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2082,9 +2071,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -2103,7 +2092,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2122,9 +2111,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -2143,7 +2132,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2162,9 +2151,9 @@ function getPerformanceReason(
                                           borderRadius:
                                             "10px",
                                           background:
-                                            "#020617",
+                                            "var(--cc-canvas)",
                                           border:
-                                            "1px solid #1e293b",
+                                            "1px solid var(--cc-border)",
                                         }}
                                       >
                                         <div
@@ -2183,7 +2172,7 @@ function getPerformanceReason(
                                         <div
                                           style={{
                                             color:
-                                              "#64748b",
+                                              "var(--cc-muted)",
                                             fontSize:
                                               "11px",
                                           }}
@@ -2203,9 +2192,9 @@ function getPerformanceReason(
                                       borderRadius:
                                         "10px",
                                       background:
-                                        "#020617",
+                                        "var(--cc-canvas)",
                                       border:
-                                        "1px solid #1e293b",
+                                        "1px solid var(--cc-border)",
                                     }}
                                   >
                                     <div
@@ -2228,7 +2217,7 @@ function getPerformanceReason(
                                     <div
                                       style={{
                                         color:
-                                          "#cbd5e1",
+                                          "var(--cc-muted)",
                                         fontSize:
                                           "14px",
                                         lineHeight:
@@ -2245,7 +2234,7 @@ function getPerformanceReason(
                                         marginTop:
                                           "8px",
                                         color:
-                                          "#94a3b8",
+                                          "var(--cc-muted)",
                                         fontSize:
                                           "13px",
                                         fontWeight:
@@ -2282,8 +2271,8 @@ function getPerformanceReason(
       marginBottom: "28px",
       padding: "20px",
       borderRadius: "14px",
-      background: "#0f172a",
-      border: "1px solid #334155",
+      background: "var(--cc-surface)",
+      border: "1px solid var(--cc-border-strong)",
     }}
   >
     <div
@@ -2304,7 +2293,7 @@ function getPerformanceReason(
       <p
         style={{
           margin: "6px 0 0",
-          color: "#94a3b8",
+          color: "var(--cc-muted)",
         }}
       >
         The NFL stories most worth paying attention to right now.
@@ -2325,7 +2314,7 @@ function getPerformanceReason(
             style={{
               padding: "14px",
               borderRadius: "10px",
-              background: "#111827",
+              background: "var(--cc-surface-raised)",
               border: "1px solid #1f2937",
             }}
           >
@@ -2345,7 +2334,7 @@ function getPerformanceReason(
               <div
                 style={{
                   marginTop: "5px",
-                  color: "#94a3b8",
+                  color: "var(--cc-muted)",
                   fontSize: "13px",
                 }}
               >
@@ -2356,7 +2345,7 @@ function getPerformanceReason(
             <div
               style={{
                 marginTop: "8px",
-                color: "#cbd5e1",
+                color: "var(--cc-muted)",
                 fontSize: "14px",
                 lineHeight: 1.45,
               }}
@@ -2386,7 +2375,7 @@ function getPerformanceReason(
               <p
                 style={{
                   margin: "6px 0 0",
-                  color: "#64748b",
+                  color: "var(--cc-muted)",
                 }}
               >
                 NFL moments that could turn into social content.
@@ -2398,9 +2387,9 @@ function getPerformanceReason(
                 style={{
                   padding: "24px",
                   borderRadius: "12px",
-                  background: "#111827",
+                  background: "var(--cc-surface-raised)",
                   border: "1px solid #1f2937",
-                  color: "#94a3b8",
+                  color: "var(--cc-muted)",
                 }}
               >
                 No story signals yet.
@@ -2419,7 +2408,7 @@ function getPerformanceReason(
                       style={{
                         padding: "18px",
                         borderRadius: "12px",
-                        background: "#111827",
+                        background: "var(--cc-surface-raised)",
                         border: "1px solid #1f2937",
                       }}
                     >
@@ -2450,7 +2439,7 @@ function getPerformanceReason(
 
                       <div
                         style={{
-                          color: "#cbd5e1",
+                          color: "var(--cc-muted)",
                           lineHeight: 1.5,
                         }}
                       >
@@ -2462,7 +2451,7 @@ function getPerformanceReason(
                           <div
                             style={{
                               marginTop: "10px",
-                              color: "#94a3b8",
+                              color: "var(--cc-muted)",
                               fontSize: "13px",
                             }}
                           >
@@ -2480,7 +2469,7 @@ function getPerformanceReason(
                         <div
                           style={{
                             marginTop: "10px",
-                            color: "#94a3b8",
+                            color: "var(--cc-muted)",
                             fontSize: "13px",
                           }}
                         >
@@ -2603,9 +2592,9 @@ function getPerformanceReason(
                 style={{
                   padding: "32px",
                   borderRadius: "12px",
-                  background: "#0f172a",
-                  border: "1px solid #1e293b",
-                  color: "#94a3b8",
+                  background: "var(--cc-surface)",
+                  border: "1px solid var(--cc-border)",
+                  color: "var(--cc-muted)",
                 }}
               >
                 Loading NFL stats...
@@ -2707,17 +2696,17 @@ function getPerformanceReason(
                             statCategory ===
                             category
                               ? "#ef4444"
-                              : "#334155",
+                              : "var(--cc-border-strong)",
                           background:
                             statCategory ===
                             category
                               ? "#3f0d12"
-                              : "#0f172a",
+                              : "var(--cc-surface)",
                           color:
                             statCategory ===
                             category
                               ? "#fca5a5"
-                              : "#94a3b8",
+                              : "var(--cc-muted)",
                           fontWeight:
                             800,
                           cursor:
@@ -2738,11 +2727,11 @@ function getPerformanceReason(
                       borderRadius:
                         "16px",
                       background:
-                        "#0f172a",
+                        "var(--cc-surface)",
                       border:
-                        "1px solid #334155",
+                        "1px solid var(--cc-border-strong)",
                       color:
-                        "#94a3b8",
+                        "var(--cc-muted)",
                     }}
                   >
                     Loading NFL stats...
@@ -2776,9 +2765,9 @@ function getPerformanceReason(
                             borderRadius:
                               "12px",
                             background:
-                              "#0f172a",
+                              "var(--cc-surface)",
                             border:
-                              "1px solid #334155",
+                              "1px solid var(--cc-border-strong)",
                           }}
                         >
                           <div
@@ -2788,7 +2777,7 @@ function getPerformanceReason(
                               fontWeight:
                                 900,
                               color:
-                                "#64748b",
+                                "var(--cc-muted)",
                             }}
                           >
                             {index +
@@ -2812,7 +2801,7 @@ function getPerformanceReason(
                             <div
                               style={{
                                 color:
-                                  "#64748b",
+                                  "var(--cc-muted)",
                                 fontSize:
                                   "12px",
                                 marginTop:
@@ -2847,7 +2836,7 @@ function getPerformanceReason(
                             <div
                               style={{
                                 color:
-                                  "#64748b",
+                                  "var(--cc-muted)",
                                 fontSize:
                                   "11px",
                                 fontWeight:
@@ -2951,17 +2940,17 @@ function getPerformanceReason(
                             teamStatCategory ===
                             category
                               ? "#ef4444"
-                              : "#334155",
+                              : "var(--cc-border-strong)",
                           background:
                             teamStatCategory ===
                             category
                               ? "#3f0d12"
-                              : "#0f172a",
+                              : "var(--cc-surface)",
                           color:
                             teamStatCategory ===
                             category
                               ? "#fca5a5"
-                              : "#94a3b8",
+                              : "var(--cc-muted)",
                           fontWeight:
                             800,
                           cursor:
@@ -2983,11 +2972,11 @@ function getPerformanceReason(
                     borderRadius:
                       "12px",
                     background:
-                      "#0f172a",
+                      "var(--cc-surface)",
                     border:
-                      "1px solid #334155",
+                      "1px solid var(--cc-border-strong)",
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                     fontSize:
                       "13px",
                     lineHeight:
@@ -3006,11 +2995,11 @@ function getPerformanceReason(
                       borderRadius:
                         "16px",
                       background:
-                        "#0f172a",
+                        "var(--cc-surface)",
                       border:
-                        "1px solid #334155",
+                        "1px solid var(--cc-border-strong)",
                       color:
-                        "#94a3b8",
+                        "var(--cc-muted)",
                     }}
                   >
                     Loading NFL team stats...
@@ -3045,9 +3034,9 @@ function getPerformanceReason(
                             borderRadius:
                               "12px",
                             background:
-                              "#0f172a",
+                              "var(--cc-surface)",
                             border:
-                              "1px solid #334155",
+                              "1px solid var(--cc-border-strong)",
                           }}
                         >
                           <div
@@ -3057,7 +3046,7 @@ function getPerformanceReason(
                               fontWeight:
                                 900,
                               color:
-                                "#64748b",
+                                "var(--cc-muted)",
                             }}
                           >
                             {index +
@@ -3099,7 +3088,7 @@ function getPerformanceReason(
                             <div
                               style={{
                                 color:
-                                  "#64748b",
+                                  "var(--cc-muted)",
                                 fontSize:
                                   "11px",
                                 fontWeight:

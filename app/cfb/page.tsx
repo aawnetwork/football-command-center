@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
+import "./cfb-centre.css";
 import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
 import { personalTierChange } from "../lib/audience-contributions";
 import { TeamLogo } from "../components/TeamLogo";
@@ -55,7 +56,7 @@ import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
 import { detectUpsets, isUpsetLoss } from "../lib/cfb-upsets";
 
 export default function CfbPage() {
-  return <Suspense fallback={<main className="command-center" role="status">Loading CFB Hub…</main>}><Home /></Suspense>;
+  return <Suspense fallback={<main className="command-center command-center--cfb" role="status">Loading CFB Hub…</main>}><Home /></Suspense>;
 }
 function Home() {
   const { audience, analytics } = useHubPreferences();
@@ -845,8 +846,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       className="command-center command-center--cfb"
       style={{
         minHeight: "100vh",
-        background: "#020617",
-        color: "#f8fafc",
+        background: "var(--cc-canvas)",
+        color: "var(--cc-text)",
         padding: "32px",
       }}
     >
@@ -857,84 +858,32 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           margin: "0 auto",
         }}
       >
-        <header
-          className="command-center__header"
-          style={{
-            marginBottom: "28px",
-          }}
-        >
-          <div
-            className="command-center__header-content"
-            style={{
-              display: "flex",
-              justifyContent:
-                "space-between",
-              alignItems:
-                "flex-start",
-              gap: "20px",
-              flexWrap: "wrap",
-            }}
-          >
+        <header className="cfb-hub-header">
+          <div className="cfb-hub-header__bar">
+            <Link href="/" className="cfb-hub-header__identity" aria-label="AAW Hub home">
+              <span className="cfb-hub-header__logo" aria-hidden="true" />
+              <span className="cfb-hub-header__label">HUB</span>
+            </Link>
+            <nav className="cfb-hub-header__links" aria-label="Hub navigation">
+              <Link href="/">Overview</Link>
+              <Link href="/cfb" aria-current="page">CFB Centre</Link>
+              <Link href="/nfl">NFL Centre</Link>
+            </nav>
+            <PreferencesButton />
+          </div>
+          <div className="cfb-hub-header__intro">
             <div>
-              <div className="command-center__eyebrow">
-                FOOTBALL DESK
-              </div>
-              <h1
-                className="command-center__title"
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 800,
-                  margin: 0,
-                }}
-              >
-                CFB Command Centre
-              </h1>
-
-              <p
-                className="command-center__subtitle"
-                style={{
-                  color: "#94a3b8",
-                  marginTop: "8px",
-                  marginBottom: 0,
-                }}
-              >
-                Your Saturday college
-                football control room.
-              </p>
+              <p>AAW HUB / COLLEGE FOOTBALL</p>
+              <h1>CFB Centre<span>.</span></h1>
+              <span>Games, numbers and context for your football Saturday.</span>
             </div>
-
-            <div className="command-center__header-brand">
-              <Link
-                className="command-center__league-switch"
-                href="/nfl"
-              >
-                Switch to NFL <span aria-hidden="true">→</span>
-              </Link>
-              <a
-                className="command-center__brand-logo"
-                href="https://aawnetwork.co.uk"
-                aria-label="AAW Network home"
-              />
-              <div
-                className="command-center__source"
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "10px",
-                  background: "#0f172a",
-                  border:
-                    "1px solid #1e293b",
-                  color: "#94a3b8",
-                  fontSize: "14px",
-                }}
-              >
-                Live data powered by ESPN
-              </div>
-            </div>
+            <span className="cfb-hub-header__source">Live data powered by ESPN</span>
           </div>
         </header>
 
         <nav
           className="command-center__nav"
+          aria-label="CFB sections"
           style={{
             display: "flex",
             gap: "8px",
@@ -958,12 +907,12 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               }
               style={{
                 border:
-                  "1px solid #334155",
+                  "1px solid var(--cc-border-strong)",
                 background:
                   activeTab === id
-                    ? "#1e293b"
-                    : "#0f172a",
-                color: "#f8fafc",
+                    ? "var(--cc-border)"
+                    : "var(--cc-surface)",
+                color: "var(--cc-text)",
                 padding:
                   "10px 16px",
                 borderRadius: "8px",
@@ -974,11 +923,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               {label}
             </button>
           ))}
-          <PreferencesButton />
         </nav>
 
         {activeTab === "games" && (
-          <section>
+          <section className="cfb-games-section" aria-label="CFB games">
             <div
               style={{
                 display: "flex",
@@ -1003,7 +951,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 <p
                   style={{
                     margin: "6px 0 0",
-                    color: "#64748b",
+                    color: "var(--cc-muted)",
                   }}
                 >
                   Live college football scoreboard
@@ -1012,7 +960,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
               <div
                 style={{
-                  color: "#64748b",
+                  color: "var(--cc-muted)",
                   fontSize: "13px",
                   fontWeight: 700,
                 }}
@@ -1022,6 +970,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               </div>
             </div>
 
+            <div className="cfb-games-tools" aria-label="Game filters and decks">
         {currentWeek !== null && (
           <div
             className="cc-week-controls"
@@ -1033,16 +982,17 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             }}
           >
             <label
-              htmlFor="cfb-week-selector"
+              id="cfb-week-label"
               style={{
                 fontWeight: 700,
-                color: "#f8fafc",
+                color: "var(--cc-text)",
               }}
             >
               Week:
             </label>
 
             <div className="cc-week-strip"
+              role="group" aria-labelledby="cfb-week-label"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1055,6 +1005,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   <button
                     key={week}
                     type="button"
+                    aria-pressed={(selectedWeek ?? currentWeek) === week}
                     onClick={() => setSelectedWeek(week)}
                     style={{
                       padding: "10px 16px",
@@ -1063,15 +1014,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
                           ? "#ff6b00"
-                          : "#334155",
+                          : "var(--cc-border-strong)",
                       background:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ff6b002a"
-                          : "#0f172a",
+                          ? "var(--cc-accent-soft)"
+                          : "var(--cc-surface)",
                       color:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ffffff"
-                          : "#94a3b8",
+                          ? "var(--cc-text)"
+                          : "var(--cc-muted)",
                       fontWeight: 900,
                       cursor: "pointer",
                     }}
@@ -1084,6 +1035,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           </div>
         )}
             <div className="cc-tier-filters"
+              role="group" aria-label="Game tier filters"
               style={{
                 display: "flex",
                 gap: "8px",
@@ -1100,13 +1052,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   padding: "8px 14px",
                   borderRadius: "8px",
                   border:
-                    "1px solid #334155",
+                    "1px solid var(--cc-border-strong)",
                   background:
                     selectedTier ===
                     "ALL"
-                      ? "#334155"
-                      : "#0f172a",
-                  color: "#fff",
+                      ? "var(--cc-border-strong)"
+                      : "var(--cc-surface)",
+                  color: "var(--cc-text)",
                   cursor: "pointer",
                   fontWeight: 700,
                 }}
@@ -1131,7 +1083,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     borderRadius:
                       "8px",
                     border:
-                      "1px solid #334155",
+                      "1px solid var(--cc-border-strong)",
                     background:
                       selectedTier === tier
                         ? tier === "S"
@@ -1142,9 +1094,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                               ? "#1e3a8a"
                               : tier === "C"
                                 ? "#14532d"
-                                : "#334155"
-                        : "#0f172a",
-                    color: "#fff",
+                                : "var(--cc-border-strong)"
+                        : "var(--cc-surface)",
+                    color: "var(--cc-text)",
                     cursor:
                       "pointer",
                     fontWeight:
@@ -1164,9 +1116,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 style={{
                   padding: "8px 14px",
                   borderRadius: "8px",
-                  border: "1px solid #475569",
+                  border: "1px solid var(--cc-border-strong)",
                   background: "transparent",
-                  color: Object.keys(effectiveTiers).length === 0 ? "#64748b" : "#cbd5e1",
+                  color: Object.keys(effectiveTiers).length === 0 ? "var(--cc-muted)" : "var(--cc-muted)",
                   cursor: Object.keys(effectiveTiers).length === 0 ? "not-allowed" : "pointer",
                   fontWeight: 700,
                 }}
@@ -1191,13 +1143,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 {conferenceTeams.map((conference) => <option key={conference.name} value={conference.name}>{conference.name}</option>)}
               </select>
             </label>}
+            </div>
             {!gamesLoading && !gamesError && filteredGames.length === 0 && <p>No games match these filters.</p>}
             {gamesError ? (
-              <div
+              <div className="cfb-state cfb-state--error" role="alert"
                 style={{
                   padding: "32px",
                   borderRadius: "16px",
-                  background: "#0f172a",
+                  background: "var(--cc-surface)",
                   border: "1px solid #7f1d1d",
                   color: "#fca5a5",
                 }}
@@ -1208,7 +1161,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               <p
                 style={{
                   color:
-                    "#94a3b8",
+                    "var(--cc-muted)",
                 }}
               >
                 Loading games...
@@ -1228,7 +1181,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         )}
 
         {activeTab === "performances" && (
-          <section>
+          <section className="cfb-performances-section">
         <div
           style={{
             marginBottom: "24px",
@@ -1247,7 +1200,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           <p
             style={{
               margin: "6px 0 0",
-              color: "#64748b",
+              color: "var(--cc-muted)",
             }}
           >
             Notable individual performances from the current CFB season.
@@ -1270,6 +1223,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   <button
                     key={week}
                     type="button"
+                    aria-pressed={(selectedWeek ?? currentWeek) === week}
                     onClick={() => setSelectedWeek(week)}
                     style={{
                       padding: "10px 16px",
@@ -1278,15 +1232,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
                           ? "#ff6b00"
-                          : "#334155",
+                          : "var(--cc-border-strong)",
                       background:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ff6b002a"
-                          : "#0f172a",
+                          ? "var(--cc-accent-soft)"
+                          : "var(--cc-surface)",
                       color:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ffffff"
-                          : "#94a3b8",
+                          ? "var(--cc-text)"
+                          : "var(--cc-muted)",
                       fontWeight: 900,
                       cursor: "pointer",
                     }}
@@ -1312,7 +1266,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     borderRadius:
                       "10px",
                     border:
-                      "1px solid #fbbf24",
+                      "1px solid var(--cc-accent)",
                     background:
                       "#17130a",
                   }}
@@ -1320,7 +1274,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   <div
                     style={{
                       color:
-                        "#fbbf24",
+                        "var(--cc-accent)",
                       fontWeight:
                         900,
                       fontSize:
@@ -1341,7 +1295,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                         key={`${milestone.player}-${milestone.gameId}-${milestone.stat}`}
                         style={{
                           color:
-                            "#f8fafc",
+                            "var(--cc-text)",
                           fontWeight:
                             700,
                           marginTop:
@@ -1373,7 +1327,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 <p
                   style={{
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                   }}
                 >
                   Loading player
@@ -1384,7 +1338,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 <p
                   style={{
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                   }}
                 >
                   No monster
@@ -1405,7 +1359,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       performance
                     ) => (
                       <div
-                        data-desk-export="performance" data-export-label={performance.player ? `${performance.player} · ${performance.team}` : performance.team}
+                        className="cfb-performance-card" data-desk-export="performance" data-export-label={performance.player ? `${performance.player} · ${performance.team}` : performance.team}
                         key={
                           performance.id
                         }
@@ -1413,11 +1367,11 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                           padding:
                             "18px",
                           border:
-                            "1px solid #334155",
+                            "1px solid var(--cc-border-strong)",
                           borderRadius:
                             "10px",
                           background:
-                            "#020617",
+                            "var(--cc-canvas)",
                         }}
                       >
                         <div
@@ -1455,7 +1409,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                               data-export-omit
                               style={{
                                 color:
-                                  "#cbd5e1",
+                                  "var(--cc-muted)",
                                 marginTop:
                                   "6px",
                               }}
@@ -1470,7 +1424,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                           <div
                             style={{
                               color:
-                                "#fbbf24",
+                                "var(--cc-accent)",
                               fontWeight:
                                 800,
                               fontSize:
@@ -1509,9 +1463,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                   borderRadius:
                                     "8px",
                                   background:
-                                    "#0f172a",
+                                    "var(--cc-surface)",
                                   border:
-                                    "1px solid #1e293b",
+                                    "1px solid var(--cc-border)",
                                   minWidth:
                                     "110px",
                                 }}
@@ -1519,7 +1473,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                 <div
                                   style={{
                                     color:
-                                      "#94a3b8",
+                                      "var(--cc-muted)",
                                     fontSize:
                                       "11px",
                                     textTransform:
@@ -1569,15 +1523,15 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                             borderRadius:
                               "8px",
                             background:
-                              "#111827",
+                              "var(--cc-surface-raised)",
                             border:
-                              "1px solid #334155",
+                              "1px solid var(--cc-border-strong)",
                           }}
                         >
                           <div
                             style={{
                               color:
-                                "#60a5fa",
+                                "var(--cc-accent)",
                               fontSize:
                                 "11px",
                               fontWeight:
@@ -1594,7 +1548,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                           <div
                             style={{
                               color:
-                                "#e2e8f0",
+                                "var(--cc-text)",
                               fontWeight:
                                 700,
                               lineHeight:
@@ -1661,7 +1615,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       <button
                         key={week}
                         aria-pressed={(selectedWeek ?? currentWeek) === week}
-                        onClick={() => setSelectedWeek(week)}
+                    onClick={() => setSelectedWeek(week)}
                       >
                         {week}
                       </button>
@@ -1675,9 +1629,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               data-desk-export="stats" data-export-label={`${statsView === "team" ? "Team" : "Individual"} ${currentCategories.find((category) => category.id === selectedCategory)?.name ?? "Stats"} · ${statsMode === "season" ? "2026 season" : `Week ${selectedWeek ?? "—"}`}`}
               style={{
                 background:
-                  "#0f172a",
+                  "var(--cc-surface)",
                 border:
-                  "1px solid #1e293b",
+                  "1px solid var(--cc-border)",
                 borderRadius:
                   "12px",
                 overflow:
@@ -1689,7 +1643,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   padding:
                     "18px",
                   borderBottom:
-                    "1px solid #1e293b",
+                    "1px solid var(--cc-border)",
                 }}
               >
                 <h2
@@ -1718,7 +1672,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 <p
                   style={{
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                     marginBottom:
                       0,
                   }}
@@ -1738,7 +1692,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     padding:
                       "20px",
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                   }}
                 >
                   Loading weekly
@@ -1752,7 +1706,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     padding:
                       "20px",
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                   }}
                 >
                   Loading season
@@ -1764,7 +1718,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     padding:
                       "20px",
                     color:
-                      "#94a3b8",
+                      "var(--cc-muted)",
                   }}
                 >
                   That weekly team
@@ -1972,16 +1926,16 @@ selectedCategory === "scoring-defense"
 const thStyle: React.CSSProperties = {
   textAlign: "left",
   padding: "14px 18px",
-  color: "#94a3b8",
+  color: "var(--cc-muted)",
   fontSize: "13px",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
   borderBottom:
-    "1px solid #1e293b",
+    "1px solid var(--cc-border)",
 };
 
 const tdStyle: React.CSSProperties = {
   padding: "14px 18px",
   borderBottom:
-    "1px solid #1e293b",
+    "1px solid var(--cc-border)",
 };
