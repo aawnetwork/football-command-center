@@ -181,25 +181,45 @@ export function FootballSnapshot() {
   );
 
   return (
-    <main className="football-snapshot">
+    <div className="football-snapshot">
+      <a className="football-snapshot__skip" href="#football-week">Skip to football snapshot</a>
       <div className="football-snapshot__container">
         <header className="football-snapshot__header">
-          <div>
-            <p className="football-snapshot__eyebrow">Live Updates, Stats and Content Filter</p>
-            <h1>AAW NETWORK</h1>
-            <p className="football-snapshot__subtitle">Your combined NFL and college football weekly snapshot.</p>
-          </div>
-          <div className="football-snapshot__brand" aria-label="AAW Network" />
+          <Link href="/" className="football-snapshot__identity" aria-label="AAW Hub home">
+            <span className="football-snapshot__brand" aria-hidden="true" />
+            <span className="football-snapshot__hub-label">HUB</span>
+          </Link>
+          <nav className="football-snapshot__nav" aria-label="Hub navigation">
+            <Link href="/" aria-current="page">Overview</Link>
+            <Link href="/cfb">CFB Centre</Link>
+            <Link href="/nfl">NFL Centre</Link>
+          </nav>
           <PreferencesButton />
         </header>
 
-        <section className="football-snapshot__intro">
+        <main>
+        <section className="football-snapshot__hero" aria-labelledby="hub-title">
+          <div>
+            <p className="football-snapshot__eyebrow">THE AAW FOOTBALL HUB</p>
+            <h1 id="hub-title">Your week.<br /><span>Your football.</span></h1>
+            <p className="football-snapshot__subtitle">NFL and college football, in focus. Find the games that matter, then explore the numbers behind them.</p>
+          </div>
+          <div className="football-snapshot__entry">
+            <p>CHOOSE YOUR CENTRE</p>
+            <Link href="/cfb" className="football-snapshot__centre football-snapshot__centre--cfb"><span><small>COLLEGE FOOTBALL</small><strong>CFB Centre</strong></span><span aria-hidden="true">↗</span></Link>
+            <Link href="/nfl" className="football-snapshot__centre football-snapshot__centre--nfl"><span><small>NATIONAL FOOTBALL LEAGUE</small><strong>NFL Centre</strong></span><span aria-hidden="true">↗</span></Link>
+            <span className="football-snapshot__entry-note">Games · Stats · Standings · Content</span>
+          </div>
+        </section>
+
+        <section className="football-snapshot__week" id="football-week" aria-labelledby="week-title" tabIndex={-1}>
+        <div className="football-snapshot__intro">
           <div>
             <p>THE WEEK AHEAD</p>
-            <h2>Upcoming rivalry games and more.</h2>
+            <h2 id="week-title">The football snapshot.</h2>
           </div>
-          <span>{loading ? "Refreshing live data…" : "Live data powered by ESPN"}</span>
-        </section>
+          <span>Rivalries, ranked matchups &amp; featured NFL games.<br />{loading ? "Refreshing live data…" : "ESPN data · Refreshes every minute"}</span>
+        </div>
 
         <div className="football-snapshot__leagues">
           <LeagueSnapshot
@@ -218,17 +238,33 @@ export function FootballSnapshot() {
           />
         </div>
 
-        <section className="football-snapshot__explore">
+        </section>
+
+        <section className="football-snapshot__network" aria-labelledby="network-title">
           <div>
-            <p>GO DEEPER</p>
-            <h2>In-depth stats, games and more by going to each league's hub.</h2>
+            <p className="football-snapshot__eyebrow">BEYOND THE NUMBERS</p>
+            <h2 id="network-title">American football.<br />British voices.</h2>
+            <p>Independent coverage and conversations from across AAW Network.</p>
           </div>
-          <div>
-            <Link href="/cfb" className="football-snapshot__explore-link football-snapshot__explore-link--cfb">CFB Centre <span>→</span></Link>
-            <Link href="/nfl" className="football-snapshot__explore-link football-snapshot__explore-link--nfl">NFL Centre <span>→</span></Link>
+          <div className="football-snapshot__network-links">
+            <a href="https://aawnetwork.co.uk/"><span><small>READ</small><strong>AAW Network</strong><span>Stories, analysis and opinion</span></span><span aria-hidden="true">↗</span></a>
+            <a href="https://aawnetwork.co.uk/podcasts/"><span><small>LISTEN</small><strong>Our podcasts</strong><span>Find your next football conversation</span></span><span aria-hidden="true">↗</span></a>
           </div>
         </section>
+        </main>
+
+        <footer className="football-snapshot__footer">
+          <span>AAW NETWORK <span aria-hidden="true">/</span> FOOTBALL HUB</span>
+          <nav aria-label="AAW social channels">
+            <a href="https://www.instagram.com/aawnetwork/">Instagram</a>
+            <a href="https://www.youtube.com/@aawnetwork">YouTube</a>
+            <a href="https://x.com/aaw_network">X</a>
+            <a href="https://www.tiktok.com/@aawnetwork">TikTok</a>
+            <a href="https://www.facebook.com/aawnetwork">Facebook</a>
+          </nav>
+          <a href="https://aawnetwork.co.uk/privacy-policy-2/">Privacy</a>
+        </footer>
       </div>
-    </main>
+    </div>
   );
 }
