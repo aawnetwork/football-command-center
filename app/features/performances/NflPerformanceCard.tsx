@@ -61,12 +61,12 @@ export function NflPerformanceCard({
 
   return (
     <div
-      data-desk-export="performance" data-export-label={`${performance.player_display_name} · ${getNflTeamName(performance.recent_team)}`}
+      className="nfl-performance-card" data-desk-export="performance" data-export-label={`${performance.player_display_name} · ${getNflTeamName(performance.recent_team)}`}
       style={{
         padding: "18px",
-        border: "1px solid #334155",
+        border: "1px solid var(--cc-border-strong)",
         borderRadius: "10px",
-        background: "#020617",
+        background: "var(--cc-canvas)",
       }}
     >
       <div
@@ -83,7 +83,7 @@ export function NflPerformanceCard({
             {getNflTeamName(performance.recent_team)}
           </div>
           {performance.opponent_team && (
-            <div data-export-omit style={{ color: "#cbd5e1", marginTop: "6px" }}>
+            <div data-export-omit style={{ color: "var(--cc-muted)", marginTop: "6px" }}>
               vs. {getNflTeamName(performance.opponent_team)}
             </div>
           )}
@@ -91,7 +91,7 @@ export function NflPerformanceCard({
 
         <div
           style={{
-            color: "#fbbf24",
+            color: "var(--cc-accent)",
             fontWeight: 800,
             fontSize: "16px",
           }}
@@ -114,14 +114,14 @@ export function NflPerformanceCard({
             style={{
               padding: "10px 14px",
               borderRadius: "8px",
-              background: "#0f172a",
-              border: "1px solid #1e293b",
+              background: "var(--cc-surface)",
+              border: "1px solid var(--cc-border)",
               minWidth: "110px",
             }}
           >
             <div
               style={{
-                color: "#94a3b8",
+                color: "var(--cc-muted)",
                 fontSize: "11px",
                 textTransform: "uppercase",
                 fontWeight: 700,
@@ -150,13 +150,13 @@ export function NflPerformanceCard({
           marginTop: "16px",
           padding: "12px 14px",
           borderRadius: "8px",
-          background: "#111827",
-          border: "1px solid #334155",
+          background: "var(--cc-surface-raised)",
+          border: "1px solid var(--cc-border-strong)",
         }}
       >
         <div
           style={{
-            color: "#60a5fa",
+            color: "var(--cc-accent)",
             fontSize: "11px",
             fontWeight: 900,
             letterSpacing: "0.08em",
@@ -167,7 +167,7 @@ export function NflPerformanceCard({
         </div>
         <div
           style={{
-            color: "#e2e8f0",
+            color: "var(--cc-text)",
             fontWeight: 700,
             lineHeight: 1.5,
           }}
