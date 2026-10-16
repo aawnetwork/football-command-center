@@ -33,6 +33,7 @@ const normaliseEntry = (entry: any, league: League) => {
     team: entry.team?.displayName ?? "Unknown team",
     abbreviation: entry.team?.abbreviation ?? "",
     logo: preferredTeamLogo(entry.team?.logos),
+    darkLogo: preferredTeamLogo(entry.team?.logos, null, "dark"),
     shortName: entry.team?.shortDisplayName ?? "",
     location: entry.team?.location ?? "",
     overall,
