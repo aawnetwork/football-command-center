@@ -129,3 +129,24 @@
 .command-center--cfb .command-center__nav button { background: transparent !important; }
 .command-center--cfb .cfb-games-section > div:first-child small { color: var(--cc-muted) !important; }
 .command-center--cfb .cfb-polls__card header { background: var(--cc-surface-raised); }
+
+/* Live weekly players: solid tint survives table striping; dark orange meets
+   normal-text contrast on the cream canvas and the highlighted cells. */
+.command-center--cfb tr.weekly-leader--playing > td {
+  background: #fff0df;
+}
+.command-center--cfb tr.weekly-leader--playing > td:first-child,
+.command-center--cfb tr.weekly-leader--playing > td:last-child {
+  color: #a64200 !important;
+  font-weight: 800;
+}
+.command-center--cfb tr.weekly-leader--playing > td:first-child {
+  box-shadow: inset 3px 0 #ff6b00;
+}
+.command-center--cfb tr.weekly-leader--playing .all-time-record-row__active {
+  background: #fff8f0;
+  border-color: #a64200;
+  color: #a64200;
+  line-height: 1.4;
+  white-space: nowrap;
+}
