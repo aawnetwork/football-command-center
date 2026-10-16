@@ -5,16 +5,13 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
   const rows = Array.from(source.querySelectorAll<HTMLTableRowElement>("tbody tr"));
   if (!rows.length || rows[0].cells.length !== 4) return;
   const league = source.ownerDocument.location.pathname === "/nfl" ? "NFL" : "CFB";
-  const hasLogo = (row: HTMLTableRowElement) => {
-    const image = row.cells[2].querySelector<HTMLImageElement>("img[data-team-logo]");
-    return image && !image.hidden;
-  };
-  const data = rows.slice(0, 10).every(hasLogo) ? { sections: [] } : await loadTeamDirectory(league).catch(() => ({ sections: [] }));
+  // Compact exports retain a navy surface even when the source table is cream.
+  const data = await loadTeamDirectory(league).catch(() => ({ sections: [] }));
   const teams = data.sections.flatMap((section) => section.teams);
   const logos = new Map(rows.map((row) => {
     const team = row.cells[2].textContent?.trim() ?? "";
     const image = row.cells[2].querySelector<HTMLImageElement>("img[data-team-logo]");
-    return [team, image && !image.hidden ? image.src : resolveTeamLogo(team, teams)] as const;
+    return [team, resolveTeamLogo(team, teams, "dark") || (image && !image.hidden ? image.src : undefined)] as const;
   }));
   if (rows.slice(0, 10).some((row) => !logos.get(row.cells[2].textContent?.trim() ?? ""))) {
     const week = source.dataset.exportLabel?.match(/Week (\d+)/)?.[1];
@@ -22,8 +19,8 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
     if (gamesResponse.ok) {
       const games = await gamesResponse.json() as { games: { homeTeam: string; awayTeam: string; homeLogo?: string; awayLogo?: string }[] };
       for (const game of games.games) {
-        if (game.homeLogo) logos.set(game.homeTeam.replace(/^#\d+\s+/, ""), game.homeLogo);
-        if (game.awayLogo) logos.set(game.awayTeam.replace(/^#\d+\s+/, ""), game.awayLogo);
+        if (game.homeLogo && !logos.get(game.homeTeam.replace(/^#\d+\s+/, ""))) logos.set(game.homeTeam.replace(/^#\d+\s+/, ""), game.homeLogo);
+        if (game.awayLogo && !logos.get(game.awayTeam.replace(/^#\d+\s+/, ""))) logos.set(game.awayTeam.replace(/^#\d+\s+/, ""), game.awayLogo);
       }
     }
   }

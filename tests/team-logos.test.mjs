@@ -38,11 +38,25 @@ test('State abbreviations resolve and nested Sun Belt entries remain available',
   }
   assert.equal(resolveTeamLogo('St. Francis', [{ team: 'State Francis', logo: 'wrong' }]), undefined);
 });
-test('Explicit dark-background variant is preferred with a standard fallback', () => {
-  assert.equal(preferredTeamLogo([{ href: 'normal', rel: ['default'] }, { href: 'light', rel: ['dark'] }]), 'light');
+test('Light surfaces use default logos and dark surfaces explicitly retain light variants', () => {
+  assert.equal(preferredTeamLogo([{ href: 'normal', rel: ['default'] }, { href: 'light', rel: ['dark'] }]), 'normal');
+  assert.equal(preferredTeamLogo([{ href: 'normal', rel: ['default'] }, { href: 'light', rel: ['dark'] }], null, 'dark'), 'light');
+  assert.equal(preferredTeamLogo([{ href: 'normal', rel: ['default'] }], null, 'dark'), 'normal');
+  assert.equal(preferredTeamLogo([{ href: 'only', rel: ['dark'] }]), 'only');
+  assert.equal(resolveTeamLogo('Dallas Cowboys', [{ ...teams[1], darkLogo: 'light' }], 'dark'), 'light');
+  assert.equal(resolveTeamLogo('Dallas Cowboys', [{ ...teams[1], darkLogo: 'light' }]), teams[1].logo);
   assert.equal(preferredTeamLogo([{ href: 'normal', rel: ['default'] }]), 'normal');
   assert.equal(preferredTeamLogo([], 'single'), 'single');
   assert.equal(preferredTeamLogo(), null);
+});
+test('Surface selection preserves provider fallbacks and ambiguity safeguards', () => {
+  const variants = [{ href: 'light', rel: ['dark'] }, { href: '', rel: ['default'] }, { href: 'normal', rel: ['default'] }];
+  assert.equal(preferredTeamLogo(variants), 'normal');
+  assert.equal(preferredTeamLogo(variants, null, 'dark'), 'light');
+  assert.equal(preferredTeamLogo([{ href: 'single' }]), 'single');
+  assert.equal(preferredTeamLogo([], 'single', 'dark'), 'single');
+  assert.equal(resolveTeamLogo('Dallas Cowboys', teams, 'dark'), teams[1].logo);
+  assert.equal(resolveTeamLogo('Dallas', [...teams, { team: 'Other', location: 'Dallas', darkLogo: 'other' }], 'dark'), undefined);
 });
 test('The logo directory shares concurrent requests and supports retry after failure', async () => {
   const original = globalThis.fetch;
