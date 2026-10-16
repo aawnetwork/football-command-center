@@ -18,7 +18,7 @@ async function teamNames(report:AudienceReport) {
         const matches=entries.filter(t=>t.team?.id===row.teamId);
         if (matches.length!==1) continue;
         row.name=matches[0].team.displayName;
-        row.logo=preferredTeamLogo(matches[0].team.logos);
+        row.logo=preferredTeamLogo(matches[0].team.logos, null, "dark");
       }
     } catch { /* Canonical IDs remain readable when metadata is unavailable. */ }
   }));
