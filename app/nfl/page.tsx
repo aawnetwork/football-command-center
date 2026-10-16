@@ -1380,16 +1380,9 @@ function getPerformanceReason(
                   flexWrap: "wrap",
                 }}
               >
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: "var(--cc-text)",
-                  }}
-                >
-                  Week:
-                </span>
+                <span className="nfl-week-label" id="nfl-week-label">Week:</span>
 
-                <div className="cc-week-strip"
+                <div className="cc-week-strip" role="group" aria-labelledby="nfl-week-label"
                   style={{
                     display: "flex",
                     gap: "8px",

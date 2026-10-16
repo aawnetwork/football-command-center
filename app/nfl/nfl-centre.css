@@ -1,5 +1,5 @@
 /* NFL-only presentation. Reuse the existing workspace components and tokens;
-   never let this route's stylesheet change Overview or the NFL Centre. */
+   never let this route's stylesheet change Overview or the CFB Centre. */
 .command-center.command-center--nfl {
   --cc-accent: #a64200;
   --cc-accent-soft: #ff6b0014;
@@ -152,3 +152,10 @@
 
 .command-center--nfl .command-center__container > section > div[style*='border-radius'] { border-radius: 2px !important; border-color: var(--cc-border) !important; }
 .command-center--nfl small[title^='Last successful Hub check'] { color: var(--cc-muted) !important; }
+
+/* Explicit contrast for NFL chrome and light performance cards. These
+   colours do not depend on the old workspace's inherited dark tokens. */
+.command-center--nfl .nfl-week-label { color: #0b1f33; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.command-center--nfl .nfl-hub-header__identity { color: #f3f0e7; }
+.command-center--nfl .nfl-hub-header__source { color: #c8d0d5; background: transparent; }
+.command-center--nfl .nfl-performance-card { background: #fffdf7 !important; color: #0b1f33; border-color: #d8d6cd !important; }
