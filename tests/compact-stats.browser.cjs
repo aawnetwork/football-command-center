@@ -18,16 +18,22 @@ const root=process.cwd(),compile=file=>ts.transpileModule(fs.readFileSync(path.j
    const result=await page.evaluate(async({mode,individual})=>{
     const {compactStats}=await import('/compact.js');const {captureCard}=await import('/capture.js');
     const source=document.createElement('div');source.dataset.deskExport='stats';source.dataset.exportLabel=mode==='weekly'?'Week 7':'2026 season';source.style.cssText='width:900px;background:#fffdf7;color:#0b1f33';
-    source.innerHTML=`<h2>${individual?'Passing':'Scoring Defense'}</h2><p>${mode==='weekly'?'Week 7':'2026 season'} leaders</p><table><tbody>${Array.from({length:12},(_,i)=>`<tr class="${i===0?'weekly-leader--playing':''}"><td>${i+1}</td><td>${individual?'Player '+i:'Ohio State Buckeyes'}${i===0?'<span data-export-playing>PLAYING NOW</span>':''}</td>${individual?'<td>Ohio State Buckeyes</td>':''}<td>${individual?2100-i*50+' yards':'17.3 PPG'}</td></tr>`).join('')}</tbody></table>`;document.body.append(source);
+    source.innerHTML=`<h2>${individual?'Passing':'Scoring Defense'}</h2><p>${mode==='weekly'?'Week 7':'2026 season'} leaders</p><table><tbody>${Array.from({length:12},(_,i)=>`<tr class="${i===0?'weekly-leader--playing':''}"><td>${i+1}</td><td>${individual?(i===0?'Torrance Burgess Jr.':i===1?'TJ Engleman Jr.':'Player '+i):'Ohio State Buckeyes'}${i===0?'<span data-export-playing>PLAYING NOW</span>':''}</td>${individual?'<td>Ohio State Buckeyes</td>':''}<td>${individual?2100-i*50+' yards':'17.3 PPG'}</td></tr>`).join('')}</tbody></table>`;document.body.append(source);
     const before=source.outerHTML,clone=source.cloneNode(true);await compactStats(source,clone);document.body.append(clone);
     const text=clone.innerText,colour=getComputedStyle(clone).backgroundColor,badges=(text.match(/PLAYING NOW/g)||[]).length;
-    const rowHeights=Array.from(clone.children).map(n=>n.getBoundingClientRect().height);
+    const exportedRows=Array.from(clone.children).slice(1);
+    const rowHeights=exportedRows.map(n=>n.getBoundingClientRect().height-parseFloat(getComputedStyle(n).borderBottomWidth));
+    const nameLine=exportedRows[0].children[2].firstElementChild;
+    const playerBounds=nameLine.children[0].getBoundingClientRect(),badgeBounds=nameLine.children[1].getBoundingClientRect();
+    const badgeBesideName=badgeBounds.left>=playerBounds.right&&Math.abs((badgeBounds.top+badgeBounds.height/2)-(playerBounds.top+playerBounds.height/2))<1;
+    const nameUnclipped=nameLine.children[0].scrollWidth<=nameLine.children[0].clientWidth+1;
+    const noYellowLine=!Array.from(clone.querySelectorAll("*")).some(n=>getComputedStyle(n).borderBottomColor==='rgb(255, 199, 32)');
     const capture=await captureCard(source);const img=new Image();img.src=capture.dataUrl;await img.decode();const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;let orange=0,cream=0;for(let i=0;i<pixels.length;i+=4){if(pixels[i]===155&&pixels[i+1]===58&&pixels[i+2]===0)orange++;if(pixels[i]===255&&pixels[i+1]===253&&pixels[i+2]===247)cream++;}
-    return {...capture,text,badges,colour,orange,cream,rowHeights,unchanged:before===source.outerHTML};
+    return {...capture,text,badges,colour,orange,cream,rowHeights,badgeBesideName,nameUnclipped,noYellowLine,unchanged:before===source.outerHTML};
    },{mode,individual});
-   assert.equal(result.badges,1);assert.ok(result.text.includes('The HUB'));assert.ok(result.text.includes('hub.aawnetwork.co.uk'));assert.equal(result.colour,'rgb(255, 253, 247)');assert.ok(result.unchanged);assert.ok(result.orange>20,'live badge missing from encoded PNG');assert.ok(result.cream>10000);assert.ok(!result.text.includes('Player 10'),'top 10 bound');
+   assert.equal(result.badges,1);assert.ok(!result.text.includes('The HUB'));assert.ok(!result.text.includes('hub.aawnetwork.co.uk'));assert.ok(result.noYellowLine);assert.ok(result.badgeBesideName);assert.ok(result.nameUnclipped);assert.equal(result.rowHeights.length,10);assert.ok(result.rowHeights.every(height=>Math.abs(height-result.rowHeights[0])<1),'live badge must not increase row height');assert.equal(result.colour,'rgb(255, 253, 247)');assert.ok(result.unchanged);assert.ok(result.orange>20,'live badge missing from encoded PNG');assert.ok(result.cream>10000);assert.ok(!result.text.includes('Player 10'),'top 10 bound');
    if(league==='cfb'&&individual){fs.mkdirSync('verification',{recursive:true});fs.writeFileSync(`verification/${mode}-stats-hub.png`,Buffer.from(result.dataUrl.split(',')[1],'base64'));}
-   console.log(JSON.stringify({league,mode,individual,width:result.width,height:result.height,badges:result.badges,liveBadgePixels:result.orange}));await page.close();
+   console.log(JSON.stringify({league,mode,individual,width:result.width,height:result.height,badges:result.badges,rowHeights:result.rowHeights,badgeBesideName:result.badgeBesideName,liveBadgePixels:result.orange}));await page.close();
   }
  }finally{await browser?.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});

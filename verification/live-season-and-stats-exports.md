@@ -1,4 +1,4 @@
-# Live season statistics and branded stat exports
+# Live season statistics and stat-export colours
 
 Implemented in the local `AAW Football Hub` repository on 17 October 2026.
 
@@ -15,7 +15,7 @@ The compact export override rebuilt individual tables with a hardcoded navy surf
 - Player identity requires a unique school and normalized exact athlete name; ambiguous or absent identities/cutoffs retain published values. Published season leaderboard pages are fetched completely, for both players and teams.
 - Team cumulative offense, scoring averages, yardage-defense averages, sacks and turnover margin use their corresponding box-score inputs. Scoring averages use exact published points and games rather than reconstructing totals from rounded averages. Rushing/passing defense now read the provider's YPG field instead of labeling cumulative yards as YPG.
 - The full current NCAA FBS school list was checked against ESPN. Explicit aliases cover Army West Point, Miami (FL), and the other verified abbreviated school names.
-- Compact individual/team exports use the current cream/navy palette, yellow accent, `The HUB`, `hub.aawnetwork.co.uk`, light-surface logo variants, and the source table's orange `PLAYING NOW` indicator. The live table remains untouched; compact output remains top ten. Both CFB and NFL use this shared presentation.
+- Compact individual/team exports use the current cream/navy palette and light-surface logo variants. The orange `PLAYING NOW` indicator sits beside the player name on the same line, without increasing row height. No wordmark, URL footer or yellow stripe is added. The live table remains untouched; compact output remains top ten. Both CFB and NFL use this shared presentation.
 
 ## Verification
 
@@ -23,7 +23,7 @@ Regression tests cover live refresh scheduling, cancellation, no duplicate addit
 
 An actual-source check compared Julian Sayin's fetched NCAA passing total of 1,772 (through 16 October) with his fetched ESPN game box score of 80: the merged value was 1,852. This records the fetched snapshots, not a claim about his final game total.
 
-Actual Chrome PNG encoding passed all eight combinations of CFB/NFL, weekly/season and individual/team. Tests inspected decoded image pixels for the live badge, cream surface, top-ten limit, branding and preservation of the source table. The weekly/season PNG files in this folder are synthetic layout fixtures; they do not represent actual player rankings.
+Actual Chrome PNG encoding passed all eight combinations of CFB/NFL, weekly/season and individual/team. Tests inspected decoded image pixels for the live badge, cream surface, top-ten limit, equal row heights, inline badge positioning, absence of added wordmarks/URLs/yellow rules, and preservation of the source table. The weekly/season PNG files in this folder are synthetic layout fixtures; they do not represent actual player rankings.
 
 Changed source files: `app/api/player-stats/route.ts`, `app/api/season-stats/route.ts`, `app/cfb/page.tsx`, `app/features/exports/compact-stats.ts`, `app/features/stats/StatsLeaderboardTable.tsx`, `app/lib/cfb-helpers.ts`, `app/lib/team-logos.ts`, and new `app/lib/cfb-live-season.ts`. Tests and supporting fixtures accompany the changes.
 
