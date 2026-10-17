@@ -156,6 +156,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   const [performancePosition, setPerformancePosition] =
     useState<PerformancePosition>("all");
 
+  const [seasonStatsError, setSeasonStatsError] = useState<string | null>(null);
   const [seasonPlayerStats, setSeasonPlayerStats] = useState<PlayerStat[]>([]);
   const [seasonStats, setSeasonStats] =
     useState<SeasonStat[]>([]);
@@ -418,15 +419,18 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   useEffect(() => {
     if (activeTab !== "stats" || statsMode !== "season") return;
     let cancelled = false, baselinePending = false, livePending = false;
+    setSeasonStatsLoading(true);
+    setSeasonStatsError(null);
     async function loadBaseline() {
       if (baselinePending) return;
       baselinePending = true;
       try {
-        const response = await fetch("/api/season-stats", { cache: "no-store", signal: AbortSignal.timeout(60_000) });
+        const response = await fetch(`/api/season-stats?view=${statsView}&category=${selectedCategory}`, { cache: "no-store", signal: AbortSignal.timeout(60_000) });
         if (!response.ok) throw new Error("Season baseline refresh failed");
         const data = await response.json();
-        if (!cancelled) setSeasonStats(data);
-      } catch (error) { console.error(error); }
+        if (!Array.isArray(data) || !data.length) throw new Error("Season stats returned no records");
+        if (!cancelled) { setSeasonStats(data); setSeasonStatsError(null); }
+      } catch (error) { if (!cancelled) setSeasonStatsError("Season stats could not load. Retrying automatically…"); console.error(error); }
       finally { baselinePending = false; if (!cancelled) setSeasonStatsLoading(false); }
     }
     async function loadLive() {
@@ -441,10 +445,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       finally { livePending = false; }
     }
     loadBaseline(); loadLive();
-    const baselineInterval = window.setInterval(loadBaseline, 300_000);
+    const baselineInterval = window.setInterval(loadBaseline, 30_000);
     const liveInterval = window.setInterval(loadLive, 30_000);
     return () => { cancelled = true; window.clearInterval(baselineInterval); window.clearInterval(liveInterval); };
-  }, [activeTab, statsMode]);
+  }, [activeTab, statsMode, statsView, selectedCategory]);
 
   useEffect(() => {
     const needsPlayerStats =
@@ -1682,6 +1686,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 </p>
               </div>
 
+              {statsMode === "season" && seasonStatsError && leaders.length > 0 && <p role="alert" style={{ padding: "0 20px", color: "var(--cc-muted)" }}>{seasonStatsError}</p>}
               {statsMode ===
                 "weekly" &&
               playerStatsLoading ? (
@@ -1710,6 +1715,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                   Loading season
                   stats...
                 </p>
+              ) : statsMode === "season" && leaders.length === 0 && seasonStatsError ? (
+                <p role="alert" style={{ padding: "20px", color: "var(--cc-muted)" }}>{seasonStatsError}</p>
               ) : weeklyUnavailable ? (
                 <p
                   style={{

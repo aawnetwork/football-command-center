@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 300;
 
-const individualSources = [
+const allIndividualSources = [
   {
     category: "rushing",
     endpoint: "469",
@@ -35,7 +35,7 @@ const individualSources = [
 },
 ];
 
-const teamSources = [
+const allTeamSources = [
   {
     category: "total-offense",
     endpoint: "21",
@@ -94,6 +94,13 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
 
+    const view = searchParams.get("view");
+    const category = searchParams.get("category")?.replace(/-td$/, "");
+    const individualSources = view === "team" ? [] : allIndividualSources.filter((source) => !category || source.category === category);
+    const teamSources = view === "individual" ? [] : allTeamSources.filter((source) => !category || source.category === category);
+    if ((view && view !== "team" && view !== "individual") || (category && !individualSources.length && !teamSources.length)) {
+      return NextResponse.json({ error: "Unknown season category" }, { status: 400 });
+    }
     const mode = "season";
 
     const baseUrl =
@@ -117,6 +124,7 @@ const teamBase =
       for (const source of sources) {
         responses.push(
           await fetch(`${base}/${source.endpoint}`, {
+            signal: AbortSignal.timeout(12_000),
             next: {
               revalidate: 300,
             },
@@ -173,7 +181,7 @@ const teamBase =
       for (let index = 0; index < catalogue.results.length; index++) {
         const result = catalogue.results[index];
         for (let page = 2; page <= (result.pages ?? 1); page++) {
-          const response = await fetch(`${catalogue.base}/${catalogue.sources[index].endpoint}?page=${page}`, { next: { revalidate: 300 } });
+          const response = await fetch(`${catalogue.base}/${catalogue.sources[index].endpoint}?page=${page}`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(12_000) });
           if (!response.ok) throw new Error("Incomplete NCAA season leaderboard");
           const extra = await response.json();
           if (extra.updated !== result.updated) throw new Error("NCAA season snapshot changed during pagination");

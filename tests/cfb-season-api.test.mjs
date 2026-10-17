@@ -13,3 +13,9 @@ test('Season API preserves NCAA cutoff, exact average numerators and every playe
  assert.equal(requests.filter(url=>url.searchParams.get('page')==='2').length,15);
  }finally{globalThis.fetch=old;}
 });
+
+test('Selected categories do not depend on unrelated upstream leaderboards',async()=>{
+ const old=globalThis.fetch,requests=[];
+ globalThis.fetch=async url=>{requests.push(String(url));assert.match(String(url),/individual\/469/);return Response.json({updated,pages:1,data:[{Name:'Runner',Team:'Ohio St.','Rush Yds':'750','Rush TD':'5'}]})};
+ try{const response=await GET(new Request('https://hub.test/api/season-stats?view=individual&category=rushing'));assert.equal(response.status,200);const rows=await response.json();assert.equal(rows.length,2);assert.equal(rows[0].stat,750);assert.equal(requests.length,1);assert.equal((await GET(new Request('https://hub.test/api/season-stats?view=individual&category=unknown'))).status,400)}finally{globalThis.fetch=old}
+});
