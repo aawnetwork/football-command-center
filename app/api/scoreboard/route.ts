@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { possessionSide } from "../../lib/gameday-status";
+import { isTeamPlaying, possessionSide } from "../../lib/gameday-status";
 import { contextSelection, normalizeGameContext } from "../../lib/game-context";
 
 export const revalidate = 30;
@@ -77,6 +77,7 @@ export async function GET(request: Request) {
           id: Number(event.id),
           context: normalizeGameContext("CFB", event, data, selection, sourceCheckedAt),
           possession: possessionSide(competition),
+          playingTeamIds: [home?.team?.id, away?.team?.id].filter((id): id is string => isTeamPlaying(competition, id)),
           startDate: event.date,
           homeLogo: home?.team?.logo ?? null,
           awayLogo: away?.team?.logo ?? null,

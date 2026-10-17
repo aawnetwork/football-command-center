@@ -1,5 +1,5 @@
 export type LogoTeam = { id?: string; team: string; logo?: string | null; darkLogo?: string | null; abbreviation?: string; shortName?: string; location?: string };
-const normalize = (name: string) => name.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").replace(/\bst\.?$/, "state");
+export const normalizeTeamName = (name: string) => name.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").replace(/\bst\.?$/, "state");
 export function preferredTeamLogo(logos: { href?: string; rel?: string[] }[] = [], fallback?: string | null, surface: "light" | "dark" = "light"): string | null {
   // ESPN rel=dark means a mark designed for a dark background.
   return logos.find((logo) => logo.rel?.includes(surface === "dark" ? "dark" : "default") && logo.href)?.href ??
@@ -12,10 +12,10 @@ export function standingsEntries<T>(group: StandingsGroup<T>): T[] {
   return entries.length ? entries : (group.children ?? []).flatMap((child) => standingsEntries<T>(child));
 }
 export function resolveTeamLogo(name: string, teams: LogoTeam[], surface: "light" | "dark" = "light"): string | undefined {
-  const value = normalize(name);
+  const value = normalizeTeamName(name);
   if (!value) return undefined;
-  const exact = teams.filter((team) => normalize(team.team) === value);
-  const matches = exact.length ? exact : teams.filter((team) => [team.abbreviation, team.shortName, team.location].some((alias) => alias && normalize(alias) === value));
+  const exact = teams.filter((team) => normalizeTeamName(team.team) === value);
+  const matches = exact.length ? exact : teams.filter((team) => [team.abbreviation, team.shortName, team.location].some((alias) => alias && normalizeTeamName(alias) === value));
   const logos = new Set(matches.map((team) => surface === "dark" ? team.darkLogo || team.logo : team.logo).filter((logo): logo is string => Boolean(logo)));
   return matches.length === 1 && logos.size === 1 ? [...logos][0] : undefined;
 }
