@@ -70,3 +70,24 @@ test('The logo directory shares concurrent requests and supports retry after fai
     assert.equal(resolveTeamLogo('Louisville', a.sections[0].teams), teams[0].logo);
   } finally { globalThis.fetch = original; }
 });
+
+test('Reported NCAA school names resolve to unique ESPN identities and both logo variants', async () => {
+  const { resolveTeam } = await import('../app/lib/team-logos.ts');
+  const teams = [
+    {id:'30',team:'USC Trojans',location:'USC',shortName:'USC',abbreviation:'USC'},
+    {id:'62',team:"Hawai'i Rainbow Warriors",location:"Hawai'i",shortName:"Hawai'i",abbreviation:'HAW'},
+    {id:'290',team:'Georgia Southern Eagles',location:'Georgia Southern',shortName:'GA Southern',abbreviation:'GASO'},
+    {id:'23',team:'San José State Spartans',location:'San José State',shortName:'San José St',abbreviation:'SJSU'},
+    {id:'2199',team:'Eastern Michigan Eagles',location:'Eastern Michigan',shortName:'E Michigan',abbreviation:'EMU'},
+    {id:'2579',team:'South Carolina Gamecocks',location:'South Carolina',abbreviation:'SC'},
+  ].map(team=>({...team,logo:`https://example.com/${team.id}.png`,darkLogo:`https://example.com/${team.id}-dark.png`}));
+  const cases=[['Southern California','30'],['USC','30'],['Hawaii','62'],['Hawaiʻi','62'],['Ga. Southern','290'],['Georgia Southern','290'],['San Jose St.','23'],['San José State','23'],['Eastern Mich.','2199'],['Eastern Mich','2199']];
+  for(const [name,id] of cases) {
+    assert.equal(resolveTeam(name,teams)?.id,id,name);
+    assert.equal(resolveTeamLogo(name,teams),`https://example.com/${id}.png`,name);
+    assert.equal(resolveTeamLogo(name,teams,'dark'),`https://example.com/${id}-dark.png`,name);
+  }
+  assert.equal(resolveTeam('Southern California',[teams[5]]),undefined,'USC must never resolve to South Carolina');
+  assert.equal(resolveTeamLogo('Ga. Southern',[...teams,{team:'Other School',location:'Ga. Southern',logo:'wrong'}]),undefined);
+  assert.equal(resolveTeamLogo('San Jose',[...teams]),undefined,'partial school names remain unmatched');
+});

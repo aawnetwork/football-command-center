@@ -137,3 +137,19 @@ test('Actual scoreboard → season badges uses one upstream call and rejects sch
     }
   }finally{globalThis.fetch=original;}
 });
+
+test('Season live indicators use the same school aliases as team logos', () => {
+  const teams=[
+    {id:'30',team:'USC Trojans',location:'USC'},
+    {id:'62',team:"Hawai'i Rainbow Warriors",location:"Hawai'i"},
+    {id:'290',team:'Georgia Southern Eagles',location:'Georgia Southern'},
+    {id:'23',team:'San José State Spartans',location:'San José State'},
+    {id:'2199',team:'Eastern Michigan Eagles',location:'Eastern Michigan'},
+  ];
+  for(const [index,name] of ['Southern California','Hawaii','Ga. Southern','San Jose St.','Eastern Mich.'].entries()) {
+    const ranked=[{playerId:'1',player:'Player',team:name,value:2000}];
+    const live={...game,playingTeamIds:[teams[index].id]};
+    assert.equal(withSeasonPlayingStatus(ranked,[live],teams,now)[0].playingNow,true,name);
+    assert.equal(withSeasonPlayingStatus(ranked,[{...live,completed:true}],teams,now)[0].playingNow,false,name);
+  }
+});
