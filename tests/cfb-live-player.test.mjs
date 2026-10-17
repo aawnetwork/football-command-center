@@ -153,3 +153,19 @@ test('Season live indicators use the same school aliases as team logos', () => {
     assert.equal(withSeasonPlayingStatus(ranked,[{...live,completed:true}],teams,now)[0].playingNow,false,name);
   }
 });
+
+// Exercise the real table JSX: the shared formatter alone cannot catch a UI override.
+test('Season team scoring defense and offense show PPG; yardage defenses retain YPG', () => {
+  const leader={playerId:'team',player:'Test Team',team:'Test Team',value:17.25};
+  for(const category of ['scoring-defense','scoring-offense']) {
+    const html=render(leader,category,{statsMode:'season',statsView:'team'});
+    assert.match(html,/17\.3 PPG/);
+    assert.doesNotMatch(html,/YPG|yards|tackles/);
+  }
+  for(const category of ['total-defense','rushing-defense','passing-defense']) {
+    const html=render(leader,category,{statsMode:'season',statsView:'team'});
+    assert.match(html,/17\.25 YPG/);
+    assert.doesNotMatch(html,/PPG|tackles/);
+  }
+  assert.match(render(leader,'total-defense',{statsMode:'weekly',statsView:'team'}),/17\.25 tackles/);
+});

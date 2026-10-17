@@ -25,7 +25,7 @@ export function toggleDeckTier(current: Record<number, DeckTier>, id: number, ti
   return next;
 }
 
-export type DeckGame = { id: number; awayTeam: string; homeTeam: string; awayLogo?: string | null; homeLogo?: string | null };
+export type DeckGame = { id: number; awayTeam: string; homeTeam: string; awayTeamId?: string | null; homeTeamId?: string | null; awayLogo?: string | null; homeLogo?: string | null };
 export function groupDeckGames(games: readonly DeckGame[], assignments: Record<number, DeckTier>, included: readonly DeckTier[]) {
   return deckTiers.filter((tier) => included.includes(tier)).map((tier) => ({
     tier, games: games.filter((game) => assignments[game.id] === tier),

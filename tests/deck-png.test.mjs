@@ -77,3 +77,19 @@ test('Empty decks, unavailable canvas and PNG encoding failures reject cleanly',
  await canvasTest(async()=>{await assert.rejects(createDeckPng(2026,7,[{tier:'S',games}]),/Canvas is unavailable/);},{contextAvailable:false});
  await canvasTest(async()=>{await assert.rejects(createDeckPng(2026,7,[{tier:'S',games}]),/PNG creation failed/);},{failedExport:true});
 });
+
+test('ESPN IDs distinguish both Miamis and recover a missing schedule URL without name guessing',async()=>{
+ const {deckLogoSources}=await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
+ assert.deepEqual(deckLogoSources(null,'193'),['/api/team-logo?id=193','https://a.espncdn.com/i/teamlogos/ncaa/500/193.png']);
+ assert.equal(deckLogoSources('https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png')[0],'/api/team-logo?id=2390');
+ assert.deepEqual(deckLogoSources(null,'https://evil.test'),[]);
+ assert.deepEqual(deckLogoSources('https://other.test/logo.png'),['https://other.test/logo.png']);
+ assert.deepEqual(deckLogoSources(),[]);
+});
+test('Unavailable marks are reported by team name and visibly use initials',async()=>{
+ await canvasTest(async({calls})=>{
+  let missing;await createDeckPng(2026,7,[{tier:'S',games:[{id:1,awayTeam:'Miami Hurricanes',homeTeam:'Army Black Knights',awayTeamId:'2390',homeTeamId:'349'}]}],teams=>{missing=teams});
+  assert.deepEqual(missing,['Miami Hurricanes','Army Black Knights']);
+  assert.ok(calls.some(c=>c.text==='MH'));assert.ok(calls.some(c=>c.text==='ABK'));
+ },{broken:true});
+});

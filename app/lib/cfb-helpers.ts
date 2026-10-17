@@ -18,6 +18,8 @@ export type Game = {
   live: boolean;
   playingTeamIds?: string[];
   homeLogo?: string | null;
+  awayTeamId?: string | null;
+  homeTeamId?: string | null;
   awayLogo?: string | null;
   statusDetail?: string | null;
 };

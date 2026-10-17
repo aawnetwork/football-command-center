@@ -79,6 +79,8 @@ export async function GET(request: Request) {
           possession: possessionSide(competition),
           playingTeamIds: [home?.team?.id, away?.team?.id].filter((id): id is string => isTeamPlaying(competition, id)),
           startDate: event.date,
+          homeTeamId: home?.team?.id ?? null,
+          awayTeamId: away?.team?.id ?? null,
           homeLogo: home?.team?.logo ?? null,
           awayLogo: away?.team?.logo ?? null,
           statusDetail: competition?.status?.type?.state === "in"

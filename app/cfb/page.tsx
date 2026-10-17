@@ -1883,8 +1883,7 @@ statsView ===
   "team"
   ? selectedCategory === "total-defense" ||
 selectedCategory === "rushing-defense" ||
-selectedCategory === "passing-defense" ||
-selectedCategory === "scoring-defense"
+selectedCategory === "passing-defense"
   ? `${leader.value.toLocaleString()} YPG`
   : formatStatValue(
       selectedCategory,

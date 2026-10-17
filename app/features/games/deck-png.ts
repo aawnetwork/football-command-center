@@ -14,8 +14,15 @@ function wrap(context: CanvasRenderingContext2D, text: string, width: number) {
   return lines;
 }
 
-// Anonymous CORS keeps the export canvas downloadable. A missing or blocked
-// mark must never prevent sharing the team names or the rest of the deck.
+// IDs belong to ESPN's NCAA namespace. Never infer an ID from a school name
+// (Miami Hurricanes and Miami (OH) RedHawks are different teams).
+export function deckLogoSources(src?: string | null, teamId?: string | null): string[] {
+  const sourceId = src?.match(/^https:\/\/a\.espncdn\.com\/i\/teamlogos\/ncaa\/500\/(\d+)\.png(?:\?.*)?$/)?.[1];
+  const id = teamId && /^\d{1,10}$/.test(teamId) ? teamId : sourceId;
+  return [...new Set([id ? `/api/team-logo?id=${id}` : null, src,
+    id ? `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png` : null].filter((value): value is string => Boolean(value)))];
+}
+
 function loadLogo(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const image = new Image();
@@ -24,15 +31,23 @@ function loadLogo(src: string): Promise<HTMLImageElement | null> {
       image.onload = image.onerror = null;
       resolve(value);
     };
-    const timeout = window.setTimeout(() => finish(null), 5_000);
+    const timeout = window.setTimeout(() => finish(null), 12_000);
     image.crossOrigin = "anonymous";
-    image.onload = () => finish(image);
+    image.onload = () => finish(image.naturalWidth && image.naturalHeight ? image : null);
     image.onerror = () => finish(null);
     image.src = src;
   });
 }
 
-export async function createDeckPng(season: number, week: number, groups: Groups): Promise<Blob> {
+async function loadTeamLogo(sources: string[]) {
+  for (const src of sources) {
+    const image = await loadLogo(src);
+    if (image) return image;
+  }
+  return null;
+}
+
+export async function createDeckPng(season: number, week: number, groups: Groups, onMissingLogos?: (teams: string[]) => void): Promise<Blob> {
   if (!groups.length) throw new Error("No assigned games selected");
   await document.fonts.ready;
   const rootStyles = getComputedStyle(document.documentElement);
@@ -60,8 +75,14 @@ export async function createDeckPng(season: number, week: number, groups: Groups
     const homeLines = wrap(context, game.homeTeam, 828);
     return { ...game, awayLines, homeLines, height: 80 + (awayLines.length + homeLines.length) * 44 };
   }) }));
-  const sources = [...new Set(groups.flatMap((group) => group.games.flatMap((game) => [game.awayLogo, game.homeLogo])).filter((src): src is string => Boolean(src)))];
-  const logos = new Map(await Promise.all(sources.map(async (src) => [src, await loadLogo(src)] as const)));
+  const key = (src?: string | null, id?: string | null) => JSON.stringify(deckLogoSources(src, id));
+  const sources = new Set(groups.flatMap((group) => group.games.flatMap((game) => [key(game.awayLogo, game.awayTeamId), key(game.homeLogo, game.homeTeamId)])));
+  const logos = new Map(await Promise.all([...sources].map(async (source) => [source, await loadTeamLogo(JSON.parse(source))] as const)));
+  const missing = [...new Set(groups.flatMap((group) => group.games.flatMap((game) => [
+    ...(!logos.get(key(game.awayLogo, game.awayTeamId)) ? [game.awayTeam] : []),
+    ...(!logos.get(key(game.homeLogo, game.homeTeamId)) ? [game.homeTeam] : []),
+  ])))];
+  onMissingLogos?.(missing);
   const height = Math.max(720, 310 + rows.reduce((total, group) => total + 64 + group.games.reduce((sum, game) => sum + game.height + 12, 0) + 24, 0) + 104);
   // Preserve the existing high-resolution PNG and every selected game, even
   // for long decks; only physical pixel density is bounded.
@@ -87,14 +108,22 @@ export async function createDeckPng(season: number, week: number, groups: Groups
   context.fillStyle = colours.navy; context.font = `800 44px ${bodyFont}`;
   context.fillText(groups.length === 1 && groups[0].tier === "S" ? "My must-watch games" : "My CFB watchlist", 56, 286);
 
-  function team(lines: string[], src: string | null | undefined, top: number) {
-    const image = src ? logos.get(src) : null;
+  function team(lines: string[], src: string | null | undefined, id: string | null | undefined, top: number) {
+    const image = logos.get(key(src, id));
     const teamHeight = lines.length * 44;
     if (image) {
       // Fit each mark without stretching unusually wide or tall logos.
       const ratio = Math.min(48 / image.naturalWidth, 48 / image.naturalHeight);
       const width = image.naturalWidth * ratio, logoHeight = image.naturalHeight * ratio;
       context.drawImage(image, 88 + (48 - width) / 2, top + (teamHeight - logoHeight) / 2, width, logoHeight);
+    }
+    if (!image) {
+      context.fillStyle = colours.border;
+      context.fillRect(88, top + (teamHeight - 48) / 2, 48, 48);
+      context.fillStyle = colours.navy; context.font = `700 16px ${bodyFont}`;
+      context.textAlign = "center";
+      context.fillText(lines.join(" ").split(/\s+/).map((word) => word[0]).join("").slice(0, 3), 112, top + teamHeight / 2 + 6);
+      context.textAlign = "left";
     }
     context.fillStyle = colours.navy; context.font = `700 36px ${bodyFont}`;
     lines.forEach((line, index) => context.fillText(line, 156, top + 34 + index * 44));
@@ -114,10 +143,10 @@ export async function createDeckPng(season: number, week: number, groups: Groups
     for (const game of group.games) {
       context.fillStyle = colours.surface; context.fillRect(56, y, 968, game.height);
       context.strokeStyle = colours.border; context.lineWidth = 1; context.strokeRect(56, y, 968, game.height);
-      team(game.awayLines, game.awayLogo, y + 24);
+      team(game.awayLines, game.awayLogo, game.awayTeamId, y + 24);
       context.fillStyle = colours.muted; context.font = `700 16px ${bodyFont}`;
       context.fillText("AT", 156, y + 24 + game.awayLines.length * 44 + 19);
-      team(game.homeLines, game.homeLogo, y + 56 + game.awayLines.length * 44);
+      team(game.homeLines, game.homeLogo, game.homeTeamId, y + 56 + game.awayLines.length * 44);
       y += game.height + 12;
     }
     y += 24;

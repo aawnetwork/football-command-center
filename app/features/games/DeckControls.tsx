@@ -28,14 +28,15 @@ export function DeckControls({ season, week, decks, games, tiers, activeDeckId, 
     setBusy(true);
     setMessage("");
     try {
-      const blob = await createDeckPng(season, week, groups);
+      let missing: string[] = [];
+      const blob = await createDeckPng(season, week, groups, (teams) => { missing = teams; });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `aaw-cfb-${season}-week-${week}-my-deck.png`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      setMessage("PNG downloaded.");
+      setMessage(missing.length ? `PNG downloaded. Logos unavailable for ${missing.join(", ")}; initials shown.` : "PNG downloaded.");
     } catch {
       setMessage("Could not create the PNG. Please try again.");
     } finally { setBusy(false); }
