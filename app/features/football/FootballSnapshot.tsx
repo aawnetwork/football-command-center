@@ -10,6 +10,7 @@ import {
   getNflPrimeTimeIndicator,
   type NFLGame,
 } from "../../lib/nfl-helpers";
+import { findCfbRivalry } from "../../lib/cfb-rivalries";
 import { rivalries } from "../../cfb/data/rivalries";
 
 type ScoreboardResponse<T> = {
@@ -26,35 +27,8 @@ type FeaturedGame = {
   tone: "cfb" | "nfl";
 };
 
-function teamKey(team: string) {
-  return team
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function teamsMatch(team: string, reference: string) {
-  const gameTeam = teamKey(team);
-  const rivalryTeam = teamKey(reference);
-  const matchingReferenceTeams = rivalries
-    .flatMap((rivalry) => rivalry.teams)
-    .map(teamKey)
-    .filter((candidate) => gameTeam === candidate || gameTeam.startsWith(`${candidate} `));
-  const mostSpecificMatch = Math.max(...matchingReferenceTeams.map((candidate) => candidate.length), 0);
-
-  return (
-    (gameTeam === rivalryTeam || gameTeam.startsWith(`${rivalryTeam} `)) &&
-    rivalryTeam.length === mostSpecificMatch
-  );
-}
-
 function getCfbFeature(game: CfbGame) {
-  const rivalry = rivalries.find((entry) =>
-    entry.teams.every((team) =>
-      teamsMatch(game.homeTeam, team) || teamsMatch(game.awayTeam, team)
-    )
-  );
+  const rivalry = findCfbRivalry(game, rivalries);
 
   if (game.homeRank && game.awayRank && game.homeRank <= 10 && game.awayRank <= 10) {
     return { label: "🔥 TOP-10 SHOWDOWN", priority: 3 };

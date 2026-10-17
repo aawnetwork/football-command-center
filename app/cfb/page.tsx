@@ -50,6 +50,7 @@ import type {
   Tier,
   UpsetSignal,
 } from "../lib/cfb-helpers";
+import { findCfbRivalry } from "../lib/cfb-rivalries";
 import { rivalries } from "./data/rivalries";
 import type { BroadcastAvailability } from "../lib/broadcast-availability";
 import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
@@ -164,40 +165,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   const [playerStatsLoading, setPlayerStatsLoading] =
     useState(true);
 
-  function isRivalryGame(game: Game) {
-    const normalizeTeam = (team: string) =>
-      team
-        .toLowerCase()
-        .replace(
-          /\b(wildcats|buckeyes|wolverines|spartans|fighting irish|trojans|bruins|ducks|huskies|tigers|bulldogs|gators|crimson tide|longhorns|sooners|cowboys|aggies|volunteers|seminoles|hurricanes|tar heels|blue devils|hokies|panthers|orange|eagles|cardinals|knights|owls|pirates|mountaineers|wolfpack|cavaliers|razorbacks|rebels|commodores|volunteers|gamecocks|golden bears|cardinal|beavers|buffaloes|utes|cougars|broncos|bulldogs|red raiders|jayhawks|cyclones|cornhuskers|hawkeyes|badgers|gophers|boilermakers|hoosiers|terrapins|nittany lions)\b/g,
-          ""
-        )
-        .trim();
-
-    const home = normalizeTeam(game.homeTeam);
-    const away = normalizeTeam(game.awayTeam);
-
-    const matchingRivalries = rivalries.filter((rivalry) => {
-      const [teamA, teamB] = rivalry.teams;
-
-      const a = normalizeTeam(teamA);
-      const b = normalizeTeam(teamB);
-
-      return (
-        (home.includes(a) && away.includes(b)) ||
-        (home.includes(b) && away.includes(a))
-      );
-    });
-
-    // Prefer the most specific pairing. Without this, Arkansas–Texas A&M can
-    // be claimed by the broader Arkansas–Texas entry because "Texas A&M"
-    // contains "Texas".
-    return matchingRivalries.sort(
-      (left, right) =>
-        right.teams[0].length + right.teams[1].length -
-        (left.teams[0].length + left.teams[1].length)
-    )[0];
-  }
+  const isRivalryGame = (game: Game) => findCfbRivalry(game, rivalries);
 
   function detectMilestones(
     playerStats: PlayerStat[]

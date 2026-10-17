@@ -567,6 +567,10 @@ export function buildBigPerformances(stats: PlayerStat[]): BigPerformance[] {
   const players = new Map<string, PlayerStat[]>();
 
   for (const stat of stats) {
+    // This feed also contains team defensive totals, which have no player ID.
+    // Keep those for team statistics, but never turn them into player cards.
+    if (!Number.isFinite(stat.playerId) || stat.playerId <= 0) continue;
+
     const key = `${stat.playerId}-${stat.player}-${stat.team}-${stat.gameId}`;
 
     if (!players.has(key)) {

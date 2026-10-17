@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { allTimeMovementDetail } from "../../lib/all-time-comparison";
 
+import { findCfbRivalry } from "../../lib/cfb-rivalries";
 import { rivalries } from "../../cfb/data/rivalries";
 import { cfbAllTimeCareerProgram } from "../../cfb/data/cfb-all-time-program";
 import { nflAllTimeCareerTeam } from "../../nfl/data/nfl-all-time-team";
@@ -83,14 +84,7 @@ const compactTeamName = (team: string) =>
     .replace(/[^a-z0-9]/g, "")
     .trim();
 
-const getRivalry = (game: Game) => {
-  const home = compactTeamName(game.homeTeam);
-  const away = compactTeamName(game.awayTeam);
-  return rivalries.find(({ teams }) => {
-    const [first, second] = teams.map(compactTeamName);
-    return (home === first && away === second) || (home === second && away === first);
-  });
-};
+const getRivalry = (game: Game) => findCfbRivalry(game, rivalries);
 
 const rivalryLabel = (game: Game) => {
   const rivalry = getRivalry(game);
