@@ -51,6 +51,7 @@ import type {
   UpsetSignal,
 } from "../lib/cfb-helpers";
 import { findCfbRivalry } from "../lib/cfb-rivalries";
+import { mergeLiveSeasonStats } from "../lib/cfb-live-season";
 import { rivalries } from "./data/rivalries";
 import type { BroadcastAvailability } from "../lib/broadcast-availability";
 import { getScoreboardRefreshDelay } from "../lib/scoreboard-refresh";
@@ -147,7 +148,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     useState<"individual" | "team">(
       "individual"
     );
-  const seasonIndicators = activeTab === "stats" && statsMode === "season" && statsView === "individual";
+  const seasonIndicators = activeTab === "stats" && statsMode === "season";
 
 
   const [selectedCategory, setSelectedCategory] =
@@ -155,6 +156,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   const [performancePosition, setPerformancePosition] =
     useState<PerformancePosition>("all");
 
+  const [seasonPlayerStats, setSeasonPlayerStats] = useState<PlayerStat[]>([]);
   const [seasonStats, setSeasonStats] =
     useState<SeasonStat[]>([]);
   const [seasonStatsLoading, setSeasonStatsLoading] =
@@ -414,29 +416,35 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }, [activeTab, selectedWeek, seasonIndicators]);
 
   useEffect(() => {
-    async function loadSeasonStats() {
+    if (activeTab !== "stats" || statsMode !== "season") return;
+    let cancelled = false, baselinePending = false, livePending = false;
+    async function loadBaseline() {
+      if (baselinePending) return;
+      baselinePending = true;
       try {
-        const response = await fetch(
-          "/api/season-stats"
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            "Failed to load season stats"
-          );
-        }
-
+        const response = await fetch("/api/season-stats", { cache: "no-store", signal: AbortSignal.timeout(60_000) });
+        if (!response.ok) throw new Error("Season baseline refresh failed");
         const data = await response.json();
-        setSeasonStats(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setSeasonStatsLoading(false);
-      }
+        if (!cancelled) setSeasonStats(data);
+      } catch (error) { console.error(error); }
+      finally { baselinePending = false; if (!cancelled) setSeasonStatsLoading(false); }
     }
-
-      loadSeasonStats();
-}, [statsMode]);
+    async function loadLive() {
+      if (livePending) return;
+      livePending = true;
+      try {
+        const response = await fetch("/api/player-stats", { cache: "no-store", signal: AbortSignal.timeout(25_000) });
+        if (!response.ok) throw new Error("Live season refresh failed");
+        const data = await response.json();
+        if (!cancelled) { setSeasonPlayerStats(data); setStatsCheck((previous) => recordDataCheck(previous, "season", true, Date.now())); }
+      } catch (error) { if (!cancelled) setStatsCheck((previous) => recordDataCheck(previous, "season", false, Date.now())); console.error(error); }
+      finally { livePending = false; }
+    }
+    loadBaseline(); loadLive();
+    const baselineInterval = window.setInterval(loadBaseline, 300_000);
+    const liveInterval = window.setInterval(loadLive, 30_000);
+    return () => { cancelled = true; window.clearInterval(baselineInterval); window.clearInterval(liveInterval); };
+  }, [activeTab, statsMode]);
 
   useEffect(() => {
     const needsPlayerStats =
@@ -598,20 +606,22 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       );
     }
 
+    const currentSeasonStats = mergeLiveSeasonStats(seasonStats, seasonPlayerStats, seasonGames, teamDirectory);
     if (statsView === "team") {
       return buildTeamLeaders(
-        seasonStats,
+        currentSeasonStats,
         selectedCategory
       );
     }
 
     return withSeasonPlayingStatus(
-      buildIndividualLeaders(seasonStats, selectedCategory),
+      buildIndividualLeaders(currentSeasonStats, selectedCategory),
       seasonIndicators ? seasonGames : [],
       teamDirectory
     );
   }, [
     seasonStats,
+    seasonPlayerStats,
     seasonIndicators,
     seasonGames,
     teamDirectory,
@@ -1572,10 +1582,10 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {activeTab === "stats" && (
           <section>
-          {statsMode === "weekly" && <DataCheckIndicator check={statsCheck} scope={String(selectedWeek ?? "latest")} />}
+          <DataCheckIndicator check={statsCheck} scope={statsMode === "season" ? "season" : String(selectedWeek ?? "latest")} />
           <StatsPanelControls
             title="Stats"
-            description={statsMode === "weekly" ? `Week ${selectedWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders"}
+            description={statsMode === "weekly" ? `Week ${selectedWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders · live updates every 30 seconds"}
             mode={statsMode}
             modes={[
               { value: "weekly", label: "Weekly" },
@@ -1667,7 +1677,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 >
                   {statsMode ===
                   "season"
-                    ? "2026 season leaders"
+                    ? "2026 season leaders · live updates every 30 seconds"
                     : `Week ${selectedWeek ?? "—"} leaders`}
                 </p>
               </div>
@@ -1824,7 +1834,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                 }}
                               >
                                 {statsView === "team" ? <TeamLogo src={teamLogo(leader.team || leader.player)} name={leader.player} /> : leader.player}
-                                {statsView === "individual" && leader.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
+                                {statsView === "individual" && leader.playingNow && <span data-export-playing className="all-time-record-row__active">PLAYING NOW</span>}
                               </td>
 
                               {statsView ===

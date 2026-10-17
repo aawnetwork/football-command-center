@@ -13,6 +13,16 @@ export function standingsEntries<T>(group: StandingsGroup<T>): T[] {
 }
 // Explicit NCAA school names that differ from ESPN's supplied aliases.
 const schoolAliases = new Map([
+  ["fla. atlantic", "Florida Atlantic Owls"],
+  ["army west point", "Army Black Knights"],
+  ["southern miss.", "Southern Miss Golden Eagles"],
+  ["western ky.", "Western Kentucky Hilltoppers"],
+  ["south fla.", "South Florida Bulls"],
+  ["western mich.", "Western Michigan Broncos"],
+  ["middle tenn.", "Middle Tennessee Blue Raiders"],
+  ["central mich.", "Central Michigan Chippewas"],
+
+  ["miami (fl)", "Miami Hurricanes"],
   ["southern california", "USC Trojans"],
   ["hawaii", "Hawai'i Rainbow Warriors"],
   ["ga. southern", "Georgia Southern Eagles"],

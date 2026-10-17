@@ -95,7 +95,7 @@ export function StatsLeaderboardTable({
                 <td style={bodyCellStyle}>{index + 1}</td>
                 <td style={{ ...bodyCellStyle, fontWeight: 700 }}>
                   {!showTeam ? <TeamLogo src={row.logo} name={row.name} /> : row.name}
-                  {showTeam && row.playingNow && <span data-export-omit className="all-time-record-row__active">PLAYING NOW</span>}
+                  {showTeam && row.playingNow && <span data-export-playing className="all-time-record-row__active">PLAYING NOW</span>}
                 </td>
                 {showTeam && <td style={bodyCellStyle}><TeamLogo src={row.logo} name={row.team ?? ""} /></td>}
                 <td style={{ ...bodyCellStyle, fontWeight: 800 }}>

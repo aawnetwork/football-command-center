@@ -91,3 +91,12 @@ test('Reported NCAA school names resolve to unique ESPN identities and both logo
   assert.equal(resolveTeamLogo('Ga. Southern',[...teams,{team:'Other School',location:'Ga. Southern',logo:'wrong'}]),undefined);
   assert.equal(resolveTeamLogo('San Jose',[...teams]),undefined,'partial school names remain unmatched');
 });
+
+test('Every current NCAA FBS school resolves uniquely to its ESPN identity for live season updates',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const {resolveTeam}=await import('../app/lib/team-logos.ts');
+ const {ncaaSchools,espnTeams}=JSON.parse(await readFile(new URL('./fixtures/cfb-season-schools.json',import.meta.url),'utf8'));
+ for(const name of ncaaSchools)assert.ok(resolveTeam(name,espnTeams)?.id,name);
+ assert.equal(resolveTeam('Miami (FL)',espnTeams)?.id,'2390');
+ assert.equal(resolveTeam('Miami (OH)',espnTeams)?.id,'193');
+});

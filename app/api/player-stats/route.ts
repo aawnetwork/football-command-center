@@ -145,6 +145,17 @@ export async function GET(request: Request) {
             ? awayTeamName
             : homeTeamName;
 
+        const teamBoxes = summary.boxscore?.teams ?? [];
+        const ownBox = teamBoxes.find((box: any) => String(box.team?.id) === String(teamBox.team?.id));
+        const otherBox = teamBoxes.find((box: any) => String(box.team?.id) !== String(teamBox.team?.id));
+        const turnovers = (box: any) => {
+          const value = box?.statistics?.find((stat: any) => stat.name === "turnovers")?.displayValue;
+          return value == null || value === "" ? NaN : Number(value);
+        };
+        if (Number.isFinite(turnovers(ownBox)) && Number.isFinite(turnovers(otherBox))) {
+          teamStats.push({ team: teamName, category: "defensive", stat: "MARGIN", value: turnovers(otherBox) - turnovers(ownBox), gameId, opponent });
+        }
+
         const statistics =
   teamBox.statistics ?? [];
   const defensiveStats = statistics.find(

@@ -66,12 +66,12 @@ const teamSources = [
   {
     category: "rushing-defense",
     endpoint: "24",
-    statKey: "Opp Rush Yds",
+    statKey: "YPG",
   },
   {
     category: "passing-defense",
     endpoint: "695",
-    statKey: "Opp Pass <br/>Yds",
+    statKey: "YPG",
   },
   {
     category: "scoring-defense",
@@ -164,6 +164,23 @@ const teamBase =
       )
     );
 
+    // Both catalogues are paginated (currently 50 rows per page). A live
+    // contribution must not lose a player or school at the first-page boundary.
+    for (const catalogue of [
+      { results: individualResults, sources: individualSources, base: individualBase },
+      { results: teamResults, sources: teamSources, base: teamBase },
+    ]) {
+      for (let index = 0; index < catalogue.results.length; index++) {
+        const result = catalogue.results[index];
+        for (let page = 2; page <= (result.pages ?? 1); page++) {
+          const response = await fetch(`${catalogue.base}/${catalogue.sources[index].endpoint}?page=${page}`, { next: { revalidate: 300 } });
+          if (!response.ok) throw new Error("Incomplete NCAA season leaderboard");
+          const extra = await response.json();
+          if (extra.updated !== result.updated) throw new Error("NCAA season snapshot changed during pagination");
+          result.data.push(...(extra.data ?? []));
+        }
+      }
+    }
     const stats: any[] = [];
 
     individualResults.forEach((result, index) => {
@@ -187,6 +204,7 @@ const teamBase =
     player[source.yardsKey] ?? 0
   ),
   type: "individual",
+  sourceUpdated: result.updated,
 });
 
         stats.push({
@@ -199,6 +217,7 @@ const teamBase =
             player[source.touchdownsKey] ?? 0
           ),
           type: "individual",
+          sourceUpdated: result.updated,
         });
       }
     });
@@ -217,11 +236,14 @@ const teamBase =
             team[source.statKey] ?? 0
           ),
           type: "team",
+          sourceUpdated: result.updated,
+          gamesPlayed: Number(team.G),
+          seasonTotal: Number(team[source.category === "total-defense" ? "YDS" : source.category === "rushing-defense" ? "Opp Rush Yds" : source.category === "passing-defense" ? "Opp Pass <br/>Yds" : source.category.startsWith("scoring-") ? "Pts" : source.statKey]),
         });
       }
     });
 
-    return NextResponse.json(stats);
+    return NextResponse.json(stats, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error(
       "Season stats error:",

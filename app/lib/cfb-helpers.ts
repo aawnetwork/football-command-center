@@ -44,6 +44,9 @@ export type UpsetSignal = {
 };
 
 export type SeasonStat = {
+  sourceUpdated?: string;
+  gamesPlayed?: number;
+  seasonTotal?: number;
   id: string;
   name: string;
   team: string;
@@ -69,7 +72,8 @@ export type PlayerStat = {
     | "TFL"
     | "PD"
     | "FF"
-    | "FR";
+    | "FR"
+    | "MARGIN";
   value: number;
   gameId: number;
   opponent: string;
