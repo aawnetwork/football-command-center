@@ -3,10 +3,29 @@ export type PreviousHigh = {
  season_type: string; category: string; previous_high: number | null;
  complete: boolean; reason: string | null; revision: number; captured_at: string; source: string;
 };
-export function seasonHighEligible(stat: {playerId:number;gameId:number;category:string;stat:string;value:number}, facts: PreviousHigh[], completed: boolean, teamId: string): boolean {
- const matches=facts.filter(r=>r.player_id===String(stat.playerId)&&r.game_id===String(stat.gameId)&&r.category===stat.category);
- const r=matches[0];
- return completed&&stat.stat==='YDS'&&Number.isSafeInteger(stat.value)&&matches.length===1&&r.season===2026&&r.season_type==='regular'&&r.team_id===teamId&&r.complete===true&&r.reason===null&&Number.isSafeInteger(r.previous_high)&&Number.isSafeInteger(r.revision)&&r.revision>0&&stat.value>r.previous_high!;
+// Each exact identity resolves to one fact, or null if any duplicate exists.
+// Do not include team/season/revision in the key: conflicting facts must still
+// suppress the indicator, just as multiple matches in the original scan did.
+export type CfbHistoryIndex = ReadonlyMap<string, ReadonlyMap<string, ReadonlyMap<string, PreviousHigh | null>>>;
+
+export function indexCfbHistory(facts: PreviousHigh[]): CfbHistoryIndex {
+ const games = new Map<string, Map<string, Map<string, PreviousHigh | null>>>();
+ for (const fact of facts) {
+  let players = games.get(fact.game_id);
+  if (!players) { players = new Map(); games.set(fact.game_id, players); }
+  let categories = players.get(fact.player_id);
+  if (!categories) { categories = new Map(); players.set(fact.player_id, categories); }
+  categories.set(fact.category, categories.has(fact.category) ? null : fact);
+ }
+ return games;
+}
+
+export function seasonHighEligible(stat: {playerId:number;gameId:number;category:string;stat:string;value:number}, facts: PreviousHigh[] | CfbHistoryIndex, completed: boolean, teamId: string): boolean {
+ // Array callers remain supported; the player-stats route builds one index for
+ // the entire response. No index survives a request, so corrections are fresh.
+ const index = Array.isArray(facts) ? indexCfbHistory(facts) : facts;
+ const r = index.get(String(stat.gameId))?.get(String(stat.playerId))?.get(stat.category);
+ return Boolean(r && completed&&stat.stat==='YDS'&&Number.isSafeInteger(stat.value)&&r.season===2026&&r.season_type==='regular'&&r.team_id===teamId&&r.complete===true&&r.reason===null&&Number.isSafeInteger(r.previous_high)&&Number.isSafeInteger(r.revision)&&r.revision>0&&stat.value>r.previous_high!);
 }
 export async function loadCfbPreviousHighs(gameIds: string[]): Promise<PreviousHigh[]> {
  if(!gameIds.length||gameIds.length>200||gameIds.some(x=>!/^\d+$/.test(x)))return [];

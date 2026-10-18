@@ -9,7 +9,7 @@ import { buildIndividualLeaders, individualCategories, buildWeeklyIndividualLead
 const categories = ['passing','passing-td','rushing','rushing-td','receiving','receiving-td','tackles','sacks','interceptions'];
 const source = await readFile(new URL('../app/api/player-stats/route.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
-  .replace(/import .*?from ['"]\.\.\/\.\.\/lib\/cfb-history['"];?/, 'const loadCfbPreviousHighs = async () => []; const seasonHighEligible = () => false;')
+  .replace(/import .*?from ['"]\.\.\/\.\.\/lib\/cfb-history['"];?/, 'const loadCfbPreviousHighs = async () => []; const indexCfbHistory = facts => facts; const seasonHighEligible = () => false;')
   .replace('"next/server"', JSON.stringify(import.meta.resolve('next/server.js')))
   .replace('"../../lib/gameday-status"', JSON.stringify(new URL('../app/lib/gameday-status.ts', import.meta.url).href));
 const { GET } = await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);

@@ -1,4 +1,4 @@
-import {loadCfbPreviousHighs,seasonHighEligible} from '../../lib/cfb-history';
+import {indexCfbHistory,loadCfbPreviousHighs,seasonHighEligible} from '../../lib/cfb-history';
 import { NextResponse } from "next/server";
 import { isTeamPlaying } from "../../lib/gameday-status";
 
@@ -43,6 +43,14 @@ export async function GET(request: Request) {
     const scoreboard = await scoreboardResponse.json();
 
     const events = scoreboard.events ?? [];
+    const competitionsByGame = new Map<number, Parameters<typeof isTeamPlaying>[0]>();
+    for (const event of events) {
+      const gameId = Number(event.id);
+      // Match the original events.find: the first numeric ID wins.
+      if (!competitionsByGame.has(gameId)) {
+        competitionsByGame.set(gameId, event.competitions?.[0]);
+      }
+    }
 
     const playerStats: any[] = [];
     const historyPromise=loadCfbPreviousHighs(events.map((event: any)=>String(event.id)));
@@ -135,6 +143,7 @@ export async function GET(request: Request) {
         summary.boxscore?.players ?? [];
 
       for (const teamBox of boxscorePlayers) {
+        const playingNow = isTeamPlaying(competitionsByGame.get(gameId), teamBox.team?.id);
         const teamName =
           teamBox.team?.displayName ??
           teamBox.team?.shortDisplayName ??
@@ -296,7 +305,7 @@ if (defensiveStats?.totals) {
                 player:
                   player.displayName,
                 team: teamName,
-                playingNow: isTeamPlaying(events.find((event: any) => Number(event.id) === gameId)?.competitions?.[0], teamBox.team?.id),
+                playingNow,
                 category:
                   categoryName === "defensive" ||
                   categoryName === "interceptions" ||
@@ -314,7 +323,7 @@ if (defensiveStats?.totals) {
       }
     }
 
-    const history=await historyPromise;
+    const history=indexCfbHistory(await historyPromise);
     for(const stat of playerStats)if(seasonHighEligible(stat,history,completion.get(stat.gameId)===true,playerTeams.get(`${stat.playerId}:${stat.gameId}`)??''))stat.seasonHigh=true;
     return NextResponse.json([
   ...playerStats,
