@@ -52,6 +52,8 @@ export function NflAllTimePanel({
 }: NflAllTimePanelProps) {
   const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
 
+  const [source, setSource] = useState<{ mode: string; checkedAt: string | null } | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -85,6 +87,7 @@ export function NflAllTimePanel({
           {},
         );
         setLiveLeaderboards(leaderboards);
+        setSource(data.source ?? null);
       })
       .catch(() => {
         // The bundled record book remains the reliable fallback while offline.
@@ -181,7 +184,10 @@ export function NflAllTimePanel({
       <p className="all-time-panel__source">
         <strong>Historical source:</strong> NFL Record &amp; Fact Book,
         compiled by the Elias Sports Bureau. <strong>Active-player updates:</strong>{" "}
-        ESPN career stats, with roster status from nflverse.
+        {source?.mode === "active-career" ? <>ESPN career stats, with roster selection from nflverse.
+          {source.checkedAt && <> Last successful catalog check: {new Date(source.checkedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK.</>}
+          {" "}Checks run weekly; new candidates outside the bundled catalog and other record tables are not automatically collected.</>
+          : <>Bundled record-book snapshot shown; a verified active-career publication is unavailable.</>}
       </p>
     </section>
   );

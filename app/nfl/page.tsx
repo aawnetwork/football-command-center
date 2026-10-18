@@ -10,7 +10,6 @@ import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { NflAllTimePanel } from "../features/all-time/NflAllTimePanel";
-import { ContentPanel } from "../features/content/ContentPanel";
 import { NflGamesGrid } from "../features/games/NflGamesGrid";
 import { StandingsPanel } from "../features/standings/StandingsPanel";
 import { NflPerformanceCard } from "../features/performances/NflPerformanceCard";
@@ -1282,7 +1281,7 @@ function getPerformanceReason(
 ["stats", "Stats"],
 ["standings", "Standings"],
 ["all-time", "All-Time"],
-["content", "Content"],
+
             ] as [Tab, string][]
           ).map(
             ([tab, label]) => (
@@ -2501,7 +2500,6 @@ function getPerformanceReason(
 
         {activeTab === "standings" && <StandingsPanel sport="NFL" />}
 
-        {activeTab === "content" && <ContentPanel sport="NFL" />}
 
         {activeTab === "stats" && (
           <section>

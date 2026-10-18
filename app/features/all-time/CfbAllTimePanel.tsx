@@ -48,6 +48,8 @@ export function CfbAllTimePanel({
 }: CfbAllTimePanelProps) {
   const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
 
+  const [source, setSource] = useState<{ mode: string; checkedAt: string | null } | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -81,6 +83,7 @@ export function CfbAllTimePanel({
           {},
         );
         setLiveLeaderboards(leaderboards);
+        setSource(data.source ?? null);
       })
       .catch(() => {
         // The bundled NCAA record-book snapshot remains available offline.
@@ -183,7 +186,9 @@ export function CfbAllTimePanel({
       <p className="all-time-panel__source">
         <strong>Historical data:</strong> NCAA FBS football record book. The
         complete Top 25 for each category is retained in the underlying data;
-        this view displays ranks 1–10.
+        this view displays ranks 1–10. This is a record-book snapshot; automated
+        checks do not collect new CFB career or season records.
+        {source?.checkedAt && <> Last catalog check: {new Date(source.checkedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK.</>}
       </p>
     </section>
   );

@@ -1,4 +1,4 @@
-export const hubSections = ["games", "performances", "stats", "standings", "all-time", "content"] as const;
+export const hubSections = ["games", "performances", "stats", "standings", "all-time"] as const;
 export type HubSection = (typeof hubSections)[number];
 export function hubSection(params: { getAll(name: string): string[] }): HubSection {
   const values = params.getAll("section");

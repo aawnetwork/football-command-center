@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getAllTimeLeaderboards, type AllTimeLeague } from "../../../lib/all-time-monitor";
+import { getAllTimeLeaderboardFeed, type AllTimeLeague } from "../../../lib/all-time-monitor";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    return NextResponse.json({ league, leaderboards: await getAllTimeLeaderboards(league) });
+    return NextResponse.json({ league, ...await getAllTimeLeaderboardFeed(league) });
   } catch (error) {
     console.error("All-time leaderboard read failed", error);
     return NextResponse.json({ error: "Unable to load all-time leaderboards." }, { status: 500 });

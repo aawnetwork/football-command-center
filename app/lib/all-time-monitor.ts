@@ -189,8 +189,8 @@ const buildNflCareerRecords = (
           player: liveRecord.player,
           team: liveRecord.team,
           years: liveRecord.years,
-          // Active-player totals come from the complete nflverse season archive
-          // plus the current weekly file. Static record-book values are only a
+          // Active-player totals come from ESPN regular-season career rows.
+          // Static record-book values are only a
           // fallback for retired players, not an upper bound for live totals.
           value: liveRecord.value,
           isActive: true,
@@ -285,14 +285,27 @@ export async function getAllTimeMonitorStatus() {
   };
 }
 
-export async function getAllTimeLeaderboards(league: AllTimeLeague) {
+export async function getAllTimeLeaderboardFeed(league: AllTimeLeague) {
   const store = await readStore();
-  return store.snapshots
+  const snapshots = store.snapshots.filter((snapshot) => snapshot.league === league);
+  const leaderboards = snapshots
     .filter((snapshot) => snapshot.league === league)
     .reduce<Record<string, AllTimeSnapshotEntry[]>>((leaderboards, snapshot) => {
       leaderboards[snapshot.id] = snapshot.entries.map((entry) => ({ ...entry }));
       return leaderboards;
     }, {});
+  const checkedAt = snapshots.map((snapshot) => snapshot.checkedAt).sort()[0] ?? null;
+  const activeCareer = league === "NFL" && store.catalogVersion === monitorCatalogVersion;
+  return { leaderboards, source: {
+    mode: activeCareer ? "active-career" : "record-book",
+    checkedAt,
+    provider: activeCareer ? "ESPN career statistics; nflverse roster selection" : "Bundled record-book snapshot",
+    coverage: activeCareer ? "NFL career candidates already represented in the bundled catalog; other tables remain snapshots" : "Static historical catalog; check time is not a new source publication",
+  } };
+}
+
+export async function getAllTimeLeaderboards(league: AllTimeLeague) {
+  return (await getAllTimeLeaderboardFeed(league)).leaderboards;
 }
 
 export async function resetAllTimeMonitor() {
@@ -335,7 +348,7 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
     signals,
     source: liveNflSource
       ? {
-          provider: "nflverse",
+          provider: "ESPN career statistics; nflverse roster selection",
           checkedAt: liveNflSource.checkedAt,
           coverage: "Active NFL career leaders",
         }

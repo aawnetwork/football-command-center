@@ -9,7 +9,7 @@ test('Both league URLs retain every supported section on refresh/direct access',
   }
 });
 test('Missing, empty, duplicate, unknown and unsafe section values fall back to Games', () => {
-  for (const query of ['', 'section=', 'section=bad', 'section=STATS', 'section=stats&section=content', 'section=%3Cscript%3E']) {
+  for (const query of ['', 'section=', 'section=bad', 'section=content', 'section=STATS', 'section=stats&section=content', 'section=%3Cscript%3E']) {
     assert.equal(hubSection(new URLSearchParams(query)), 'games');
   }
 });
@@ -21,7 +21,7 @@ test('Tab transitions preserve unrelated parameters, duplicates and fragments wi
 });
 test('History URLs resolve correctly in both directions without a separate state copy', () => {
   const history = ['https://example.com/cfb'];
-  for (const section of ['stats','standings','content']) history.push(new URL(hubSectionUrl(history.at(-1), section), 'https://example.com').href);
-  assert.deepEqual(history.map((url) => hubSection(new URL(url).searchParams)), ['games','stats','standings','content']);
-  assert.deepEqual(history.slice().reverse().map((url) => hubSection(new URL(url).searchParams)), ['content','standings','stats','games']);
+  for (const section of ['stats','standings','all-time']) history.push(new URL(hubSectionUrl(history.at(-1), section), 'https://example.com').href);
+  assert.deepEqual(history.map((url) => hubSection(new URL(url).searchParams)), ['games','stats','standings','all-time']);
+  assert.deepEqual(history.slice().reverse().map((url) => hubSection(new URL(url).searchParams)), ['all-time','standings','stats','games']);
 });

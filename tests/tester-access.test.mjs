@@ -38,14 +38,14 @@ test('Proxy rejects anonymous and tester credentials on private Admin while pres
    assert.equal(proxy(request(path,null,host)).status,401);
    assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD),host)).status,200);
   }
-  for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/api/admin/audience/report']){
+  for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/admin/content','/api/all-time/refresh','/api/admin/audience/report']){
    assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD))).status,401);
    assert.equal(proxy(request(path,basic(process.env.EXPORT_STUDIO_PASSWORD))).status,200);
   }
   process.env.AAW_INVITED_TESTING_ENABLED='false';
   process.env.AAW_AUDIENCE_PARTICIPATION_ENABLED='true';
   for(const path of ['/cfb','/nfl','/api/audience/participation','/api/audience/contributions'])assert.equal(proxy(request(path,null)).status,200);
-  for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/api/admin/audience/report']){
+  for(const path of ['/admin','/admin/decks','/admin/exports','/admin/user-stats','/admin/content','/api/all-time/refresh','/api/admin/audience/report']){
    assert.equal(proxy(request(path,null)).status,401);
    assert.equal(proxy(request(path,basic(process.env.AAW_TESTER_PASSWORD))).status,401);
    assert.equal(proxy(request(path,basic(process.env.EXPORT_STUDIO_PASSWORD))).status,200);

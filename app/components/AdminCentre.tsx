@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import "./admin-centre.css";
-const sections = [["/admin", "Admin Centre"], ["/admin/decks", "Presets"], ["/admin/exports", "Exports"], ["/admin/user-stats", "User Stats"]] as const;
+const sections = [["/admin", "Admin Centre"], ["/admin/decks", "Presets"], ["/admin/exports", "Exports"], ["/admin/user-stats", "User Stats"], ["/admin/content", "Content Intelligence"]] as const;
 export function AdminCentre({ current, children }: { current: string; children: ReactNode }) {
   return <div className="hub-admin">
     <header className="hub-admin__header"><span>AAW · PRIVATE ADMIN</span>

@@ -21,11 +21,13 @@ export type NflLiveCareerSource = {
 type EspnCategory = {
   name: string;
   names: string[];
+  totals?: string[];
   statistics: {
     season?: { year?: number };
     stats: string[];
     displayName?: string;
     teamSlug?: string;
+    teamId?: string;
   }[];
 };
 
@@ -108,7 +110,7 @@ const activeRecordBookNames = new Set(
 );
 
 const loadActiveCandidates = async () => {
-  const response = await fetch(rosterUrl, { cache: "no-store" });
+  const response = await fetch(rosterUrl, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
   if (!response.ok) throw new Error(`nflverse roster request failed (${response.status}).`);
 
   const candidates = new Map<string, RosterPlayer>();
@@ -122,6 +124,7 @@ const loadActiveCandidates = async () => {
     const prior = candidates.get(normaliseName(name));
     if (!prior || week >= prior.week) candidates.set(normaliseName(name), { name, espnId, team, week });
   }
+  if (!candidates.size) throw new Error("Roster response contains no identifiable record-book candidates; prior publication retained.");
   return [...candidates.values()];
 };
 
@@ -130,35 +133,56 @@ const fetchCareerCategories = async (espnId: string) => {
   url.searchParams.set("region", "us");
   url.searchParams.set("lang", "en");
   url.searchParams.set("contentorigin", "espn");
-  const response = await fetch(url, { cache: "no-store" });
+  const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
   if (!response.ok) throw new Error(`ESPN career stat request failed (${response.status}).`);
   const data = await response.json();
-  return (data.categories ?? []) as EspnCategory[];
+  if (!Array.isArray(data.categories) || !data.categories.length) throw new Error("ESPN career response has no categories; prior publication retained.");
+  return data.categories as EspnCategory[];
 };
 
-const calculateCareer = (categories: EspnCategory[], category: NflAllTimeCategory) => {
+const careerNumber = (value: string | undefined): number => {
+  if (typeof value !== "string" || !/^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value.trim())) {
+    throw new Error("ESPN career statistic is missing or invalid; not converted to zero.");
+  }
+  const parsed = Number(value.replace(/,/g, ""));
+  if (!Number.isFinite(parsed)) throw new Error("ESPN career statistic is not finite.");
+  return parsed;
+};
+
+export const calculateNflCareer = (categories: EspnCategory[], category: NflAllTimeCategory) => {
   const [categoryName, field] = categoryFields[category];
-  const source = categories.find((item) => item.name === categoryName);
-  const fieldIndex = source?.names.indexOf(field) ?? -1;
-  if (!source || fieldIndex < 0) return { value: 0, years: "" };
-
-  // ESPN returns separate stints plus a duplicate "YYYY Totals" row when a
-  // player changes team mid-season. Keep the stints and discard the aggregate
-  // row so a season is never counted twice (for example, Davante Adams in 2024).
-  const regularSeasonStints = source.statistics.filter(
-    (season) => !/\btotals\b/i.test(season.displayName ?? season.teamSlug ?? ""),
-  );
-
-  const seasons = regularSeasonStints
-    .map((season) => season.season?.year)
-    .filter((year): year is number => Boolean(year));
-  return {
-    value: regularSeasonStints.reduce(
-      (total, season) => total + numeric(season.stats[fieldIndex]),
-      0,
-    ),
-    years: seasons.length ? `${Math.min(...seasons)}–${Math.max(...seasons)}` : "",
-  };
+  const sources = categories.filter((item) => item.name === categoryName);
+  if (!sources.length) return null;
+  if (sources.length !== 1) throw new Error("Ambiguous ESPN career category.");
+  const source = sources[0];
+  if (!Array.isArray(source.names) || !Array.isArray(source.statistics)) throw new Error("Invalid ESPN career category.");
+  const fieldIndex = source.names.indexOf(field);
+  if (fieldIndex < 0 || !source.statistics.length) return null;
+  const byYear = new Map<number, EspnCategory["statistics"]>();
+  for (const row of source.statistics) {
+    const year = row.season?.year;
+    if (!Number.isInteger(year) || !Array.isArray(row.stats)) throw new Error("Invalid ESPN career season.");
+    byYear.set(year!, [...(byYear.get(year!) ?? []), row]);
+  }
+  let value = 0;
+  for (const rows of byYear.values()) {
+    const totals = rows.filter((row) => /\btotals\b/i.test(`${row.displayName ?? ""} ${row.teamSlug ?? ""}`));
+    const stints = rows.filter((row) => !totals.includes(row));
+    if (totals.length > 1) throw new Error("Ambiguous ESPN season totals.");
+    const identities = stints.map((row) => row.teamId ?? row.teamSlug ?? "");
+    if (new Set(identities).size !== identities.length) throw new Error("Duplicate ESPN team-season rows.");
+    const selected = stints.length ? stints : totals;
+    const seasonValue = selected.reduce((sum, row) => sum + careerNumber(row.stats[fieldIndex]), 0);
+    if (stints.length && totals.length && careerNumber(totals[0].stats[fieldIndex]) !== seasonValue) {
+      throw new Error("ESPN season stints disagree with published total.");
+    }
+    value += seasonValue;
+  }
+  if (source.totals && careerNumber(source.totals[fieldIndex]) !== value) {
+    throw new Error("ESPN career rows disagree with published career total.");
+  }
+  const years = [...byYear.keys()];
+  return { value, years: `${Math.min(...years)}–${Math.max(...years)}` };
 };
 
 const formatTeam = (team: string) => nflTeamNameByAbbreviation[team] ?? team;
@@ -177,12 +201,14 @@ export async function loadNflActiveCareerSource(): Promise<NflLiveCareerSource> 
   const records = allCategories.reduce<Record<NflAllTimeCategory, NflLiveCareerRecord[]>>((recordSets, category) => {
     recordSets[category] = results
       .map(({ candidate, categories }) => {
-        const career = calculateCareer(categories, category);
+        const career = calculateNflCareer(categories, category);
+        const required = nflAllTimeCareerIndividual[category].some((record) => normaliseName(record.player) === normaliseName(candidate.name));
+        if (!career && required) throw new Error(`Missing ranked career category for ${candidate.name}; prior publication retained.`);
         return {
           player: candidate.name,
           team: formatTeam(candidate.team),
-          years: career.years,
-          value: career.value,
+          years: career?.years ?? "",
+          value: career?.value ?? 0,
         };
       })
       .filter((record) => record.value > 0)

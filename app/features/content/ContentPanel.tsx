@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { achievedMilestoneSignals } from "../../lib/content-milestones";
 import { allTimeMovementDetail } from "../../lib/all-time-comparison";
 
 import { findCfbRivalry } from "../../lib/cfb-rivalries";
@@ -33,18 +34,7 @@ type Leader = {
   isActive: boolean;
 };
 
-type MonitorSignal = {
-  league: "CFB" | "NFL";
-  audience: "individual" | "team";
-  period: "career" | "season" | "single-game";
-  category: string;
-  type: "new-entry" | "rank-movement" | "record-holder";
-  player: string;
-  isActive: boolean;
-  previousRank?: number;
-  currentRank: number;
-  createdAt: string;
-};
+type MonitorSignal = import("../../lib/all-time-monitor").AllTimeSignal;
 
 type ContentItem = { label: string; detail: string; kind: "game" | "milestone" | "alert" };
 
@@ -143,26 +133,28 @@ export function ContentPanel({ sport }: ContentPanelProps) {
   const [leaderboards, setLeaderboards] = useState<Record<string, Leader[]>>({});
   const [signals, setSignals] = useState<MonitorSignal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
-        const [scoreboard, allTime, monitor] = await Promise.all([
-          fetch(sport === "CFB" ? "/api/scoreboard" : "/api/nfl/scoreboard").then((response) => response.json()),
-          fetch(`/api/all-time/leaderboards?league=${sport}`).then((response) => response.json()),
-          fetch("/api/all-time/refresh").then((response) => response.json()),
+        const read = async (url: string) => {
+          const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
+          if (!response.ok) throw new Error("Source unavailable");
+          return response.json();
+        };
+        const [scoreboard, allTime, monitor] = await Promise.allSettled([
+          read(sport === "CFB" ? "/api/scoreboard" : "/api/nfl/scoreboard"),
+          read(`/api/all-time/leaderboards?league=${sport}`),
+          read("/api/all-time/refresh"),
         ]);
         if (cancelled) return;
-        setGames(scoreboard.games ?? []);
-        setLeaderboards(allTime.leaderboards ?? {});
-        setSignals(monitor.recentSignals ?? []);
-      } catch {
-        if (!cancelled) {
-          setGames([]);
-          setLeaderboards({});
-          setSignals([]);
-        }
+        if (scoreboard.status === "fulfilled") setGames(scoreboard.value.games ?? []);
+        if (allTime.status === "fulfilled") setLeaderboards(allTime.value.leaderboards ?? {});
+        if (monitor.status === "fulfilled") setSignals(monitor.value.recentSignals ?? []);
+        setLoadError([scoreboard, allTime, monitor].some((result) => result.status === "rejected")
+          ? "Some sources are unavailable. Previously loaded candidates are retained; do not treat missing data as no activity." : "");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -241,21 +233,19 @@ export function ContentPanel({ sport }: ContentPanelProps) {
     const records = sport === "CFB" ? cfbAllTimeCareerProgram : nflAllTimeCareerTeam;
     const milestones = new Set([10, 25, 50, 100, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000]);
     const wins = records.wins.flatMap((record) => scheduledTeams.has(teamKey(record.player)) && milestones.has(record.value + 1)
-      ? [{ kind: "milestone" as const, label: "🏆 WIN MILESTONE WATCH", detail: `${record.player} can reach ${record.value + 1} all-time wins this week.` }]
+      ? [{ kind: "milestone" as const, label: "🏆 WIN MILESTONE RESEARCH", detail: `${record.player} has ${record.value} wins in the record snapshot. Verify the current total before planning a ${record.value + 1}-win milestone.` }]
       : []);
     const percentage = records["winning-percentage"].flatMap((record) => {
       if (!scheduledTeams.has(teamKey(record.player))) return [];
       const parsed = parseRecord(record.team);
       if (!parsed || Math.abs(parsed.wins - parsed.losses) > 1) return [];
-      if (parsed.wins <= parsed.losses) return [{ kind: "milestone" as const, label: "📊 .500 WATCH", detail: `A ${record.player} win would lift them to or above .500 all-time.` }];
-      return [{ kind: "milestone" as const, label: "📊 .500 WATCH", detail: `A ${record.player} loss would drop them to or below .500 all-time.` }];
+      if (parsed.wins <= parsed.losses) return [{ kind: "milestone" as const, label: "📊 .500 WATCH", detail: `The snapshot puts ${record.player} within a win of .500. Verify their current all-time record.` }];
+      return [{ kind: "milestone" as const, label: "📊 .500 WATCH", detail: `The snapshot puts ${record.player} within a loss of .500. Verify their current all-time record.` }];
     });
     return [...wins, ...percentage];
   }, [games, sport]);
 
-  const achievedMilestones = useMemo<ContentItem[]>(() => signals
-    .filter((signal) => signal.league === sport && signal.isActive && signal.audience === "individual" && signal.period !== "single-game")
-    .filter((signal) => Date.now() - new Date(signal.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000)
+  const achievedMilestones = useMemo<ContentItem[]>(() => achievedMilestoneSignals(signals, sport)
     .map((signal) => ({
       kind: "milestone" as const,
       label: `🏆 MILESTONE ACHIEVED · ${categoryName(signal.category)}`,
@@ -272,6 +262,8 @@ export function ContentPanel({ sport }: ContentPanelProps) {
         <h2>🚨 Content</h2>
         <p>{phase === "prepare" ? `What to plan for across this ${sport} slate.` : `What actually happened and is worth carrying forward.`}</p>
       </div>
+      <p>Milestone watch uses saved record snapshots, not live career totals. Verify current totals before use.</p>
+      {loadError && <p role="status">{loadError}</p>}
       <div className="content-panel__phase-controls" role="tablist" aria-label="Content phase">
         <button type="button" role="tab" aria-selected={phase === "prepare"} onClick={() => setPhase("prepare")}>Prepare</button>
         <button type="button" role="tab" aria-selected={phase === "recap"} onClick={() => setPhase("recap")}>Recap</button>

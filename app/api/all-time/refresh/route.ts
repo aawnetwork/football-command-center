@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { canUseExportStudio } from "../../../lib/export-access";
+import { validExportPassword } from "../../../lib/export-password";
 
 import {
   getAllTimeMonitorStatus,
@@ -18,7 +20,11 @@ const isAuthorized = (request: Request) => {
   return request.headers.get("authorization") === `Bearer ${secret}`;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!canUseExportStudio(process.env.NODE_ENV, request.headers.get("host")) &&
+      !validExportPassword(request.headers.get("authorization"), process.env.EXPORT_STUDIO_PASSWORD)) {
+    return NextResponse.json({ error: "Private monitor status requires administrator access." }, { status: 401 });
+  }
   return NextResponse.json(await getAllTimeMonitorStatus());
 }
 

@@ -6,7 +6,8 @@ import { testerGateEnabled, testerMachineRoute, validTesterPassword } from "./ap
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const broadcast = path === "/admin/broadcasts" || path.startsWith("/admin/broadcasts/");
-  const admin = path === "/admin" || path.startsWith("/admin/") && !broadcast || path.startsWith("/api/admin/");
+  const privateMonitorRead = path === "/api/all-time/refresh" && ["GET", "HEAD"].includes(request.method);
+  const admin = privateMonitorRead || path === "/admin" || path.startsWith("/admin/") && !broadcast || path.startsWith("/api/admin/");
   if (!admin) {
     if (!testerGateEnabled(process.env) || testerMachineRoute(path, request.method)) return NextResponse.next();
     if (!validTesterPassword(request.headers.get("authorization"), process.env)) {

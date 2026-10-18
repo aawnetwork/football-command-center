@@ -12,7 +12,6 @@ import { loadTeamDirectory, type LogoTeam } from "../lib/team-logos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
 import { emptyDataCheck, recordDataCheck } from "../lib/data-check";
 import { CfbAllTimePanel } from "../features/all-time/CfbAllTimePanel";
-import { ContentPanel } from "../features/content/ContentPanel";
 import { CfbGamesGrid } from "../features/games/CfbGamesGrid";
 import { DeckControls } from "../features/games/DeckControls";
 import { curatedDecks } from "./data/curated-decks";
@@ -899,7 +898,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   ["stats", "Stats"],
   ["standings", "Standings"],
   ["all-time", "All-Time"],
-  ["content", "Content"],
+
 ].map(([id, label]) => (
             <button
               key={id}
@@ -1921,7 +1920,6 @@ selectedCategory === "passing-defense"
 
         {activeTab === "standings" && <StandingsPanel sport="CFB" />}
 
-        {activeTab === "content" && <ContentPanel sport="CFB" />}
       </div>
     </main>
   );
