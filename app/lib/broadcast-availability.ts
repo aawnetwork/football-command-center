@@ -95,11 +95,19 @@ export function parseBroadcastCsv(input: string): CsvRow[] {
   });
 }
 
-function dateToEspnFormats(value: string) {
+function parseUkDate(value: string) {
   const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
+}
 
-  const date = new Date(Date.UTC(Number(match[3]), Number(match[2]) - 1, Number(match[1]), 12));
+function dateToEspnFormats(value: string) {
+  const date = parseUkDate(value);
+  if (!date) return null;
   return [-1, 0, 1].map((offset) => {
     const candidate = new Date(date);
     candidate.setUTCDate(candidate.getUTCDate() + offset);
@@ -107,19 +115,56 @@ function dateToEspnFormats(value: string) {
   });
 }
 
+const ukDate = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/London", day: "2-digit", month: "2-digit", year: "numeric",
+});
+
+function gameUkDate(value: string) {
+  // Require an explicit offset: server-local parsing must not decide the date.
+  if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return null;
+  const instant = Date.parse(value);
+  return Number.isFinite(instant) ? ukDate.format(instant) : null;
+}
+
+function teamKey(value: string) {
+  return value.toLowerCase().replace(/^\s*#\d+\s*/, "")
+    .replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+// Exact, explicit school/display-name aliases only. Never infer identity from
+// a prefix or a generic mascot removal. Bare Miami is deliberately unresolved.
+const teamAliasGroups = [
+  ["Miami Florida", "Miami FL", "Miami Hurricanes"],
+  ["Miami Ohio", "Miami OH", "Miami OH RedHawks", "Miami Ohio RedHawks", "Miami RedHawks"],
+  ["Michigan", "Michigan Wolverines"],
+  ["Michigan State", "Michigan State Spartans"],
+  ["Oregon", "Oregon Ducks"],
+  ["NC State", "North Carolina State", "NC State Wolfpack", "North Carolina State Wolfpack"],
+  ["UCF", "Central Florida", "UCF Knights", "Central Florida Knights"],
+  ["UTSA", "Texas San Antonio", "UTSA Roadrunners", "Texas San Antonio Roadrunners"],
+  ["UL Monroe", "Louisiana Monroe", "UL Monroe Warhawks", "Louisiana Monroe Warhawks"],
+  ["UNC", "North Carolina", "North Carolina Tar Heels"],
+  ["Pitt", "Pittsburgh", "Pittsburgh Panthers"],
+  ["Alabama", "Alabama Crimson Tide"],
+  ["Ohio State", "Ohio State Buckeyes"],
+  ["Notre Dame", "Notre Dame Fighting Irish"],
+  ["Southern Miss", "Southern Miss Golden Eagles"],
+  ["Troy", "Troy Trojans"],
+];
+const teamAliases = new Map<string, string>();
+for (const group of teamAliasGroups) {
+  const canonical = teamKey(group[0]);
+  for (const alias of group) {
+    const key = teamKey(alias);
+    const existing = teamAliases.get(key);
+    if (existing && existing !== canonical) throw new Error(`Conflicting broadcast team alias: ${alias}`);
+    teamAliases.set(key, canonical);
+  }
+}
+
 function normaliseTeam(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/#\d+\s*/g, "")
-    .replace(/\b(university|college)\b/g, "")
-    .replace(/\b(crimson tide|golden hurricane|mean green|hilltoppers|hokies|wildcats|buckeyes|wolverines|spartans|fighting irish|trojans|bruins|ducks|huskies|tigers|bulldogs|gators|longhorns|sooners|cowboys|aggies|volunteers|seminoles|hurricanes|tar heels|blue devils|panthers|orange|eagles|cardinals|knights|owls|pirates|mountaineers|wolfpack|cavaliers|razorbacks|rebels|commodores|gamecocks|golden bears|beavers|buffaloes|utes|cougars|broncos|red raiders|jayhawks|cyclones|cornhuskers|hawkeyes|badgers|gophers|boilermakers|hoosiers|terrapins|nittany lions|mustangs|bears|bearcats|falcons|rams|lions|warriors|roadrunners|green wave|thundering herd|bobcats|zips|chippewas|demon deacons)\b/g, "")
-    .replace(/\bmiami\s*\(oh\)/g, "miami ohio")
-    .replace(/\bnc\s+state\b/g, "north carolina state")
-    .replace(/\bucf\b/g, "central florida")
-    .replace(/\butsa\b/g, "texas san antonio")
-    .replace(/\bul\s+monroe\b/g, "louisiana monroe")
-    .replace(/[^a-z0-9]/g, "")
-    .trim();
+  const key = teamKey(value);
+  return key === "miami" ? "" : teamAliases.get(key) ?? key;
 }
 
 function matchupTeams(matchup: string) {
@@ -129,7 +174,7 @@ function matchupTeams(matchup: string) {
 }
 
 function sameTeam(left: string, right: string) {
-  return Boolean(left && right && (left === right || left.startsWith(right) || right.startsWith(left)));
+  return Boolean(left && right && left === right);
 }
 
 export function matchBroadcastRows(rows: CsvRow[], games: ScheduledGame[]): BroadcastImportResult {
@@ -144,7 +189,10 @@ export function matchBroadcastRows(rows: CsvRow[], games: ScheduledGame[]): Broa
       continue;
     }
 
-    const game = games.find((candidate) => {
+    const candidates = games.filter((candidate) => {
+      // CSV dates are UK calendar dates, including the next day for overnight
+      // kickoffs. Neighbouring dates fetched from ESPN are not matching windows.
+      if (!parseUkDate(row.date) || gameUkDate(candidate.startDate) !== row.date) return false;
       const home = normaliseTeam(candidate.homeTeam);
       const away = normaliseTeam(candidate.awayTeam);
       return (
@@ -153,7 +201,9 @@ export function matchBroadcastRows(rows: CsvRow[], games: ScheduledGame[]): Broa
       );
     });
 
-    if (game) matched.push({ row, game });
+    // The row time is a listing time, not a reliable tie-breaker. In particular,
+    // the repeated hour at the autumn clock change must not pick a game for us.
+    if (candidates.length === 1) matched.push({ row, game: candidates[0] });
     else unmatched.push(row);
   }
 
