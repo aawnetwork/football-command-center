@@ -1,5 +1,6 @@
 import {indexCfbHistory,loadCfbPreviousHighs,seasonHighEligible} from '../../lib/cfb-history';
 import { NextResponse } from "next/server";
+import { createCfbPlayerStatsFlights } from "../../lib/cfb-player-stats-flight";
 import { isTeamPlaying } from "../../lib/gameday-status";
 
 export const revalidate = 30;
@@ -10,7 +11,13 @@ const ESPN_SCOREBOARD_URL =
 const ESPN_SUMMARY_URL =
   "https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary";
 
+const sharePlayerStats = createCfbPlayerStatsFlights();
+
 export async function GET(request: Request) {
+  return sharePlayerStats(request, () => loadPlayerStats(request));
+}
+
+async function loadPlayerStats(request: Request) {
   const { searchParams } = new URL(request.url);
   const week = searchParams.get("week");
   try {

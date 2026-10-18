@@ -80,6 +80,7 @@ async function route(reference, history) {
     : `import {indexCfbHistory,seasonHighEligible} from ${JSON.stringify(new URL('../app/lib/cfb-history.ts', import.meta.url).href)};`;
   let text = source.replace(/import .*?from ['"]\.\.\/\.\.\/lib\/cfb-history['"];?/, `${imports}\nconst loadCfbPreviousHighs = async () => globalThis[${JSON.stringify(key)}];`)
     .replace('import { NextResponse } from "next/server";', 'const NextResponse = { json: (body, init) => Response.json(body, init) };')
+    .replace('"../../lib/cfb-player-stats-flight"', JSON.stringify(new URL('../app/lib/cfb-player-stats-flight.ts', import.meta.url).href))
     .replace('"../../lib/gameday-status"', JSON.stringify(new URL('../app/lib/gameday-status.ts', import.meta.url).href));
   if (reference) {
     assert.ok(text.includes('isTeamPlaying(competitionsByGame.get(gameId), teamBox.team?.id)'));

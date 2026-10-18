@@ -11,6 +11,7 @@ const source = await readFile(new URL('../app/api/player-stats/route.ts', import
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
   .replace(/import .*?from ['"]\.\.\/\.\.\/lib\/cfb-history['"];?/, 'const loadCfbPreviousHighs = async () => []; const indexCfbHistory = facts => facts; const seasonHighEligible = () => false;')
   .replace('"next/server"', JSON.stringify(import.meta.resolve('next/server.js')))
+  .replace('"../../lib/cfb-player-stats-flight"', JSON.stringify(new URL('../app/lib/cfb-player-stats-flight.ts', import.meta.url).href))
   .replace('"../../lib/gameday-status"', JSON.stringify(new URL('../app/lib/gameday-status.ts', import.meta.url).href));
 const { GET } = await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
 
