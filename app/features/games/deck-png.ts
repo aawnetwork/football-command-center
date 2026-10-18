@@ -60,8 +60,8 @@ export async function createDeckPng(season: number, week: number, groups: Groups
     surface: token("--cc-surface", "#fffdf7"),
     border: token("--cc-border", "#d8d6cd"),
     muted: token("--cc-muted", "#52606a"),
-    yellow: "#ffc720",
-    orange: "#ff6b00",
+    yellow: token("--hub-yellow", "#ffc720"),
+    accent: token("--hub-accent", "#ffc720"),
   };
   await Promise.all([800, 700, 500].map((weight) => document.fonts.load(`${weight} 36px ${bodyFont}`)));
 
@@ -97,7 +97,7 @@ export async function createDeckPng(season: number, week: number, groups: Groups
   context.fillStyle = colours.surface; context.font = `800 76px ${bodyFont}`;
   context.fillText("The HUB", 56, 116);
   const brandWidth = context.measureText("The HUB").width;
-  context.fillStyle = colours.orange; context.fillRect(56 + brandWidth + 10, 103, 12, 12);
+  context.fillStyle = colours.accent; context.fillRect(56 + brandWidth + 10, 103, 12, 12);
   context.fillStyle = "#c8d0d5"; context.font = `500 23px ${bodyFont}`;
   context.fillText(`${season} · COLLEGE FOOTBALL`, 58, 166);
   context.fillStyle = colours.yellow; context.font = `700 20px ${bodyFont}`;

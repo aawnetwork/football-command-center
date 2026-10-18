@@ -33,14 +33,21 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
   }
   const title = source.querySelector("h2")?.textContent ?? "Leaders";
   const subtitle = source.querySelector("p")?.textContent ?? "";
+  const styles = source.ownerDocument.defaultView!.getComputedStyle(source);
+  const token = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback;
+  const colours = {
+    surface: token("--hub-surface", "#fffdf7"), text: token("--hub-navy", "#0b1f33"),
+    border: token("--hub-border", "#d8d6cd"), muted: token("--hub-muted", "#52606a"),
+    badge: token("--hub-export-badge-surface", "#ffc72024"), badgeText: token("--hub-export-badge-text", "#0b1f33"),
+  };
   clone.replaceChildren();
-  clone.style.cssText = `width:640px;background:#fffdf7;color:#0b1f33;border:1px solid #d8d6cd;border-radius:12px;overflow:hidden;font-family:${source.ownerDocument.defaultView!.getComputedStyle(source).fontFamily};`;
+  clone.style.cssText = `width:640px;background:${colours.surface};color:${colours.text};border:1px solid ${colours.border};border-radius:12px;overflow:hidden;font-family:${source.ownerDocument.defaultView!.getComputedStyle(source).fontFamily};`;
   const element = (tag: string, text: string, css: string) => {
     const node = document.createElement(tag); node.textContent = text; node.style.cssText = css; return node;
   };
-  const header = element("div", "", "padding:18px 20px;border-bottom:1px solid #d8d6cd;");
+  const header = element("div", "", `padding:18px 20px;border-bottom:1px solid ${colours.border};`);
   header.append(element("h2", title, "margin:0;font-size:23px;font-weight:700;"),
-    element("p", `${subtitle} · Top 10`, "margin:5px 0 0;color:#52606a;font-size:14px;font-weight:400;"));
+    element("p", `${subtitle} · Top 10`, `margin:5px 0 0;color:${colours.muted};font-size:14px;font-weight:400;`));
   clone.append(header);
   for (const row of rows.slice(0, 10)) {
     const playing = Boolean(row.querySelector("[data-export-playing]")) || row.classList.contains("weekly-leader--playing");
@@ -48,8 +55,8 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
     const [rank, player] = values;
     const team = individual ? values[2] : player;
     const stat = values[individual ? 3 : 2];
-    const item = element("div", "", "display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid #d8d6cd;");
-    item.append(element("div", rank, "width:24px;flex-shrink:0;color:#52606a;font-size:18px;font-weight:600;"));
+    const item = element("div", "", `display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid ${colours.border};`);
+    item.append(element("div", rank, `width:24px;flex-shrink:0;color:${colours.muted};font-size:18px;font-weight:600;`));
     const logo = logos.get(team);
     if (logo) {
       const image = document.createElement("img"); image.src = logo; image.alt = "";
@@ -59,13 +66,13 @@ export async function compactStats(source: HTMLElement, clone: HTMLElement) {
     const name = element("div", "", "flex:1;min-width:0;");
     const nameLine = element("div", "", "display:flex;align-items:center;gap:8px;min-width:0;line-height:1.3;");
     nameLine.append(element("span", player, "font-size:19px;font-weight:700;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;"));
-    if (playing) nameLine.append(element("span", "PLAYING NOW", "flex-shrink:0;white-space:nowrap;padding:2px 5px;border-radius:4px;background:#fff0e2;color:#9b3a00;font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.04em;"));
+    if (playing) nameLine.append(element("span", "PLAYING NOW", `flex-shrink:0;white-space:nowrap;padding:2px 5px;border-radius:4px;background:${colours.badge};color:${colours.badgeText};font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.04em;`));
     name.append(nameLine);
-    if (individual) name.append(element("div", team, "font-size:13px;font-weight:400;color:#52606a;line-height:1.4;margin-top:2px;"));
+    if (individual) name.append(element("div", team, `font-size:13px;font-weight:400;color:${colours.muted};line-height:1.4;margin-top:2px;`));
     const value = element("div", "", "text-align:right;flex-shrink:0;margin-left:8px;");
     const match = stat.match(/^([\d,.+−-]+)\s*(.*)$/);
     value.append(element("div", match?.[1] ?? stat, "font-size:23px;font-weight:800;line-height:1.25;"));
-    if (match?.[2]) value.append(element("div", match[2], "font-size:13px;font-weight:400;color:#52606a;line-height:1.4;"));
+    if (match?.[2]) value.append(element("div", match[2], `font-size:13px;font-weight:400;color:${colours.muted};line-height:1.4;`));
     item.append(name, value); clone.append(item);
   }
   (clone.lastElementChild as HTMLElement).style.borderBottom = "none";

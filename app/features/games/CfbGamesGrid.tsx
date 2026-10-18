@@ -101,14 +101,14 @@ export function CfbGamesGrid({
           : rivalryGame
             ? {
                 label: `🏆 RIVALRY — ${rivalryGame.rivalry.name}${rivalryGame.rivalry.trophy ? ` · ${rivalryGame.rivalry.trophy}` : ""}`,
-                color: "#fbbf24",
+                color: "var(--cc-accent-text)",
               }
             : game.top10Matchup
-              ? { label: "🔥 TOP-10 SHOWDOWN", color: "#f97316" }
+              ? { label: "🔥 TOP-10 SHOWDOWN", color: "var(--cc-accent-text)" }
               : game.rankedMatchup
-                ? { label: "📈 RANKED MATCHUP", color: "#fbbf24" }
+                ? { label: "📈 RANKED MATCHUP", color: "var(--cc-accent-text)" }
                 : game.rankedTeamLost
-                  ? { label: "🚨 RANKED UPSET", color: "#fbbf24" }
+                  ? { label: "🚨 RANKED UPSET", color: "var(--cc-accent-text)" }
                   : null;
 
         return (

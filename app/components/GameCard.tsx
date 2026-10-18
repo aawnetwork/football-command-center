@@ -48,7 +48,7 @@ export function GameCard({
         <div className="game-card__status-left">
           <div className={`game-card__status game-card__status--${statusKind}`}>{status}</div>
           {statusDetail && <span className="game-card__clock">{statusDetail}</span>}
-          {favourite && <span data-export-omit style={{ color: "#ffc720", fontSize: "12px", fontWeight: 700 }} aria-label="Features your favourite team">★ Favourite</span>}
+          {favourite && <span data-export-omit style={{ color: "var(--cc-accent-text)", fontSize: "12px", fontWeight: 700 }} aria-label="Features your favourite team">★ Favourite</span>}
           {indicator && (
             <div className="game-card__indicator" style={{ color: indicator.color }}>
               {indicator.label}

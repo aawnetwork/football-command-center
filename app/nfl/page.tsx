@@ -1404,7 +1404,7 @@ function getPerformanceReason(
                           border: "1px solid",
                           borderColor:
                             selectedGameWeek === week
-                              ? "#ffc720"
+                              ? "var(--cc-accent)"
                               : "var(--cc-border-strong)",
                           background:
                             selectedGameWeek === week
@@ -1625,7 +1625,7 @@ function getPerformanceReason(
                       borderColor:
                         performanceWeek ===
                         week
-                          ? "#ffc720"
+                          ? "var(--cc-accent)"
                           : "var(--cc-border-strong)",
                       background:
                         performanceWeek ===
@@ -1805,9 +1805,9 @@ function getPerformanceReason(
                                             borderRadius:
                                               "999px",
                                             background:
-                                              "#7c2d12",
+                                              "var(--cc-accent-soft)",
                                             color:
-                                              "#fed7aa",
+                                              "var(--cc-accent-text)",
                                             fontSize:
                                               "11px",
                                             fontWeight:

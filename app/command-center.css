@@ -1,6 +1,24 @@
+/* Existing Hub brand colours. Accent text adapts to the surface, never the league. */
+:root {
+  --hub-navy: #0b1f33;
+  --hub-cream: #f3f0e7;
+  --hub-yellow: #ffc720;
+  --hub-accent: var(--hub-yellow);
+  --hub-accent-on-light: var(--hub-navy);
+  --hub-accent-soft: #ffc72014;
+  --hub-surface: #fffdf7;
+  --hub-border: #d8d6cd;
+  --hub-muted: #52606a;
+  --hub-live-surface: #ffc72024;
+  --hub-badge-surface: #ffc72024;
+  --hub-export-badge-surface: #ffc72024;
+  --hub-export-badge-text: var(--hub-navy);
+}
+
 .command-center {
-  --cc-accent: #ff6b00;
-  --cc-accent-soft: rgb(255 107 0 / 0.18);
+  --cc-accent: var(--hub-accent);
+  --cc-accent-text: var(--hub-accent);
+  --cc-accent-soft: rgb(255 199 32 / 0.18);
   --cc-canvas: #0b1f33;
   --cc-surface: #0f172a;
   --cc-surface-raised: #111c31;
@@ -15,10 +33,6 @@
   font-family: var(--font-montserrat), Arial, ui-sans-serif, system-ui, sans-serif !important;
 }
 
-.command-center--nfl {
-  --cc-accent: #ffc720;
-  --cc-accent-soft: rgb(255 199 32 / 0.18);
-}
 
 .command-center__container {
   max-width: 1280px !important;
@@ -75,13 +89,13 @@
 }
 
 .command-center__league-switch:hover {
-  color: var(--cc-accent);
+  color: var(--cc-accent-text);
   border-color: var(--cc-accent);
   background: var(--cc-accent-soft);
 }
 
 .command-center__eyebrow {
-  color: var(--cc-accent) !important;
+  color: var(--cc-accent-text) !important;
   font-size: 11px !important;
   font-weight: 800 !important;
   letter-spacing: 0.14em !important;
@@ -296,7 +310,7 @@
 
 .broadcast-import__container { max-width: 980px; margin: 0 auto; }
 .broadcast-import header { margin-bottom: 28px; }
-.broadcast-import header p { margin: 0 0 8px; color: #ff6b00; font-size: 11px; font-weight: 900; letter-spacing: .14em; }
+.broadcast-import header p { margin: 0 0 8px; color: var(--hub-accent); font-size: 11px; font-weight: 900; letter-spacing: .14em; }
 .broadcast-import h1 { margin: 0; font-family: var(--font-bebas-neue), Impact, sans-serif; font-size: clamp(44px, 6vw, 62px); font-weight: 400; line-height: .9; }
 .broadcast-import header span { display: block; max-width: 680px; margin-top: 14px; color: #94a3b8; line-height: 1.6; }
 .broadcast-import__password,
@@ -309,18 +323,18 @@
 .broadcast-import__form { display: grid; gap: 18px; padding: 24px; }
 .broadcast-import__lane h2 { margin: 0 0 8px; font-size: 22px; }
 .broadcast-import__lane > div > span { color: #94a3b8; line-height: 1.5; }
-.broadcast-import__league { margin: 0 0 4px; color: #ff6b00; font-size: 11px; font-weight: 900; letter-spacing: .14em; }
+.broadcast-import__league { margin: 0 0 4px; color: var(--hub-accent); font-size: 11px; font-weight: 900; letter-spacing: .14em; }
 .broadcast-import__form label { display: grid; gap: 8px; color: #cbd5e1; font-size: 13px; font-weight: 800; }
 .broadcast-import__form input { border: 1px solid #3b4d69; border-radius: 8px; background: #111c31; color: #f8fafc; padding: 10px 12px; font: inherit; }
 .broadcast-import__actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.broadcast-import__actions button { border: 1px solid #ff6b00; border-radius: 8px; padding: 10px 14px; background: rgb(255 107 0 / .14); color: #f8fafc; font: inherit; font-weight: 900; cursor: pointer; }
+.broadcast-import__actions button { border: 1px solid var(--hub-accent); border-radius: 8px; padding: 10px 14px; background: rgb(255 199 32 / .14); color: #f8fafc; font: inherit; font-weight: 900; cursor: pointer; }
 .broadcast-import__actions button:last-child { border-color: #6ee7b7; background: rgb(110 231 183 / .12); }
 .broadcast-import__actions button:disabled { cursor: not-allowed; opacity: .45; }
 .broadcast-import__message { margin: 0; color: #6ee7b7; font-weight: 700; }
 .broadcast-import__results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
 .broadcast-import__results > div { overflow: hidden; }
 .broadcast-import__results h2 { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 16px; border-bottom: 1px solid #24334b; font-size: 16px; }
-.broadcast-import__results h2 span { color: #ff6b00; }
+.broadcast-import__results h2 span { color: var(--hub-accent); }
 .broadcast-import__results ul { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .broadcast-import__results li { display: grid; gap: 5px; padding: 14px 16px; border-bottom: 1px solid #24334b; font-size: 13px; }
 .broadcast-import__results li:last-child { border-bottom: 0; }
@@ -361,10 +375,6 @@
 
 /* Landing page only: league workspaces keep their existing styles. */
 .football-snapshot {
-  --hub-navy: #0b1f33;
-  --hub-cream: #f3f0e7;
-  --hub-yellow: #ffc720;
-  --hub-orange: #ff6b00;
   min-height: 100vh;
   background: var(--hub-navy);
   color: var(--hub-cream);
@@ -372,7 +382,7 @@
 }
 .football-snapshot__container { width: min(100% - 64px, 1240px); margin: 0 auto; }
 .football-snapshot a { text-underline-offset: 5px; }
-.football-snapshot a:focus-visible, .football-snapshot button:focus-visible { outline: 3px solid var(--hub-orange); outline-offset: 5px; }
+.football-snapshot a:focus-visible, .football-snapshot button:focus-visible { outline: 3px solid var(--hub-accent); outline-offset: 5px; }
 .football-snapshot__skip { position: absolute; left: 16px; top: -100px; z-index: 100; padding: 12px 16px; background: var(--hub-yellow); color: var(--hub-navy); font-weight: 800; }
 .football-snapshot__skip:focus { top: 12px; }
 .football-snapshot__header { display: flex; align-items: center; gap: 28px; min-height: 104px; border-bottom: 1px solid #385064; }
@@ -391,8 +401,7 @@
 .football-snapshot__subtitle { margin: 0; font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: -.035em; line-height: 1.4; }
 .football-snapshot__description { max-width: 660px; margin: 14px 0 0; color: #c8d0d5; font-size: 16px; line-height: 1.8; }
 .football-snapshot__entry { display: flex; flex-wrap: wrap; gap: 16px; margin: 30px 0 44px; }
-.football-snapshot__centre { display: inline-flex; align-items: center; justify-content: space-between; gap: 42px; min-height: 54px; padding: 14px 24px; color: var(--hub-navy); background: var(--hub-orange); border: 2px solid var(--hub-orange); text-decoration: none; font-size: 15px; font-weight: 800; }
-.football-snapshot__centre--nfl { background: var(--hub-yellow); border-color: var(--hub-yellow); }
+.football-snapshot__centre { display: inline-flex; align-items: center; justify-content: space-between; gap: 42px; min-height: 54px; padding: 14px 24px; color: var(--hub-navy); background: var(--hub-accent); border: 2px solid var(--hub-accent); text-decoration: none; font-size: 15px; font-weight: 800; }
 .football-snapshot__centre:hover { background: var(--hub-cream); border-color: var(--hub-cream); }
 .football-snapshot__network { display: flex; align-items: center; flex-wrap: wrap; gap: 32px; padding: 22px 0 28px; border-top: 1px solid #385064; }
 .football-snapshot__network p { margin: 0 auto 0 0; color: #c8d0d5; font-size: 13px; }
@@ -402,20 +411,18 @@
 .football-snapshot__network a:hover { text-decoration: underline; }
 .football-snapshot__week { background: var(--hub-cream); color: var(--hub-navy); padding: 48px 0 64px; border-top: 12px solid var(--hub-yellow); scroll-margin-top: 0; }
 .football-snapshot__intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 36px; }
-.football-snapshot__intro p { color: #805000; margin-bottom: 10px; }
+.football-snapshot__intro p { color: var(--hub-accent-on-light); margin-bottom: 10px; }
 .football-snapshot__intro h2 { margin: 0; font-size: clamp(30px, 4vw, 42px); font-weight: 800; letter-spacing: -.045em; line-height: 1.15; }
 .football-snapshot__intro > span { font-size: 12px; line-height: 1.8; color: #485562; text-align: right; }
 .football-snapshot__leagues { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; }
-.football-snapshot__league { min-width: 0; border-top: 4px solid var(--hub-orange); }
-.football-snapshot__league--nfl { border-color: var(--hub-yellow); }
+.football-snapshot__league { min-width: 0; border-top: 4px solid var(--hub-accent); }
 .football-snapshot__league-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0; border-bottom: 1px solid #bcbfb9; }
 .football-snapshot__league-heading p { margin-bottom: 8px; color: #485562; }
 .football-snapshot__league-heading h2 { margin: 0; font-family: inherit; font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -.04em; }
 .football-snapshot__league-heading a { color: var(--hub-navy); font-size: 12px; font-weight: 800; }
 .football-snapshot__game { display: grid; gap: 10px; padding: 24px 0; border-bottom: 1px solid #cfcec6; }
 .football-snapshot__game:last-child { border-bottom: 0; }
-.football-snapshot__game-flag { color: #714000; font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 1.6; overflow-wrap: anywhere; }
-.football-snapshot__league--nfl .football-snapshot__game-flag { color: #725300; }
+.football-snapshot__game-flag { color: var(--hub-accent-on-light); font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 1.6; overflow-wrap: anywhere; }
 .football-snapshot__game strong { font-size: 17px; line-height: 1.5; letter-spacing: -.025em; }
 .football-snapshot__game strong span { color: #65707b; font-weight: 400; }
 .football-snapshot__game small { color: #485562; font-size: 12px; font-weight: 600; }
@@ -552,12 +559,14 @@
 }
 
 .all-time-record-row--active {
-  background: linear-gradient(90deg, var(--cc-accent-soft), transparent 58%);
+  background: var(--cc-accent-soft);
+  color: var(--cc-text);
 }
 
 .all-time-record-row--active .all-time-record-row__rank,
-.all-time-record-row--active strong {
-  color: var(--cc-accent);
+.all-time-record-row--active strong,
+.all-time-record-row--active .all-time-record-row__player > div {
+  color: var(--cc-accent-text);
 }
 
 .all-time-record-row__rank,
@@ -592,7 +601,8 @@
   padding: 2px 5px;
   border: 1px solid color-mix(in srgb, var(--cc-accent) 68%, transparent);
   border-radius: 4px;
-  color: var(--cc-accent);
+  color: var(--cc-accent-text);
+  background: var(--cc-surface);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: .08em;
@@ -754,7 +764,7 @@
 }
 
 .content-panel__item--milestone {
-  border-left-color: #fbbf24;
+  border-left-color: var(--hub-accent);
 }
 
 .content-panel__item p {
@@ -1263,13 +1273,13 @@
 .deck-controls__share { border-top: 1px solid #334155; margin-top: 16px; padding-top: 16px; }
 .deck-controls fieldset { display: flex; flex-wrap: wrap; gap: 16px; border: 0; padding: 0; margin: 14px 0; }
 .deck-controls legend { margin-bottom: 10px; }
-.deck-controls input { accent-color: #ff6b00; }
+.deck-controls input { accent-color: var(--hub-accent); }
 .deck-controls textarea { box-sizing: border-box; width: 100%; margin-top: 14px; padding: 10px; color: #cbd5e1; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font: inherit; }
 
 /* Responsive application chrome; exported cards retain their own layout. */
 .weekly-leader--playing { background: linear-gradient(90deg, var(--cc-accent-soft), transparent 58%); }
 .weekly-leader--playing > td:first-child,
-.weekly-leader--playing > td:last-child { color: var(--cc-accent); }
+.weekly-leader--playing > td:last-child { color: var(--cc-accent-text); }
 .command-center__header,
 .command-center__header-content { align-items: center !important; }
 .command-center__header-content > div:first-child { min-width: 0; flex: 1 1 340px; }

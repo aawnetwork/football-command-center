@@ -1015,7 +1015,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       border: "1px solid",
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ff6b00"
+                          ? "var(--cc-accent)"
                           : "var(--cc-border-strong)",
                       background:
                         (selectedWeek ?? currentWeek) === week
@@ -1233,7 +1233,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       border: "1px solid",
                       borderColor:
                         (selectedWeek ?? currentWeek) === week
-                          ? "#ff6b00"
+                          ? "var(--cc-accent)"
                           : "var(--cc-border-strong)",
                       background:
                         (selectedWeek ?? currentWeek) === week
@@ -1270,13 +1270,13 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                     border:
                       "1px solid var(--cc-accent)",
                     background:
-                      "#17130a",
+                      "var(--cc-accent-soft)",
                   }}
                 >
                   <div
                     style={{
                       color:
-                        "var(--cc-accent)",
+                        "var(--cc-accent-text)",
                       fontWeight:
                         900,
                       fontSize:
@@ -1426,7 +1426,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                           <div
                             style={{
                               color:
-                                "var(--cc-accent)",
+                                "var(--cc-accent-text)",
                               fontWeight:
                                 800,
                               fontSize:
@@ -1533,7 +1533,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                           <div
                             style={{
                               color:
-                                "var(--cc-accent)",
+                                "var(--cc-accent-text)",
                               fontSize:
                                 "11px",
                               fontWeight:

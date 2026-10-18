@@ -66,11 +66,11 @@ test('Actual CFB API → leader builder → actual row: live, final, scheduled a
 });
 function luminance(hex) { const rgb=hex.match(/\w\w/g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722; }
 function contrast(a,b) { const ls=[luminance(a),luminance(b)].sort((a,b)=>b-a);return (ls[0]+.05)/(ls[1]+.05); }
-test('Live orange text and badge meet WCAG AA normal-text contrast on the actual light colours',async()=>{
-  const css=await readFile(new URL('../app/cfb/cfb-centre.css',import.meta.url),'utf8');
-  for(const colour of ['#fff0df','#a64200','#fff8f0']) assert.ok(css.includes(colour));
-  for(const bg of ['fff0df','fff8f0','f3f0e7']) assert.ok(contrast('a64200',bg)>=4.5);
-  assert.ok(contrast('0b1f33','fff0df')>=4.5);
+test('Navy text on yellow highlights and badges meet WCAG AA normal-text contrast on the actual light colours',async()=>{
+  const css=await readFile(new URL('../app/command-center.css',import.meta.url),'utf8');
+  for(const colour of ['#ffc720','#ffc72024','--hub-accent-on-light: var(--hub-navy)']) assert.ok(css.includes(colour));
+  for(const bg of ['ffc720','fffdf7','f3f0e7']) assert.ok(contrast('0b1f33',bg)>=4.5);
+  assert.ok(contrast('0b1f33','ffc720')>=4.5);
 });
 
 const seasonSource = await readFile(new URL('../app/lib/cfb-season-playing.ts', import.meta.url), 'utf8');

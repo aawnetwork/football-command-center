@@ -95,7 +95,7 @@ export function DeckManager() {
     <div className="deck-controls">{games.map((game) => <div key={game.id} className="deck-controls__actions" style={{ padding: "12px 0", borderBottom: "1px solid #334155" }}>
       <div style={{ flex: 1, minWidth: 260 }}>{game.awayTeam} @ {game.homeTeam}<div style={{ fontSize: 13, color: "#94a3b8" }}>{new Date(game.startDate).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK</div></div>
       {deckTiers.map((tier) => <button key={tier} disabled={busy} aria-label={`${game.awayTeam} at ${game.homeTeam}: ${tier}`} aria-pressed={draft.assignments[game.id] === tier}
-        style={draft.assignments[game.id] === tier ? { borderColor: "#FF6B00", background: "#71320f" } : {}}
+        style={draft.assignments[game.id] === tier ? { borderColor: "var(--cc-accent)", background: "var(--cc-accent-soft)" } : {}}
         onClick={() => setDraft({ ...draft, assignments: toggleDeckTier(draft.assignments, game.id, tier) })}>{tier}</button>)}
     </div>)}</div>
   </main>;

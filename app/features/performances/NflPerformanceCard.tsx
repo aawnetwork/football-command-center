@@ -92,7 +92,7 @@ export function NflPerformanceCard({
 
         <div
           style={{
-            color: "#a64200",
+            color: "var(--cc-accent-text)",
             fontWeight: 800,
             fontSize: "16px",
           }}
@@ -157,7 +157,7 @@ export function NflPerformanceCard({
       >
         <div
           style={{
-            color: "#a64200",
+            color: "var(--cc-accent-text)",
             fontSize: "11px",
             fontWeight: 900,
             letterSpacing: "0.08em",
