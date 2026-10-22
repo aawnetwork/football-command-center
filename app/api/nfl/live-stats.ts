@@ -1,4 +1,6 @@
+import { stableGameDiscovery, observedGame, shouldReadGame } from '../../lib/stats-v2/stable-game-discovery';
 import { isTeamPlaying } from "../../lib/gameday-status";
+import type { EspnScoreboard, EspnSummary, NflLiveSource } from "../../lib/stats-v2/nfl-source-types";
 const SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 const SUMMARY_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary";
 
@@ -23,15 +25,36 @@ type LivePlayer = {
   interceptions: number;
 };
 
+/** Share active transport only. Completed observations are never response-cached.
+ * Legacy consumers still receive their original projections and failure semantics. */
+export function createNflLiveSource(request: typeof fetch = (...args) => fetch(...args), now = Date.now, stable = false, discover:typeof stableGameDiscovery=stableGameDiscovery) {
+  let pending: Promise<NflLiveSource> | undefined;
+  return function load(): Promise<NflLiveSource> {
+    if (!pending) pending = (async () => {
+      const observedAt = now();
+      const response = await request(SCOREBOARD_URL, { cache: "no-store" });
+      if (!response.ok) throw new Error("ESPN NFL scoreboard request failed.");
+      const raw: EspnScoreboard = await response.json();
+      const scoreboard=stable?discover(raw,'NFL'):raw;
+      const summaries = await Promise.all((scoreboard.events ?? []).map(async event => {
+        if(stable&&!shouldReadGame(event,observedAt))return null;
+        const result = await request(`${SUMMARY_URL}?event=${event.id}`, { cache: "no-store" });
+        if(!result.ok)return null;const summary=await result.json() as EspnSummary;
+        if(stable)Object.assign(event,observedGame(event,summary,2026,scoreboard.week!.number!));
+        return summary;
+      }));
+      return { observedAt, scoreboard, summaries };
+    })().finally(() => { pending = undefined; });
+    return pending;
+  };
+}
+export const loadNflLiveSource = createNflLiveSource();
+// Stats 2.0 opts in; existing public/legacy transport remains unchanged.
+export const loadNflStatsV2LiveSource = createNflLiveSource((...args)=>fetch(...args),Date.now,true);
+
 export async function loadLiveNflStats() {
-  const scoreboardResponse = await fetch(SCOREBOARD_URL, { cache: "no-store" });
-  if (!scoreboardResponse.ok) throw new Error("ESPN NFL scoreboard request failed.");
-  const scoreboard = await scoreboardResponse.json();
+  const { scoreboard, summaries } = await loadNflLiveSource();
   const events = scoreboard.events ?? [];
-  const summaries = await Promise.all(events.map(async (event: any) => {
-    const response = await fetch(`${SUMMARY_URL}?event=${event.id}`, { cache: "no-store" });
-    return response.ok ? response.json() : null;
-  }));
   const players = new Map<string, LivePlayer>();
   const teamScores = new Map<string, number>();
 
@@ -44,7 +67,7 @@ export async function loadLiveNflStats() {
       const team = teamBox.team?.displayName ?? "";
       for (const category of teamBox.statistics ?? []) {
         const categoryName = category.name?.toLowerCase();
-        if (!["passing", "rushing", "receiving", "defensive"].includes(categoryName)) continue;
+        if (!["passing", "rushing", "receiving", "defensive"].includes(categoryName ?? "")) continue;
         const labels = category.labels ?? [];
         for (const athlete of category.athletes ?? []) {
           const athleteInfo = athlete.athlete;
@@ -53,7 +76,7 @@ export async function loadLiveNflStats() {
             player_id: athleteInfo.id,
             player_display_name: athleteInfo.displayName ?? "",
             recent_team: team,
-            playingNow: events.some((event: any) => isTeamPlaying(event.competitions?.[0], teamBox.team?.id)),
+            playingNow: events.some((event) => isTeamPlaying(event.competitions?.[0], teamBox.team?.id)),
             passing_yards: 0, passing_tds: 0, rushing_yards: 0, rushing_tds: 0,
             receiving_yards: 0, receiving_tds: 0, tackles: 0, sacks: 0, interceptions: 0,
           };

@@ -1,0 +1,21 @@
+/* Local proposal only: existing public Team Stats and other tabs are untouched. */
+.stats-preview-switch { --stats-league:#FFC720; display:flex; gap:0; flex-wrap:wrap; margin-bottom:24px; border-bottom:1px solid var(--cc-border); }
+.stats-preview-switch[data-league='CFB'] { --stats-league:#B94700; --cc-accent:#B94700; --cc-accent-soft:#ff6b0024; }
+.command-center .stats-preview-switch button { border:0; border-bottom:3px solid transparent; padding:12px 18px; background:transparent !important; color:var(--cc-text) !important; font-weight:800; }
+.command-center .stats-preview-switch button[aria-pressed='true'] { border-bottom-color:var(--stats-league) !important; background:transparent !important; }
+.stats-team-proposal { --cc-accent:#FFC720; --cc-accent-soft:#ffc72024; }
+.stats-team-proposal[data-league='CFB'] { --cc-accent:#B94700; --cc-accent-soft:#ff6b0024; --hub-accent:#B94700; }
+.stats-team-proposal .stats-panel-controls { border-radius:2px; padding:20px; background:var(--cc-surface); border:1px solid var(--cc-border); }
+.stats-team-proposal .stats-panel-controls__group button { border-radius:2px; }
+.stats-team-proposal table { font-variant-numeric:tabular-nums; }
+.stats-team-proposal table th, .stats-team-proposal table td { padding-block:13px; }
+@media(max-width:600px) { .stats-preview-switch button { flex:1; padding:10px 8px !important; font-size:11px; } .stats-team-proposal .stats-panel-controls { padding:12px; } }
+
+.command-center--cfb:has(.stats-preview-switch[data-league='CFB']) .command-center__nav button[aria-pressed='true'] { border-bottom-color:#B94700 !important; }
+.stats-preview-switch button:focus-visible, .stats-team-proposal button:focus-visible { outline:3px solid var(--cc-accent); outline-offset:3px; }
+.command-center .stats-preview-switch button[aria-pressed='true'],
+.stats-team-proposal .stats-panel-controls__group button[aria-pressed='true'],
+.stats-team-proposal .stats-panel-week-selector button[aria-pressed='true'] { color:#0b1f33 !important; }
+.command-center .stats-team-proposal .stats-panel-controls__group button[aria-pressed='true'],
+.command-center .stats-team-proposal .stats-panel-week-selector button[aria-pressed='true'] { background:var(--cc-accent) !important; color:#0b1f33 !important; }
+.command-center .stats-team-proposal[data-league='CFB'] :is(.stats-panel-controls__group, .stats-panel-week-selector) button[aria-pressed='true'] { color:#fff !important; }

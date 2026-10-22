@@ -89,14 +89,24 @@ export function StandingsPanel({ sport }: { sport: League }) {
   );
 
   return <section className="standings-panel">
-    <header className="standings-panel__header">
+    {sport === "CFB" ? (
+      <div className="centre-secondary-nav" role="group" aria-label="College football standings view">
+        <button type="button" aria-pressed={cfbView === "conferences"} onClick={() => setCfbView("conferences")}>Conferences</button>
+        <button type="button" aria-pressed={cfbView === "rankings"} onClick={() => setCfbView("rankings")}>Rankings</button>
+      </div>
+    ) : (
+      <div className="centre-secondary-nav" role="group" aria-label="NFL standings view">
+        <button type="button" aria-pressed={nflView === "divisions"} onClick={() => setNflView("divisions")}>Divisions</button>
+        {playoffPictureAvailable && <button type="button" aria-pressed={nflView === "playoffs"} onClick={() => setNflView("playoffs")}>Playoff Picture</button>}
+      </div>
+    )}
+    <header className="standings-panel__header centre-section-header">
       <h2>Standings</h2>
       <p>{sport === "NFL" ? "NFL division races, updated from ESPN." : "FBS conference standings and national rankings."}</p>
     </header>
     {sport === "CFB" ? <CfbStandings
       season={season}
       view={cfbView}
-      onViewChange={setCfbView}
       sections={visibleSections}
       allSections={sections}
       selectedConference={selectedConference}
@@ -105,7 +115,6 @@ export function StandingsPanel({ sport }: { sport: League }) {
       error={error}
     /> : <NflStandings
       view={nflView}
-      onViewChange={setNflView}
       playoffPictureAvailable={playoffPictureAvailable}
       sections={visibleSections}
       loading={loading}
@@ -114,10 +123,9 @@ export function StandingsPanel({ sport }: { sport: League }) {
   </section>;
 }
 
-function CfbStandings({ view, onViewChange, sections, allSections, selectedConference, onConferenceChange, loading, error, season }: {
+function CfbStandings({ view, sections, allSections, selectedConference, onConferenceChange, loading, error, season }: {
   season?: number;
   view: CfbView;
-  onViewChange: (view: CfbView) => void;
   sections: StandingSection[];
   allSections: StandingSection[];
   selectedConference: string;
@@ -126,12 +134,8 @@ function CfbStandings({ view, onViewChange, sections, allSections, selectedConfe
   error: string | null;
 }) {
   return <>
-    <div className="standings-panel__mode-switch" aria-label="College football standings view">
-      <button type="button" aria-pressed={view === "conferences"} onClick={() => onViewChange("conferences")}>Conferences</button>
-      <button type="button" aria-pressed={view === "rankings"} onClick={() => onViewChange("rankings")}>Rankings</button>
-    </div>
     {view === "conferences" ? <>
-      {allSections.length > 0 && <div className="standings-panel__filters" aria-label="Conference filters">
+      {allSections.length > 0 && <div className="standings-panel__filters centre-filter-controls" aria-label="Conference filters">
         {["All", ...allSections.map((section) => section.name)].map((name) => <button key={name} type="button" aria-pressed={selectedConference === name} onClick={() => onConferenceChange(name)}>{name.replace(" Conference", "")}</button>)}
       </div>}
       <StandingsContent sport="CFB" sections={sections} loading={loading} error={error} />
@@ -139,9 +143,8 @@ function CfbStandings({ view, onViewChange, sections, allSections, selectedConfe
   </>;
 }
 
-function NflStandings({ view, onViewChange, playoffPictureAvailable, sections, loading, error }: {
+function NflStandings({ view, playoffPictureAvailable, sections, loading, error }: {
   view: NflView;
-  onViewChange: (view: NflView) => void;
   playoffPictureAvailable: boolean;
   sections: StandingSection[];
   loading: boolean;
@@ -149,10 +152,6 @@ function NflStandings({ view, onViewChange, playoffPictureAvailable, sections, l
 }) {
   const playoffTeams = useMemo<PlayoffTeam[]>(() => sections.flatMap((section) => section.teams.map((team) => ({ ...team, divisionName: section.name }))), [sections]);
   return <>
-    <div className="standings-panel__mode-switch" aria-label="NFL standings view">
-      <button type="button" aria-pressed={view === "divisions"} onClick={() => onViewChange("divisions")}>Divisions</button>
-      {playoffPictureAvailable && <button type="button" aria-pressed={view === "playoffs"} onClick={() => onViewChange("playoffs")}>Playoff Picture</button>}
-    </div>
     {view === "playoffs" && playoffPictureAvailable ? <NflPlayoffPicture teams={playoffTeams} /> : <StandingsContent sport="NFL" sections={sections} loading={loading} error={error} />}
   </>;
 }

@@ -40,7 +40,7 @@ test('Team cumulative totals, exact points averages, defense yardage, sacks and 
 const pageSource=await readFile(new URL('../app/cfb/page.tsx',import.meta.url),'utf8');
 const ast=ts.createSourceFile('page.tsx',pageSource,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let callback;
 function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)==='useEffect'&&node.arguments[0]?.getText(ast).includes('const baselineInterval'))callback=node.arguments[0].getText(ast);ts.forEachChild(node,visit)}visit(ast);assert.ok(callback);
-const effectJs=ts.transpileModule(`export function run(env){const {activeTab,statsMode,window,fetch,setSeasonStats,setSeasonPlayerStats,setSeasonStatsLoading,setSeasonStatsError,statsView,selectedCategory,setStatsCheck,recordDataCheck}=env;return (${callback})();}`,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const effectJs=ts.transpileModule(`export function run(env){const {statsPreview={enabled:false},activeTab,statsMode,window,fetch,setSeasonStats,setSeasonPlayerStats,setSeasonStatsLoading,setSeasonStatsError,statsView,selectedCategory,setStatsCheck,recordDataCheck}=env;return (${callback})();}`,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const {run}=await import(`data:text/javascript;base64,${Buffer.from(effectJs).toString('base64')}`);
 test('Actual season effect refreshes current-week totals every 30s independently of baseline and cancels on exit',async()=>{
  const intervals=new Map(),calls=[],published=[];let next=1;
@@ -49,6 +49,7 @@ test('Actual season effect refreshes current-week totals every 30s independently
  const tick=[...intervals.values()].at(-1);assert.ok(tick);assert.ok([...intervals.values()].every(i=>i.ms===30000));
  tick.fn();await settle();assert.equal(calls.at(-1),'/api/player-stats');assert.equal(calls.filter(url=>url.startsWith('/api/season-stats')).length,1);
  cleanup();assert.equal(intervals.size,0);const count=published.length;await tick.fn();await settle();assert.equal(published.length,count);
+ assert.equal(run({...env,statsPreview:{enabled:true}}),undefined);
  assert.equal(run({...env,statsMode:'weekly'}),undefined);assert.equal(run({...env,activeTab:'games'}),undefined);
 });
 

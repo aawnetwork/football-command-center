@@ -1,0 +1,348 @@
+{
+  "fixtureNote": "Selected team fields retained from ESPN summary 401872944; observation clock is simulated for offline tests, not a provider publication timestamp.",
+  "observedAt": 1792605600000,
+  "scoreboard": {
+    "season": {
+      "year": 2026,
+      "type": 2
+    },
+    "week": {
+      "number": 2
+    },
+    "events": [
+      {
+        "id": "401872944",
+        "date": "2026-09-20T20:25Z",
+        "season": {
+          "year": 2026,
+          "type": 2
+        },
+        "competitions": [
+          {
+            "id": "401872944",
+            "date": "2026-09-20T20:25Z",
+            "status": {
+              "type": {
+                "id": "3",
+                "name": "STATUS_FINAL",
+                "state": "post",
+                "completed": true,
+                "description": "Final",
+                "detail": "Final",
+                "shortDetail": "Final"
+              },
+              "isTBDFlex": false
+            },
+            "competitors": [
+              {
+                "id": "6",
+                "uid": "s:20~l:28~t:6",
+                "order": 0,
+                "homeAway": "home",
+                "winner": true,
+                "team": {
+                  "id": "6",
+                  "abbreviation": "DAL",
+                  "displayName": "Dallas Cowboys"
+                },
+                "score": "37",
+                "linescores": [
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "7"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "10"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "1-1",
+                    "displayValue": "1-1"
+                  },
+                  {
+                    "type": "home",
+                    "summary": "1-0",
+                    "displayValue": "1-0"
+                  }
+                ],
+                "possession": false
+              },
+              {
+                "id": "28",
+                "uid": "s:20~l:28~t:28",
+                "order": 1,
+                "homeAway": "away",
+                "winner": false,
+                "team": {
+                  "id": "28",
+                  "abbreviation": "WSH",
+                  "displayName": "Washington Commanders"
+                },
+                "score": "20",
+                "linescores": [
+                  {
+                    "displayValue": "0"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "3"
+                  },
+                  {
+                    "displayValue": "7"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  },
+                  {
+                    "type": "road",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  }
+                ],
+                "possession": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "summaries": [
+    {
+      "header": {
+        "id": "401872944",
+        "season": {
+          "year": 2026,
+          "current": true,
+          "type": 2
+        },
+        "week": 2,
+        "competitions": [
+          {
+            "id": "401872944",
+            "date": "2026-09-20T20:25Z",
+            "status": {
+              "type": {
+                "id": "3",
+                "name": "STATUS_FINAL",
+                "state": "post",
+                "completed": true,
+                "description": "Final",
+                "detail": "Final",
+                "shortDetail": "Final"
+              },
+              "isTBDFlex": false
+            },
+            "competitors": [
+              {
+                "id": "6",
+                "uid": "s:20~l:28~t:6",
+                "order": 0,
+                "homeAway": "home",
+                "winner": true,
+                "team": {
+                  "id": "6",
+                  "abbreviation": "DAL",
+                  "displayName": "Dallas Cowboys"
+                },
+                "score": "37",
+                "linescores": [
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "7"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "10"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "1-1",
+                    "displayValue": "1-1"
+                  },
+                  {
+                    "type": "home",
+                    "summary": "1-0",
+                    "displayValue": "1-0"
+                  }
+                ],
+                "possession": false
+              },
+              {
+                "id": "28",
+                "uid": "s:20~l:28~t:28",
+                "order": 1,
+                "homeAway": "away",
+                "winner": false,
+                "team": {
+                  "id": "28",
+                  "abbreviation": "WSH",
+                  "displayName": "Washington Commanders"
+                },
+                "score": "20",
+                "linescores": [
+                  {
+                    "displayValue": "0"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "3"
+                  },
+                  {
+                    "displayValue": "7"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  },
+                  {
+                    "type": "road",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  }
+                ],
+                "possession": false
+              }
+            ]
+          }
+        ]
+      },
+      "boxscore": {
+        "teams": [
+          {
+            "team": {
+              "id": "28"
+            },
+            "statistics": [
+              {
+                "name": "totalYards",
+                "displayValue": "389",
+                "value": "-",
+                "label": "Total Yards"
+              },
+              {
+                "name": "netPassingYards",
+                "displayValue": "207",
+                "value": 207.0,
+                "label": "Passing"
+              },
+              {
+                "name": "rushingYards",
+                "displayValue": "182",
+                "value": 182.0,
+                "label": "Rushing"
+              }
+            ]
+          },
+          {
+            "team": {
+              "id": "6"
+            },
+            "statistics": [
+              {
+                "name": "totalYards",
+                "displayValue": "332",
+                "value": "-",
+                "label": "Total Yards"
+              },
+              {
+                "name": "netPassingYards",
+                "displayValue": "266",
+                "value": 266.0,
+                "label": "Passing"
+              },
+              {
+                "name": "rushingYards",
+                "displayValue": "66",
+                "value": 66.0,
+                "label": "Rushing"
+              }
+            ]
+          }
+        ],
+        "players": [
+          {
+            "team": {
+              "id": "28"
+            },
+            "statistics": [
+              {
+                "name": "defensive",
+                "labels": [
+                  "TOT",
+                  "SOLO",
+                  "SACKS",
+                  "TFL",
+                  "PD",
+                  "QB HTS",
+                  "TD"
+                ],
+                "totals": [
+                  "61",
+                  "39",
+                  "2",
+                  "3",
+                  "2",
+                  "6",
+                  "0"
+                ]
+              }
+            ]
+          },
+          {
+            "team": {
+              "id": "6"
+            },
+            "statistics": [
+              {
+                "name": "defensive",
+                "labels": [
+                  "TOT",
+                  "SOLO",
+                  "SACKS",
+                  "TFL",
+                  "PD",
+                  "QB HTS",
+                  "TD"
+                ],
+                "totals": [
+                  "73",
+                  "47",
+                  "0",
+                  "3",
+                  "4",
+                  "6",
+                  "0"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

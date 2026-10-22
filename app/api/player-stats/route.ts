@@ -20,11 +20,18 @@ export async function GET(request: Request) {
 async function loadPlayerStats(request: Request) {
   const { searchParams } = new URL(request.url);
   const week = searchParams.get("week");
+  const teamView = searchParams.get("view") === "teams";
+  if (teamView && week !== null && (!/^[1-9]\d*$/.test(week) || Number(week)>16)) return NextResponse.json({error:"Invalid team week"},{status:400});
+  if(teamView && week==='7') {
+    const {default:snapshot}=await import('../../lib/cfb-team-week7-2026.json');
+    return NextResponse.json(snapshot);
+  }
   try {
     // Get this week's FBS games from ESPN.
     const scoreboardUrl = new URL(ESPN_SCOREBOARD_URL);
     scoreboardUrl.searchParams.set("seasontype", "2");
     scoreboardUrl.searchParams.set("groups", "80");
+    if (teamView) { scoreboardUrl.searchParams.set("limit", "100"); if (week) scoreboardUrl.searchParams.set("dates", "2026"); }
 
     if (week !== null && week !== "") {
       scoreboardUrl.searchParams.set("week", week);
@@ -60,7 +67,7 @@ async function loadPlayerStats(request: Request) {
     }
 
     const playerStats: any[] = [];
-    const historyPromise=loadCfbPreviousHighs(events.map((event: any)=>String(event.id)));
+    const historyPromise=teamView ? Promise.resolve([]) : loadCfbPreviousHighs(events.map((event: any)=>String(event.id)));
     const completion=new Map<number,boolean>();
     const playerTeams=new Map<string,string>();
     const teamStats: any[] = [];
@@ -105,6 +112,11 @@ async function loadPlayerStats(request: Request) {
         }
       })
     );
+
+    if (teamView) {
+      const { projectCfbWeeklyTeams } = await import("../../lib/cfb-weekly-team-stats");
+      return NextResponse.json(projectCfbWeeklyTeams(scoreboard, summaries.map(result => result?.summary ?? null), week === null ? null : Number(week)), {headers:{"Cache-Control":"no-store"}});
+    }
 
     for (const result of summaries) {
       if (!result) {

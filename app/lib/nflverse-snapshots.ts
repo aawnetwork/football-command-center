@@ -3,12 +3,14 @@
  * Different Vercel instances may still load independently. */
 export type NflverseRow = Record<string, string>;
 export const NFLVERSE_URLS = {
+  identity: 'https://github.com/nflverse/nflverse-data/releases/download/players/players.csv',
   player: 'https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv',
   schedule: 'https://github.com/nflverse/nfldata/raw/master/data/games.csv',
   team: 'https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_reg_2026.csv',
+  roster: 'https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv',
 } as const;
 export function createNflverseSnapshots(request: typeof fetch = fetch, now = Date.now) {
-  type Raw = { text: string; status: number; ok: boolean; expiresAt: number };
+  type Raw = { text: string; status: number; ok: boolean; expiresAt: number; observedAt: number; etag: string | null; firstObservedAt: number };
   const raw = new Map<string, Raw>();
   const pending = new Map<string, Promise<Raw>>();
   const parsed = new Map<string, { raw: Raw; rows: NflverseRow[] }>();
@@ -18,8 +20,14 @@ export function createNflverseSnapshots(request: typeof fetch = fetch, now = Dat
     let work = pending.get(url);
     if (!work) {
       work = (async () => {
-        const response = await request(url, { cache: 'no-store' });
-        const entry = { text: response.ok ? await response.text() : '', status: response.status, ok: response.ok, expiresAt: now() + 300_000 };
+        const conditional = url === NFLVERSE_URLS.identity && hit?.etag;
+        const response = await request(url, { cache: 'no-store', ...(conditional ? {headers:{'If-None-Match':conditional}} : {}) });
+        if (conditional && response.status === 304 && hit) {
+          const checked = now(), entry = {...hit, observedAt:checked, expiresAt:checked+300_000}; raw.set(url,entry); return entry;
+        }
+        const text = response.ok ? await response.text() : '';
+        const observedAt = now();
+        const entry = { text, status: response.status, ok: response.ok, observedAt, expiresAt: observedAt + 300_000, firstObservedAt: url===NFLVERSE_URLS.identity&&hit?.text===text?hit.firstObservedAt:observedAt, etag:response.headers.get('etag') };
         if (entry.ok) raw.set(url, entry);
         return entry;
       })().finally(() => pending.delete(url));
@@ -27,17 +35,17 @@ export function createNflverseSnapshots(request: typeof fetch = fetch, now = Dat
     }
     return work;
   }
-  return async function snapshot(kind: keyof typeof NFLVERSE_URLS, profile: 'weekly' | 'performance' | 'team', parse: (text: string) => NflverseRow[]) {
+  return async function snapshot(kind: keyof typeof NFLVERSE_URLS, profile: 'weekly' | 'performance' | 'team' | 'stats-v2', parse: (text: string) => NflverseRow[]) {
     const entry = await download(NFLVERSE_URLS[kind]);
     if (!entry.ok) return { ...entry, rows: [] as NflverseRow[] };
     const key = kind + ':' + profile;
     let result = parsed.get(key);
-    if (!result || result.raw !== entry) {
+    if (!result || (result.raw !== entry && (kind !== 'identity' || result.raw.text !== entry.text))) {
       // Synchronous parsing means resumed concurrent callers share one parse.
       result = { raw: entry, rows: parse(entry.text) };
       parsed.set(key, result);
     }
-    return { ok: entry.ok, status: entry.status, expiresAt: entry.expiresAt, rows: result.rows };
+    return { ok: entry.ok, status: entry.status, observedAt: entry.observedAt, expiresAt: entry.expiresAt, firstObservedAt:entry.firstObservedAt, rows: result.rows };
   };
 }
 // Delay fetch binding to request time so tests/mocks and runtime instrumentation work.

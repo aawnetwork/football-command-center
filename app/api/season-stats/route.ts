@@ -1,3 +1,5 @@
+import { statsV2Access } from "../../lib/stats-v2/release-access";
+import { projectNcaaSeasonTeam } from "../../lib/cfb-season-team-stats";
 import { NextResponse } from "next/server";
 
 export const revalidate = 300;
@@ -101,6 +103,13 @@ export async function GET(request: Request) {
     if ((view && view !== "team" && view !== "individual") || (category && !individualSources.length && !teamSources.length)) {
       return NextResponse.json({ error: "Unknown season category" }, { status: 400 });
     }
+    // The approved Stats 2.0 view uses the retained NCAA snapshots in preview
+    // and release mode alike, preserving their explicit source cutoffs.
+    if(view==='team' && category && statsV2Access()) {
+      const {default:retained}=await import('../../lib/cfb-team-ncaa-retained.json');
+      const table=retained.tables[category as keyof typeof retained.tables];
+      if(table)return NextResponse.json(table.rows,{headers:{'X-AAW-Source':'retained-ncaa-snapshot'}});
+    }
     const mode = "season";
 
     const baseUrl =
@@ -189,7 +198,7 @@ const teamBase =
         }
       }
     }
-    const stats: any[] = [];
+    const stats: unknown[] = [];
 
     individualResults.forEach((result, index) => {
       const source = individualSources[index];
@@ -234,20 +243,7 @@ const teamBase =
       const source = teamSources[index];
 
       for (const team of result.data ?? []) {
-        stats.push({
-          id: `${source.category}-${team.Team}`,
-          name: team.Team,
-          team: team.Team,
-          category: source.category,
-          statType: "TEAM",
-          stat: Number(
-            team[source.statKey] ?? 0
-          ),
-          type: "team",
-          sourceUpdated: result.updated,
-          gamesPlayed: Number(team.G),
-          seasonTotal: Number(team[source.category === "total-defense" ? "YDS" : source.category === "rushing-defense" ? "Opp Rush Yds" : source.category === "passing-defense" ? "Opp Pass <br/>Yds" : source.category.startsWith("scoring-") ? "Pts" : source.statKey]),
-        });
+        stats.push(projectNcaaSeasonTeam(team,source.category,result.updated));
       }
     });
 

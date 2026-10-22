@@ -122,14 +122,7 @@ export function NflAllTimePanel({
 
   return (
     <section className="all-time-panel">
-      <div className="all-time-panel__header">
-        <h2>🏆 All-Time Leaders</h2>
-        <p>
-          NFL record leaders, organized by record holder and record type.
-        </p>
-      </div>
-
-      <div className="all-time-panel__controls">
+      <div className="centre-secondary-nav" role="group" aria-label="Record holders">
         {(["individual", "team"] as const).map((option) => (
           <button
             key={option}
@@ -144,7 +137,16 @@ export function NflAllTimePanel({
             {option === "individual" ? "Individual" : "Team"}
           </button>
         ))}
-        <span aria-hidden="true" />
+      </div>
+
+      <div className="all-time-panel__header centre-section-header">
+        <h2>🏆 All-Time Leaders</h2>
+        <p>
+          NFL record leaders, organized by record holder and record type.
+        </p>
+      </div>
+
+      <div className="all-time-panel__controls centre-category-controls" role="group" aria-label="Record period">
         {availablePeriods.map((option) => (
           <button key={option} aria-pressed={period === option} onClick={() => onPeriodChange(option)}>
             {option === "single-game" ? "Single Game" : option === "season" ? "Season" : "Career"}

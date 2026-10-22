@@ -1,0 +1,6 @@
+.table .team { min-width:180px; max-width:240px; white-space:normal; }
+.identity { display:flex; align-items:center; gap:10px; min-height:36px; }
+.identity strong { font-size:13px; line-height:1.35; }
+.unit { display:block; font-size:10px; font-weight:500; margin-top:3px; }
+.table td.empty { white-space:normal; text-align:center; padding:26px 14px !important; color:var(--cc-muted); line-height:1.6; }
+@media(max-width:600px) { .table .team { min-width:160px; max-width:200px; } .identity strong { font-size:12px; } }

@@ -148,7 +148,7 @@ export const weeklyTeamCategories: WeeklyCategory[] = [
   { id: "total-offense", name: "Total Offense" },
   { id: "rushing-offense", name: "Rushing Offense" },
   { id: "passing-offense", name: "Passing Offense" },
-  { id: "total-defense", name: "Total Defense" },
+  { id: "total-defense", name: "Tackles" },
   { id: "sacks", name: "Sacks" },
 ];
 

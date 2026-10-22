@@ -1,10 +1,16 @@
 "use client";
 
+import { seasonTeamValue, seasonTeamCoverage } from "../lib/nfl-season-team-stats";
+import { weeklyTeamValue } from "../lib/nfl-weekly-team-stats";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import TeamStats from "../features/stats/TeamStats";
+import StatsPreview from "../preview/nfl-stats/stats-preview";
+import { useStatsPreview, StatsPreviewSwitch } from "../features/stats/StatsPreviewSwitch";
 import { useHubSection } from "../lib/useHubSection";
-import Link from "next/link";
+import { NflCentreLayout } from "../features/nfl/NflCentreLayout";
 import "./nfl-centre.css";
-import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
+import "../features/centre/centre-navigation.css";
+import { useHubPreferences } from "../features/preferences/HubPreferences";
 import { personalTierChange } from "../lib/audience-contributions";
 import { useTeamLogos } from "../features/stats/useTeamLogos";
 import { DataCheckIndicator } from "../components/DataCheckIndicator";
@@ -39,7 +45,6 @@ import type {
   StatCategory,
   TeamStatCategory,
   StatsView,
-  Tab,
   PerformanceWeek,
   StatsMode,
   NFLTier,
@@ -63,6 +68,8 @@ function NFLPageContent() {
   const [performances, setPerformances] =
     useState<NFLPerformance[]>([]);
 
+  const [teamStatsError, setTeamStatsError] = useState("");
+  const [teamStatsCoverage, setTeamStatsCoverage] = useState("");
   const [teamStats, setTeamStats] =
     useState<NFLTeamStat[]>([]);
 
@@ -79,6 +86,7 @@ function NFLPageContent() {
     useState(false);
 
   const [activeTab, setActiveTab] = useHubSection();
+  const statsPreview = useStatsPreview();
 
   const [gameTiers, setGameTiers] = useState<Record<number, NFLTier>>({});
   const personalTiers = useRef(gameTiers);
@@ -114,7 +122,7 @@ function NFLPageContent() {
   }, [latestPerformanceWeek, performances.length]);
 
   const [statsView, setStatsView] =
-    useState<StatsView>("players");
+    useState<StatsView>(statsPreview.teams ? "teams" : "players");
 
   const [statsMode, setStatsMode] = useState<StatsMode>("weekly");
   const [statsWeek, setStatsWeek] = useState<number | null>(null);
@@ -318,6 +326,18 @@ function NFLPageContent() {
       if (initialLoad) setStatsLoading(true);
 
       try {
+        if (statsView === "teams") {
+          const response = await fetch(`/api/nfl/team-stats?mode=${statsMode}${statsMode === "weekly" && statsWeek ? `&week=${statsWeek}` : ""}`);
+          if (!response.ok) throw new Error("Team statistics request failed");
+          const body = await response.json();
+          if (cancelled) return;
+          setTeamStats(body.stats ?? []);
+          setTeamStatsCoverage(body.coverage ?? "Source coverage unavailable.");
+          setAvailableStatsWeeks(body.availableWeeks ?? []);
+          setTeamStatsError("");
+          if (statsMode === "weekly") setTeamStatsCheck(previous => recordDataCheck(previous,String(statsWeek ?? "latest"),true,Date.now()));
+          return;
+        }
         const playerResponse =
           await fetch(
             `/api/nfl/stats?mode=${statsMode}${
@@ -374,14 +394,16 @@ function NFLPageContent() {
         setTeamStats(
           teamData.stats ?? []
         );
+        setTeamStatsCoverage(teamData.coverage ?? "");
         if (statsMode === "weekly") setTeamStatsCheck((previous) => recordDataCheck(previous, String(playerData.week ?? statsWeek ?? "latest"), true, Date.now()));
       } catch (error) {
         console.error(
           "NFL stats error:",
           error
         );
+        if (!cancelled && statsView === "teams") setTeamStatsError("Team statistics could not be checked. Any displayed values are from the previous successful check for this selection.");
         if (!cancelled && statsMode === "weekly") {
-          if (!playerSucceeded) setPlayerStatsCheck((previous) => recordDataCheck(previous, String(statsWeek ?? "latest"), false, Date.now()));
+          if (statsView !== "teams" && !playerSucceeded) setPlayerStatsCheck((previous) => recordDataCheck(previous, String(statsWeek ?? "latest"), false, Date.now()));
           setTeamStatsCheck((previous) => recordDataCheck(previous, String(statsWeek ?? "latest"), false, Date.now()));
         }
       } finally {
@@ -390,10 +412,11 @@ function NFLPageContent() {
       }
     }
 
-    if (activeTab !== "stats") {
+    if (activeTab !== "stats" || statsPreview.enabled || statsPreview.teams) {
       return;
     }
 
+    queueMicrotask(() => { if (!cancelled) { setTeamStats([]); setTeamStatsCoverage(""); setTeamStatsError(""); } });
     loadStats(true);
 
     const interval = setInterval(() => loadStats(), 30000);
@@ -402,7 +425,7 @@ function NFLPageContent() {
       cancelled = true;
       clearInterval(interval);
     };
-  }, [activeTab, statsMode, statsWeek]);
+  }, [activeTab, statsMode, statsWeek, statsView, statsPreview.enabled, statsPreview.teams]);
 
   useEffect(() => {
     async function loadPerformances() {
@@ -574,155 +597,8 @@ function NFLPageContent() {
   function getTeamStatValue(
     team: NFLTeamStat
   ) {
-    switch (teamStatCategory) {
-      case "total-offense":
-        return (
-          Number(
-            team.passing_yards ?? 0
-          ) +
-          Number(
-            team.rushing_yards ?? 0
-          )
-        );
-
-      case "passing-offense":
-        return Number(
-          team.passing_yards ?? 0
-        );
-
-      case "rushing-offense":
-        return Number(
-          team.rushing_yards ?? 0
-        );
-
-      case "scoring-offense": {
-        if (team.points !== undefined) {
-          return Number(team.points);
-        }
-
-        const passingTds =
-          Number(
-            team.passing_tds ?? 0
-          );
-
-        const rushingTds =
-          Number(
-            team.rushing_tds ?? 0
-          );
-
-        const specialTeamsTds =
-          Number(
-            team.special_teams_tds ??
-              0
-          );
-
-        const defensiveTds =
-          Number(
-            team.def_tds ?? 0
-          );
-
-        const fumbleRecoveryTds =
-          Number(
-            team.fumble_recovery_tds ??
-              0
-          );
-
-        const passingTwoPoint =
-          Number(
-            team.passing_2pt_conversions ??
-              0
-          );
-
-        const rushingTwoPoint =
-          Number(
-            team.rushing_2pt_conversions ??
-              0
-          );
-
-        const defensiveTwoPoint =
-          Number(
-            team.def_2pt_made ?? 0
-          );
-
-        const patMade =
-          Number(
-            team.pat_made ?? 0
-          );
-
-        const fieldGoals =
-          Number(
-            team.fg_made ?? 0
-          );
-
-        return (
-          (passingTds +
-            rushingTds +
-            specialTeamsTds +
-            defensiveTds +
-            fumbleRecoveryTds) *
-            6 +
-          (passingTwoPoint +
-            rushingTwoPoint +
-            defensiveTwoPoint) *
-            2 +
-          patMade +
-          fieldGoals * 3
-        );
-      }
-
-      case "total-defense": {
-        const passingDefense = Number(team.def_passing_yards ?? 0);
-        const rushingDefense = Number(team.def_rushing_yards ?? 0);
-
-        return passingDefense || rushingDefense
-          ? passingDefense + rushingDefense
-          : Number(team.def_tackles_solo ?? 0) + Number(team.def_tackle_assists ?? 0);
-      }
-
-      case "rushing-defense":
-        return Number(team.def_rushing_yards ?? 0);
-
-      case "passing-defense":
-        return Number(team.def_passing_yards ?? 0);
-
-      case "scoring-defense":
-        return Number(team.def_points ?? 0);
-
-      case "sacks":
-        return Number(
-          team.def_sacks ?? 0
-        );
-
-      case "turnover-margin": {
-        const takeaways =
-          Number(
-            team.def_interceptions ??
-              0
-          ) +
-          Number(
-            team.fumble_recovery_opp ??
-              0
-          );
-
-        const giveaways =
-          Number(
-            team.passing_interceptions ??
-              0
-          ) +
-          Number(
-            team.fumbles_lost_total ??
-              0
-          );
-
-        return (
-          takeaways -
-          giveaways
-        );
-      }
-
-      default:
-        return 0;
-    }
+    if (statsMode === "weekly") return weeklyTeamValue(team, teamStatCategory) ?? NaN;
+    return seasonTeamValue(team, teamStatCategory) ?? NaN;
   }
 
   function getTeamStatLabel() {
@@ -731,7 +607,7 @@ function NFLPageContent() {
         return "Total Yards";
 
       case "passing-offense":
-        return "Passing Yards";
+        return statsMode === "season" ? "Gross Passing Yards (Season Total)" : "Passing Yards";
 
       case "rushing-offense":
         return "Rushing Yards";
@@ -1085,14 +961,6 @@ function getPerformanceReason(
 
   const sortedTeamStats =
     [...teamStats]
-      .filter((team) => {
-        const value =
-          getTeamStatValue(team);
-
-        return Number.isFinite(
-          value
-        );
-      })
       .sort(
         (a, b) => {
           const ascendingCategories: TeamStatCategory[] = [
@@ -1102,12 +970,17 @@ function getPerformanceReason(
             "scoring-defense",
           ];
 
+          if (statsMode === "weekly" || statsMode === "season") {
+            const left = getTeamStatValue(a), right = getTeamStatValue(b);
+            if (!Number.isFinite(left)) return Number.isFinite(right) ? 1 : getTeamName(a).localeCompare(getTeamName(b));
+            if (!Number.isFinite(right)) return -1;
+          }
           return ascendingCategories.includes(teamStatCategory)
             ? getTeamStatValue(a) - getTeamStatValue(b)
             : getTeamStatValue(b) - getTeamStatValue(a);
         }
       )
-      .slice(0, 10);
+      .slice(0, statsMode === "season" ? teamStats.length : 10);
 
   const statsLeaderboardRows =
     statsView === "players"
@@ -1136,6 +1009,7 @@ function getPerformanceReason(
       : sortedTeamStats.map((team) => {
           const value = getTeamStatValue(team);
           const valueLabel =
+        !Number.isFinite(value) ? "—" :
         teamStatCategory === "scoring-offense" ||
         teamStatCategory === "scoring-defense"
               ? String(value)
@@ -1148,6 +1022,7 @@ function getPerformanceReason(
                   : `${value.toLocaleString()} yards`;
 
           return {
+            ...((statsMode === "weekly" || statsMode === "season") ? { rank: Number.isFinite(value) ? sortedTeamStats.findIndex(other => getTeamStatValue(other) === value) + 1 : null } : {}),
             id: getTeamName(team),
             logo: teamLogo(getTeamName(team)),
             name: getTeamName(team),
@@ -1223,106 +1098,10 @@ function getPerformanceReason(
       });
 
   return (
-    <main
-      className="command-center command-center--nfl"
-      style={{
-        minHeight: "100vh",
-        background: "var(--cc-canvas)",
-        color: "var(--cc-text)",
-        padding: "40px 24px",
-      }}
-    >
-      <div
-        className="command-center__container"
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        <header className="nfl-hub-header">
-          <div className="nfl-hub-header__bar">
-            <Link href="/" className="nfl-hub-header__identity" aria-label="AAW Hub home">
-              <span className="nfl-hub-header__logo" aria-hidden="true" />
-              <span className="nfl-hub-header__label">HUB</span>
-            </Link>
-            <nav className="nfl-hub-header__links" aria-label="Hub navigation">
-              <Link href="/">Overview</Link>
-              <Link href="/cfb">CFB Centre</Link>
-              <Link href="/nfl" aria-current="page">NFL Centre</Link>
-            </nav>
-            <PreferencesButton />
-          </div>
-          <div className="nfl-hub-header__intro">
-            <div>
-              <p>AAW HUB / NFL</p>
-              <h1>NFL Centre<span>.</span></h1>
-              <span>Games, numbers and context for your NFL week.</span>
-            </div>
-            <span className="nfl-hub-header__source">Live data powered by ESPN &amp; nflverse</span>
-          </div>
-        </header>
-
-        <nav
-          className="command-center__nav"
-          aria-label="NFL sections"
-          style={{
-            display: "flex",
-            gap: "10px",
-            marginBottom: "32px",
-            borderBottom:
-              "1px solid var(--cc-border)",
-            paddingBottom: "12px",
-          }}
-        >
-          {(
-            [
-              ["games", "Games"],
-["performances", "Performances"],
-["stats", "Stats"],
-["standings", "Standings"],
-["all-time", "All-Time"],
-
-            ] as [Tab, string][]
-          ).map(
-            ([tab, label]) => (
-              <button
-                key={tab}
-                aria-pressed={activeTab === tab}
-                onClick={() =>
-                  setActiveTab(tab)
-                }
-                style={{
-                  padding:
-                    "10px 18px",
-                  borderRadius: "8px",
-                  border:
-                    "1px solid",
-                  borderColor:
-                    activeTab === tab
-                      ? "#ef4444"
-                      : "var(--cc-border-strong)",
-                  background:
-                    activeTab === tab
-                      ? "#3f0d12"
-                      : "var(--cc-surface)",
-                  color:
-                    activeTab === tab
-                      ? "#fca5a5"
-                      : "var(--cc-muted)",
-                  fontWeight: 900,
-                  cursor:
-                    "pointer",
-                }}
-              >
-                {label}
-              </button>
-            )
-          )}
-        </nav>
-
+    <NflCentreLayout activeTab={activeTab} onTabChange={setActiveTab}>
         {activeTab === "games" && (
           <section className="nfl-games-section" aria-label="NFL games">
-            <div
+            <div className="centre-section-header"
               style={{
                 display: "flex",
                 justifyContent:
@@ -1565,8 +1344,8 @@ function getPerformanceReason(
         )}
 
         {activeTab === "performances" && (
-          <section>
-            <div
+          <section className="centre-performances">
+            <div className="centre-section-header"
               style={{
                 marginBottom:
                   "24px",
@@ -1594,7 +1373,12 @@ function getPerformanceReason(
               </p>
             </div>
 
-            <div className="cc-week-strip"
+            <PerformancePositionControls
+              value={performancePosition}
+              onChange={setPerformancePosition}
+            />
+
+            <div className="cc-week-strip centre-filter-controls" role="group" aria-label="Performance week"
               style={{
                 display:
                   "flex",
@@ -1648,10 +1432,7 @@ function getPerformanceReason(
               )}
             </div>
 
-            <PerformancePositionControls
-              value={performancePosition}
-              onChange={setPerformancePosition}
-            />
+
 
             {performancesLoading ? (
               <div
@@ -2501,14 +2282,17 @@ function getPerformanceReason(
         {activeTab === "standings" && <StandingsPanel sport="NFL" />}
 
 
-        {activeTab === "stats" && (
-          <section>
+        {activeTab === "stats" && statsPreview.available && <StatsPreviewSwitch league="NFL" teams={statsPreview.teams} enabled={statsPreview.enabled} onPreview={() => statsPreview.select(true)} onExisting={() => { statsPreview.select(false); setStatsView("players"); }} onTeams={() => { statsPreview.selectTeams(); setStatsView("teams"); }} />}
+        {activeTab === "stats" && statsPreview.enabled && <StatsPreview league="NFL" />}
+        {activeTab === "stats" && statsPreview.teams && <TeamStats league="NFL" />}
+        {activeTab === "stats" && !statsPreview.enabled && !statsPreview.teams && (
+          <section className={statsPreview.teams ? "stats-team-proposal" : undefined} data-league="NFL">
             {statsMode === "weekly" && <DataCheckIndicator check={statsView === "players" ? playerStatsCheck : teamStatsCheck} scope={String(statsWeek ?? "latest")} />}
             <StatsPanelControls
               title="Stats"
               description={
                 statsMode === "weekly"
-                  ? `NFL leaders — Week ${statsWeek ?? "latest"} · live updates every 30 seconds`
+                  ? statsView === "teams" ? `NFL reported team statistics — ${statsWeek ? `Week ${statsWeek}` : "Current Week"} · checks every 30 seconds` : `NFL leaders — Week ${statsWeek ?? "latest"} · live updates every 30 seconds`
                   : "NFL season leaders"
               }
               mode={statsMode}
@@ -2517,6 +2301,7 @@ function getPerformanceReason(
                 { value: "season", label: "Season" },
               ]}
               onModeChange={changeStatsMode}
+              hideViewControls={statsPreview.teams}
               view={statsView}
               views={[
                 { value: "players", label: "Players" },
@@ -2568,9 +2353,10 @@ function getPerformanceReason(
                 }
               }}
               weekSelector={
-                statsMode === "weekly" && availableStatsWeeks.length > 0 ? (
+                statsMode === "weekly" && (statsView === "teams" || availableStatsWeeks.length > 0) ? (
                   <div className="stats-panel-week-selector">
                     <span>Week</span>
+                    {statsView === "teams" && <button aria-pressed={statsWeek === null} onClick={() => setStatsWeek(null)}>Current Week</button>}
                     {availableStatsWeeks.map((week) => (
                       <button
                         key={week}
@@ -2585,6 +2371,10 @@ function getPerformanceReason(
               }
             />
 
+            {statsView === "teams" && teamStatsError && <p role="alert">{teamStatsError}</p>}
+            {statsView === "teams" && !statsLoading && !teamStats.length && !teamStatsError && <p role="status">No team statistics are available for this selection.</p>}
+            {statsView === "teams" && statsMode === "weekly" && <p role="status" style={{ color: "var(--cc-muted)" }}>{teamStatsCoverage || "Team field coverage is not yet available."} Unavailable observations have no rank.</p>}
+            {statsView === "teams" && statsMode === "season" && <p role="status" style={{ color: "var(--cc-muted)" }}>{teamStatsCoverage} {seasonTeamCoverage(teamStats, teamStatCategory)}</p>}
             {statsLoading ? (
               <div
                 style={{
@@ -3105,7 +2895,6 @@ function getPerformanceReason(
             )}
           </section>
         )}
-      </div>
-    </main>
+    </NflCentreLayout>
   );
 }

@@ -6,6 +6,7 @@ type LeaderboardRow = {
   name: string;
   team?: string;
   value: string;
+  rank?: number | null;
 };
 
 type StatsLeaderboardTableProps = {
@@ -92,7 +93,7 @@ export function StatsLeaderboardTable({
           <tbody>
             {rows.map((row, index) => (
               <tr key={row.id} className={showTeam && row.playingNow ? "weekly-leader--playing" : undefined}>
-                <td style={bodyCellStyle}>{index + 1}</td>
+                <td style={bodyCellStyle}>{row.rank === null ? '—' : row.rank ?? index + 1}</td>
                 <td style={{ ...bodyCellStyle, fontWeight: 700 }}>
                   {!showTeam ? <TeamLogo src={row.logo} name={row.name} /> : row.name}
                   {showTeam && row.playingNow && <span data-export-playing className="all-time-record-row__active">PLAYING NOW</span>}

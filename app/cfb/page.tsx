@@ -1,9 +1,15 @@
 "use client";
+import { cfbSeasonTeamLeaders, cfbSeasonTeamCoverage, formatCfbSeasonTeam } from "../lib/cfb-season-team-stats";
 
+import { cfbWeeklyTeamLeaders, cfbWeeklyTeamCoverage, type WeeklyTeams } from "../lib/cfb-weekly-team-stats";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import TeamStats from "../features/stats/TeamStats";
+import StatsPreview from "../preview/nfl-stats/stats-preview";
+import { useStatsPreview, StatsPreviewSwitch } from "../features/stats/StatsPreviewSwitch";
 import { useHubSection } from "../lib/useHubSection";
 import Link from "next/link";
 import "./cfb-centre.css";
+import "../features/centre/centre-navigation.css";
 import { PreferencesButton, useHubPreferences } from "../features/preferences/HubPreferences";
 import { personalTierChange } from "../lib/audience-contributions";
 import { TeamLogo } from "../components/TeamLogo";
@@ -25,9 +31,7 @@ import { StatsPanelControls } from "../features/stats/StatsPanelControls";
 import {
   buildBigPerformances,
   buildIndividualLeaders,
-  buildTeamLeaders,
   buildWeeklyIndividualLeaders,
-  buildWeeklyTeamLeaders,
   formatPlayerStat,
   formatStatValue,
   getGameStatus,
@@ -66,6 +70,7 @@ function Home() {
   const [gamesCheck, setGamesCheck] = useState(emptyDataCheck);
   const [statsCheck, setStatsCheck] = useState(emptyDataCheck);
   const [activeTab, setActiveTab] = useHubSection();
+  const statsPreview = useStatsPreview();
 
   const [games, setGames] = useState<Game[]>([]);
   const [upsets, setUpsets] = useState<UpsetSignal[]>([]);
@@ -145,13 +150,20 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
   const [statsView, setStatsView] =
     useState<"individual" | "team">(
-      "individual"
+      statsPreview.teams ? "team" : "individual"
     );
   const seasonIndicators = activeTab === "stats" && statsMode === "season";
+  const [teamWeek, setTeamWeek] = useState<number|null>(null);
+  const [weeklyTeams, setWeeklyTeams] = useState<WeeklyTeams|null>(null);
+  const [teamWeeklyError, setTeamWeeklyError] = useState("");
+  const [teamWeeklyCheck, setTeamWeeklyCheck] = useState(emptyDataCheck);
+  const teamWeekly = activeTab === "stats" && statsMode === "weekly" && statsView === "team" && !statsPreview.enabled && !statsPreview.teams;
+  const statsDisplayWeek = teamWeekly ? weeklyTeams?.week ?? teamWeek : selectedWeek;
+
 
 
   const [selectedCategory, setSelectedCategory] =
-    useState("rushing");
+    useState(statsPreview.teams ? "total-offense" : "rushing");
   const [performancePosition, setPerformancePosition] =
     useState<PerformancePosition>("all");
 
@@ -416,8 +428,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }, [activeTab, selectedWeek, seasonIndicators]);
 
   useEffect(() => {
-    if (activeTab !== "stats" || statsMode !== "season") return;
+    if (activeTab !== "stats" || statsMode !== "season" || statsPreview.enabled || statsPreview.teams) return;
     let cancelled = false, baselinePending = false, livePending = false;
+    queueMicrotask(() => { if (!cancelled && statsView === "team") setSeasonStats([]); });
     setSeasonStatsLoading(true);
     setSeasonStatsError(null);
     async function loadBaseline() {
@@ -447,13 +460,30 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     const baselineInterval = window.setInterval(loadBaseline, 30_000);
     const liveInterval = window.setInterval(loadLive, 30_000);
     return () => { cancelled = true; window.clearInterval(baselineInterval); window.clearInterval(liveInterval); };
-  }, [activeTab, statsMode, statsView, selectedCategory]);
+  }, [activeTab, statsMode, statsView, selectedCategory, statsPreview.enabled, statsPreview.teams]);
+
+  useEffect(() => {
+    if (!teamWeekly) return;
+    let cancelled=false, pending=false;
+    queueMicrotask(()=>{if(!cancelled){setWeeklyTeams(null);setTeamWeeklyError("");}});
+    async function refreshTeams() {
+      if(pending)return;pending=true;
+      try {
+        const response=await fetch(`/api/player-stats?view=teams${teamWeek===null?'':`&week=${teamWeek}`}`,{cache:'no-store'});
+        const body=await response.json();if(!response.ok)throw Error('Weekly team observations unavailable');
+        if(!cancelled){setWeeklyTeams(body);setTeamWeeklyError("");setTeamWeeklyCheck(previous=>recordDataCheck(previous,String(teamWeek??'current'),true,Date.now()));}
+      } catch {if(!cancelled){setWeeklyTeams(null);setTeamWeeklyError('Weekly team statistics could not be checked. Unsupported values are not ranked.');setTeamWeeklyCheck(previous=>recordDataCheck(previous,String(teamWeek??'current'),false,Date.now()));}}
+      finally{pending=false;}
+    }
+    void refreshTeams();const timer=setInterval(refreshTeams,30000);
+    return ()=>{cancelled=true;clearInterval(timer);};
+  },[teamWeekly,teamWeek]);
 
   useEffect(() => {
     const needsPlayerStats =
       activeTab === "performances" ||
       (activeTab === "stats" &&
-        statsMode === "weekly");
+        statsMode === "weekly" && !statsPreview.enabled && statsView !== "team");
 
     if (!needsPlayerStats || gamesLoading) {
       return;
@@ -504,7 +534,9 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   }, [
     activeTab,
     statsMode,
+    statsView,
     selectedWeek,
+    statsPreview.enabled,
     gamesLoading,
   ]);
 
@@ -597,10 +629,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   const leaders = useMemo(() => {
     if (statsMode === "weekly") {
       if (statsView === "team") {
-        return buildWeeklyTeamLeaders(
-          playerStats,
-          selectedCategory
-        );
+        return cfbWeeklyTeamLeaders(weeklyTeams, selectedCategory);
       }
 
       return buildWeeklyIndividualLeaders(
@@ -609,13 +638,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       );
     }
 
+    if (statsView === "team") return cfbSeasonTeamLeaders(seasonStats, selectedCategory);
     const currentSeasonStats = mergeLiveSeasonStats(seasonStats, seasonPlayerStats, seasonGames, teamDirectory);
-    if (statsView === "team") {
-      return buildTeamLeaders(
-        currentSeasonStats,
-        selectedCategory
-      );
-    }
 
     return withSeasonPlayingStatus(
       buildIndividualLeaders(currentSeasonStats, selectedCategory),
@@ -623,6 +647,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
       teamDirectory
     );
   }, [
+    weeklyTeams,
     seasonStats,
     seasonPlayerStats,
     seasonIndicators,
@@ -928,7 +953,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {activeTab === "games" && (
           <section className="cfb-games-section" aria-label="CFB games">
-            <div
+            <div className="centre-section-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -1182,8 +1207,8 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
         )}
 
         {activeTab === "performances" && (
-          <section className="cfb-performances-section">
-        <div
+          <section className="cfb-performances-section centre-performances">
+        <div className="centre-section-header"
           style={{
             marginBottom: "24px",
           }}
@@ -1208,9 +1233,14 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           </p>
         </div>
 
+        <PerformancePositionControls
+          value={performancePosition}
+          onChange={setPerformancePosition}
+        />
+
         {currentWeek !== null && (
           <div
-            className="cc-week-strip"
+            className="cc-week-strip centre-filter-controls" role="group" aria-label="Performance week"
             style={{
               display: "flex",
               gap: "8px",
@@ -1252,10 +1282,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               )}
           </div>
         )}
-        <PerformancePositionControls
-          value={performancePosition}
-          onChange={setPerformancePosition}
-        />
+
             <div>
               {showMilestones && milestones.length > 0 && (
                 <div
@@ -1583,18 +1610,22 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           </section>
         )}
 
-        {activeTab === "stats" && (
-          <section>
-          <DataCheckIndicator check={statsCheck} scope={statsMode === "season" ? "season" : String(selectedWeek ?? "latest")} />
+        {activeTab === "stats" && statsPreview.available && <StatsPreviewSwitch league="CFB" teams={statsPreview.teams} enabled={statsPreview.enabled} onPreview={() => statsPreview.select(true)} onExisting={() => { statsPreview.select(false); changeStatsView("individual"); }} onTeams={() => { statsPreview.selectTeams(); changeStatsView("team"); }} />}
+        {activeTab === "stats" && statsPreview.enabled && <StatsPreview league="CFB" />}
+        {activeTab === "stats" && statsPreview.teams && <TeamStats league="CFB" />}
+        {activeTab === "stats" && !statsPreview.enabled && !statsPreview.teams && (
+          <section className={statsPreview.teams ? "stats-team-proposal" : undefined} data-league="CFB">
+          <DataCheckIndicator check={teamWeekly ? teamWeeklyCheck : statsCheck} scope={teamWeekly ? String(teamWeek??"current") : statsMode === "season" ? "season" : String(statsDisplayWeek ?? "latest")} />
           <StatsPanelControls
             title="Stats"
-            description={statsMode === "weekly" ? `Week ${selectedWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders · live updates every 30 seconds"}
+            description={statsMode === "weekly" ? `Week ${statsDisplayWeek ?? "latest"} leaders · live updates every 30 seconds` : "2026 season leaders · live updates every 30 seconds"}
             mode={statsMode}
             modes={[
               { value: "weekly", label: "Weekly" },
               { value: "season", label: "Season" },
             ]}
             onModeChange={changeStatsMode}
+            hideViewControls={statsPreview.teams}
             view={statsView}
             views={[
               { value: "individual", label: "Players" },
@@ -1608,15 +1639,17 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
             weekSelector={
-              statsMode === "weekly" && currentWeek !== null ? (
+              statsMode === "weekly" && (currentWeek !== null || (teamWeekly && weeklyTeams !== null)) ? (
                 <div className="stats-panel-week-selector">
                   <span>Week</span>
-                  {Array.from({ length: currentWeek + 1 }, (_, week) => {
+                  {teamWeekly && <button aria-pressed={teamWeek===null} onClick={()=>setTeamWeek(null)}>Current Week</button>}
+                  {Array.from({ length: teamWeekly ? Math.max(currentWeek??0,weeklyTeams?.week??0) : (currentWeek??0) + 1 }, (_, index) => {
+                    const week=teamWeekly?index+1:index;
                     return (
                       <button
                         key={week}
-                        aria-pressed={(selectedWeek ?? currentWeek) === week}
-                    onClick={() => setSelectedWeek(week)}
+                        aria-pressed={teamWeekly ? teamWeek===week : (selectedWeek ?? currentWeek) === week}
+                    onClick={() => teamWeekly ? setTeamWeek(week) : setSelectedWeek(week)}
                       >
                         {week}
                       </button>
@@ -1627,7 +1660,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
             }
           />
             <div
-              data-desk-export="stats" data-export-label={`${statsView === "team" ? "Team" : "Individual"} ${currentCategories.find((category) => category.id === selectedCategory)?.name ?? "Stats"} · ${statsMode === "season" ? "2026 season" : `Week ${selectedWeek ?? "—"}`}`}
+              data-desk-export="stats" data-export-label={`${statsView === "team" ? "Team" : "Individual"} ${currentCategories.find((category) => category.id === selectedCategory)?.name ?? "Stats"} · ${statsMode === "season" ? "2026 season" : `Week ${statsDisplayWeek ?? "—"}`}`}
               style={{
                 background:
                   "var(--cc-surface)",
@@ -1680,15 +1713,17 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                 >
                   {statsMode ===
                   "season"
-                    ? "2026 season leaders · live updates every 30 seconds"
-                    : `Week ${selectedWeek ?? "—"} leaders`}
+                    ? statsView === "team" ? "2026 NCAA-reported Season snapshot" : "2026 season leaders · live updates every 30 seconds"
+                    : `Week ${statsDisplayWeek ?? "—"} leaders`}
                 </p>
               </div>
 
+              {statsMode === "season" && statsView === "team" && <p role="status" style={{padding:"0 20px",color:"var(--cc-muted)"}}>{cfbSeasonTeamCoverage(seasonStats,selectedCategory)}</p>}
+              {teamWeekly && <p role="status" style={{padding:"0 20px",color:"var(--cc-muted)"}}>{teamWeeklyError || cfbWeeklyTeamCoverage(weeklyTeams,selectedCategory)}</p>}
               {statsMode === "season" && seasonStatsError && leaders.length > 0 && <p role="alert" style={{ padding: "0 20px", color: "var(--cc-muted)" }}>{seasonStatsError}</p>}
               {statsMode ===
                 "weekly" &&
-              playerStatsLoading ? (
+              (teamWeekly ? !weeklyTeams && !teamWeeklyError : playerStatsLoading) ? (
                 <p
                   style={{
                     padding:
@@ -1810,7 +1845,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                       {leaders
                         .slice(
                           0,
-                          25
+                          statsMode === "season" && statsView === "team" ? leaders.length : 25
                         )
                         .map(
                           (
@@ -1828,8 +1863,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
                                   tdStyle
                                 }
                               >
-                                {index +
-                                  1}
+                                {statsMode === "weekly" && statsView === "team" && "rank" in leader ? Number(leader.rank) : statsMode === "season" && statsView === "team" && "rank" in leader ? leader.rank === null ? "—" : Number(leader.rank) : index + 1}
                               </td>
 
                               <td
@@ -1865,14 +1899,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   "season" &&
 statsView ===
   "team"
-  ? selectedCategory === "total-defense" ||
-selectedCategory === "rushing-defense" ||
-selectedCategory === "passing-defense"
-  ? `${leader.value.toLocaleString()} YPG`
-  : formatStatValue(
-      selectedCategory,
-      leader.value
-    )
+  ? formatCfbSeasonTeam(selectedCategory,leader.value)
   : statsMode ===
     "season" &&
   statsView ===

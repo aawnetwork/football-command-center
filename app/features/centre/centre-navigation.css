@@ -1,0 +1,65 @@
+/* Centre chrome follows the compact Stats 2.0 controls; content styling stays local. */
+.command-center { --centre-control-accent: #FFC720; --centre-control-ink: #0b1f33; }
+.command-center--cfb { --centre-control-accent: #B94700; --centre-control-ink: #fff; }
+.command-center .centre-section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; width: 100%; gap: 16px; margin: 0 0 18px !important;
+}
+.command-center :is(.standings-panel__header, .all-time-panel__header).centre-section-header,
+.command-center .centre-performances > .centre-section-header {
+  flex-direction: column; align-items: flex-start; gap: 6px;
+}
+.command-center .centre-section-header h2 { margin: 0; }
+.command-center .centre-section-header p { margin: 6px 0 0; color: var(--cc-muted); line-height: 1.5; }
+.command-center :is(.standings-panel__header, .all-time-panel__header).centre-section-header p { margin: 0; }
+.command-center .centre-secondary-nav {
+  display: flex; flex-wrap: wrap; gap: 0; width: 100%;
+  margin: 0 0 24px; border-bottom: 1px solid var(--cc-border);
+}
+.command-center .centre-secondary-nav button {
+  min-height: 42px; padding: 12px 18px; border: 0 !important;
+  border-bottom: 3px solid transparent !important; border-radius: 0 !important;
+  background: transparent !important; color: var(--cc-text) !important;
+  font: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.command-center .centre-secondary-nav button[aria-pressed='true'] {
+  border-bottom-color: var(--centre-control-accent) !important;
+}
+.command-center :is(.centre-category-controls, .centre-filter-controls) {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px !important;
+  margin: 0 0 16px !important;
+}
+.command-center .centre-filter-controls {
+  padding: 14px 0; border-block: 1px solid var(--cc-border);
+}
+.command-center :is(.centre-category-controls, .centre-filter-controls, .cfb-games-tools .cc-week-strip, .nfl-games-tools .cc-week-strip, .cfb-games-tools .cc-tier-filters, .nfl-games-tools .cc-tier-filters) > button {
+  box-sizing: border-box; min-height: 38px; border-radius: 2px !important;
+  padding: 9px 14px !important; border: 1px solid var(--cc-border-strong) !important;
+  background: var(--cc-surface) !important; color: var(--cc-text) !important;
+  font: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.command-center :is(.centre-category-controls, .centre-filter-controls, .cfb-games-tools .cc-week-strip, .nfl-games-tools .cc-week-strip, .cfb-games-tools .cc-tier-filters, .nfl-games-tools .cc-tier-filters) > button[aria-pressed='true'] {
+  background: var(--centre-control-accent) !important;
+  border-color: var(--centre-control-accent) !important; color: var(--centre-control-ink) !important;
+}
+.command-center :is(.centre-secondary-nav, .centre-category-controls, .centre-filter-controls) button:hover:not(:disabled) {
+  border-color: var(--centre-control-accent) !important;
+}
+.command-center :is(.centre-secondary-nav, .centre-category-controls, .centre-filter-controls) button:focus-visible {
+  outline: 3px solid var(--centre-control-accent); outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .command-center .centre-section-header { align-items: flex-start; gap: 10px; }
+  .command-center .centre-secondary-nav button { flex: 1; padding: 10px 8px; font-size: 12px; }
+  .command-center .centre-filter-controls { max-width: 100%; }
+}
+
+.command-center .standings-panel__rankings-controls {
+  padding: 14px 0; border-block: 1px solid var(--cc-border); margin-bottom: 16px;
+}
+.command-center .standings-panel__rankings-controls select {
+  box-sizing: border-box; height: 38px; padding: 0 10px; border-radius: 2px;
+}
+.command-center .standings-panel__rankings-controls button {
+  min-height: 38px; border-radius: 2px !important; padding: 9px 14px;
+}

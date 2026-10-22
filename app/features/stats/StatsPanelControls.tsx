@@ -11,6 +11,7 @@ type StatsPanelControlsProps<TMode extends string, TView extends string, TCatego
   mode: TMode;
   modes: Option<TMode>[];
   onModeChange: (mode: TMode) => void;
+  hideViewControls?: boolean;
   view: TView;
   views: Option<TView>[];
   onViewChange: (view: TView) => void;
@@ -30,6 +31,7 @@ export function StatsPanelControls<
   mode,
   modes,
   onModeChange,
+  hideViewControls = false,
   view,
   views,
   onViewChange,
@@ -47,7 +49,7 @@ export function StatsPanelControls<
 
       <div className="stats-panel-controls__groups">
         <div className="stats-panel-controls__primary">
-          <div className="stats-panel-controls__group" aria-label="Leaderboard type">
+          {!hideViewControls && <div className="stats-panel-controls__group" aria-label="Leaderboard type">
             {views.map((option) => (
               <button
                 key={option.value}
@@ -57,7 +59,7 @@ export function StatsPanelControls<
                 {option.label}
               </button>
             ))}
-          </div>
+          </div>}
 
           <span aria-hidden="true" />
 

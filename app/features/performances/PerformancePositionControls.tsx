@@ -21,33 +21,13 @@ export function PerformancePositionControls({
   onChange,
 }: PerformancePositionControlsProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "8px",
-        flexWrap: "wrap",
-        marginBottom: "28px",
-      }}
-    >
+    <div className="centre-category-controls" role="group" aria-label="Performance categories">
       {positions.map((position) => (
         <button
           key={position.id}
           type="button"
           aria-pressed={value === position.id}
           onClick={() => onChange(position.id)}
-          style={{
-            padding: "8px 14px",
-            borderRadius: "8px",
-            border: "1px solid",
-            borderColor:
-              value === position.id ? "#ef4444" : "#334155",
-            background:
-              value === position.id ? "#3f0d12" : "#0f172a",
-            color:
-              value === position.id ? "#fca5a5" : "#94a3b8",
-            fontWeight: 900,
-            cursor: "pointer",
-          }}
         >
           {position.label}
         </button>
