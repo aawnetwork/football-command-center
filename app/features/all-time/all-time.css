@@ -1,0 +1,14 @@
+.command-center .all-time-record-card__source {
+  margin: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--cc-border);
+  color: var(--cc-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.command-center .all-time-panel__availability {
+  margin: 0 0 16px;
+  color: var(--cc-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}

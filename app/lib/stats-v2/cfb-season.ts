@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import history from './cfb-player-history.json';
 import metadata from './cfb-season-metadata.json';
 import reviewed from './cfb-week7-reviewed.json';
+import teamDisplay from '../cfb-team-display-2026.json';
 import { withCfbPlayerHistory } from './cfb-player-history';
 import { NFL_METRICS, NFL_RATES, NFL_DERIVED, type Category, type Metric, type MetricKey } from './nfl-statlines';
 import { CFB_CARD_METRICS, type CardMetricKey, type CfbMetrics } from './cfb-card-metrics';
@@ -140,6 +141,12 @@ export function retainedCfbPositions(){
 }
 const liveObservations=new Map<string,{model:ReturnType<typeof buildCfbSeason>;conference:string|null;week:number;observedAt:string}>();
 const dataset=history as unknown as Dataset, meta=metadata as Metadata;
+// History deliberately retains nullable display assets. Reuse the verified
+// season-specific directory by exact ESPN team ID, without touching source facts.
+const displayDirectory=teamDisplay.teams as Record<string,{logo:string|null}>;
+const seasonTeams=Object.fromEntries(Object.entries(history.teams).map(([id,team])=>[
+  id,{...team,logo:team.logo??displayDirectory[id]?.logo??null},
+]));
 // Tie supplemental names/positions/conferences to the exact full history, not a five-game slice.
 const validHistory=createHash('sha256').update(JSON.stringify(history)+'\n').digest('hex')===metadata.historySha256;
 const models=new Map<string,ReturnType<typeof buildCfbSeason>>();
@@ -180,6 +187,6 @@ export function cfbSeasonResponse(params:URLSearchParams,view:string,category:Ca
   const warnings=[`Totals require a reported value in every retained player appearance; missing game lines are not zeros. This is not national leaderboard certification.`,`${model.unresolvedPassers} observed passers have unverified positions; ${model.nonQbPassers} are verified non-QBs and excluded from QB rankings. Position evidence is season-qualified, not archived game-time evidence.`,`Defensive interception season totals are unavailable: absent interception rows do not establish zero. Targets, assisted tackles and unsupported breakdowns remain unavailable.`];
   return Response.json({version:1,snapshot,period,throughWeek:meta.throughWeek,liveWeek:current?.period.week,observationAt:current?.checkedAt??observationAt,observationRange:{from:observed[0],through:current?.checkedAt??observationAt},scope:'retained-espn-season',complete:false,rankScope:'reported-values',independentNationalCertification:false,
     sourceAttribution:current?`ESPN retained season base through Week ${meta.throughWeek} + reported Week ${current.period.week} observations (in-progress games provisional; collection may be incomplete)`:`ESPN retained appearances · Season snapshot through Week ${meta.throughWeek} · ${history.games.length} completed games (Weeks 1–${meta.throughWeek})`,
-    coveredGames:history.games.length+(current&&current.period.week!>meta.throughWeek?current.collection.observedGames:0),currentCollection:current?.collection,retainedAppearances:model.appearances,confidence,columns,displayColumns:columns,teams:history.teams,conferences,logos:Object.fromEntries(Object.entries(history.teams).map(([id,team])=>[id,team.logo])),coverage:{warnings},sources:{live:{status:current?'partial':'completed-snapshot'}},
+    coveredGames:history.games.length+(current&&current.period.week!>meta.throughWeek?current.collection.observedGames:0),currentCollection:current?.collection,retainedAppearances:model.appearances,confidence,columns,displayColumns:columns,teams:seasonTeams,conferences,logos:Object.fromEntries(Object.entries(seasonTeams).map(([id,team])=>[id,team.logo])),coverage:{warnings},sources:{live:{status:current?'partial':'completed-snapshot'}},
     lines:candidates.map(line=>({id:line.id,name:line.name,teams:line.teams,playingNow:line.playingNow,values:columns.map(metric=>line.metrics[metric].value),notApplicable:columns.filter(metric=>line.metrics[metric].state==='not-applicable')}))},{headers});
 }

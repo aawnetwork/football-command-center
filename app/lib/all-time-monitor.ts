@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { gamesPlayedRecords, rankHistoricalRecords } from "./all-time-records";
 import { compareSnapshot } from "./all-time-comparison";
 import { retainAllTimeSignals } from "./all-time-signal-retention";
 
@@ -124,7 +125,7 @@ const createSnapshot = (
     period,
     category,
     checkedAt,
-    entries: records.slice(0, 25).map((record) => ({
+    entries: rankHistoricalRecords(records as SourceRecord[]).slice(0, audience === "team" ? records.length : 25).map((record) => ({
       id: `${id}:${slug(`${record.player}-${record.team}-${record.years}`)}`,
       rank: record.rank,
       name: String(record.player),
@@ -160,7 +161,7 @@ export const buildAllTimeCatalog = (
   ...snapshotsFromRecordSet("NFL", "individual", "career", nflCareerRecords, checkedAt),
   ...snapshotsFromRecordSet("NFL", "individual", "season", nflAllTimeSeasonIndividual, checkedAt),
   ...snapshotsFromRecordSet("NFL", "individual", "single-game", nflAllTimeSingleGameIndividual, checkedAt),
-  ...snapshotsFromRecordSet("NFL", "team", "career", nflAllTimeCareerTeam, checkedAt),
+  ...snapshotsFromRecordSet("NFL", "team", "career", { ...nflAllTimeCareerTeam, "games-played": gamesPlayedRecords(nflAllTimeCareerTeam.wins) }, checkedAt),
 ];
 
 const normalizePlayer = (value: string) =>
@@ -286,21 +287,51 @@ export async function getAllTimeMonitorStatus() {
 }
 
 export async function getAllTimeLeaderboardFeed(league: AllTimeLeague) {
-  const store = await readStore();
-  const snapshots = store.snapshots.filter((snapshot) => snapshot.league === league);
-  const leaderboards = snapshots
-    .filter((snapshot) => snapshot.league === league)
-    .reduce<Record<string, AllTimeSnapshotEntry[]>>((leaderboards, snapshot) => {
-      leaderboards[snapshot.id] = snapshot.entries.map((entry) => ({ ...entry }));
-      return leaderboards;
-    }, {});
-  const checkedAt = snapshots.map((snapshot) => snapshot.checkedAt).sort()[0] ?? null;
+  // Fixed record-book corrections travel with the deployment. A stale monitor
+  // copy must not overwrite them or require a database refresh to become visible.
+  let store = emptyStore();
+  let publicationAvailable = true;
+  try { store = await readStore(); }
+  catch { publicationAvailable = false; }
+  const bundled = buildAllTimeCatalog().filter(snapshot => snapshot.league === league);
+  const stored = new Map(store.snapshots.map(snapshot => [snapshot.id, snapshot]));
   const activeCareer = league === "NFL" && store.catalogVersion === monitorCatalogVersion;
-  return { leaderboards, source: {
-    mode: activeCareer ? "active-career" : "record-book",
+  const leaderboards: Record<string, AllTimeSnapshotEntry[]> = {};
+  const datasets: Record<string, { mode: "record-book" | "active-career"; checkedAt: string | null }> = {};
+  for (const snapshot of bundled) {
+    const published = stored.get(snapshot.id);
+    const activeEntries = Array.isArray(published?.entries) ? published.entries.filter(entry => entry?.isActive === true && typeof entry.name === "string") : [];
+    const activeNames = new Set(activeEntries.map(entry => normalizePlayer(entry.name)));
+    const usePublished = activeCareer && snapshot.audience === "individual" && snapshot.period === "career" &&
+      published?.entries.length && activeEntries.length && activeNames.size === activeEntries.length && Number.isFinite(Date.parse(published.checkedAt)) &&
+      published.entries.every(entry => entry && typeof entry.value === "number" && Number.isFinite(entry.value) &&
+        typeof entry.name === "string" && entry.name.trim() && typeof entry.context === "string" && typeof entry.years === "string");
+    // A published career table contains both live candidates and copied retired
+    // rows. Reconcile only its verified active candidates into the current book;
+    // never let an older copy regress a newly reviewed retired-player record.
+    const selected = usePublished ? {...published!, entries: [
+      ...snapshot.entries.filter(entry => !activeNames.has(normalizePlayer(entry.name))),
+      ...activeEntries,
+    ]} : snapshot;
+    const ranked = rankHistoricalRecords(selected.entries.map(entry => ({
+      rank: entry.rank, player: entry.name, team: entry.context, years: entry.years, value: entry.value, isActive: entry.isActive,
+    }))).slice(0, snapshot.audience === "team" ? selected.entries.length : 25);
+    leaderboards[snapshot.id] = ranked.map((record) => ({
+      id: `${snapshot.id}:${slug(`${record.player}-${record.team}-${record.years}`)}`,
+      rank: record.rank, name: record.player, context: record.team, years: record.years, value: record.value,
+      isActive: snapshot.audience === "individual" && snapshot.period === "career" &&
+        (record.isActive ?? /(?:^|\D)2026(?:\D|$)/.test(record.years)),
+    }));
+    datasets[snapshot.id] = { mode: usePublished ? "active-career" : "record-book", checkedAt: usePublished ? published!.checkedAt : null };
+  }
+  const careerChecks = Object.values(datasets).filter(dataset => dataset.mode === "active-career").map(dataset => dataset.checkedAt!).sort();
+  const checkedAt = careerChecks[0] ?? null;
+  return { leaderboards, datasets, source: {
+    mode: careerChecks.length ? "active-career" : "record-book",
     checkedAt,
-    provider: activeCareer ? "ESPN career statistics; nflverse roster selection" : "Bundled record-book snapshot",
-    coverage: activeCareer ? "NFL career candidates already represented in the bundled catalog; other tables remain snapshots" : "Static historical catalog; check time is not a new source publication",
+    publicationAvailable,
+    provider: careerChecks.length ? "ESPN career statistics; nflverse roster selection" : "Bundled record-book snapshot",
+    coverage: careerChecks.length ? "NFL career candidates already represented in the bundled catalog; other tables remain snapshots" : "Static historical catalog; check time is not a new source publication",
   } };
 }
 

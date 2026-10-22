@@ -93,3 +93,21 @@ test('actual UI retains tied sorting and null ranks; season is explicitly histor
  const {ranks}=sort(data,row=>row.values[0],'yards',false);assert.equal(ranks.get('a'),'1');assert.equal(ranks.get('b'),'1');assert.equal(ranks.get('d'),'3');assert.equal(ranks.get('c'),'—');
  const status=statsUpdateStatus({scope:'retained-espn-season',observationAt:'2026-10-21T12:00Z',lines:[{playingNow:true}]},Date.now(),false,false);assert.equal(status.cadence,'Historical ESPN snapshot');assert.ok(status.snapshot);assert.doesNotMatch(status.cadence,/LIVE|30 seconds/);
 });
+
+test('CFB Season includes existing exact-team logos for every category without changing history',async()=>{
+ const historyText=await readFile(file('app/lib/stats-v2/cfb-player-history.json'),'utf8');
+ const history=JSON.parse(historyText),directory=JSON.parse(await readFile(file('app/lib/cfb-team-display-2026.json'),'utf8')).teams;
+ assert.equal(history.teams['204'].logo,null);assert.ok(directory['204'].logo);
+ for(const category of ['QB','Rush','Rec','Def']){
+  const response=await cfbSeasonResponse(new URLSearchParams(),'leaders',category,null).json();
+  assert.equal(response.logos['204'],directory['204'].logo);
+  assert.equal(response.teams['204'].logo,directory['204'].logo);
+  for(const [id,team] of Object.entries(history.teams)){
+   assert.equal(response.logos[id],team.logo??directory[id]?.logo??null);
+   assert.equal(response.teams[id].name,team.name);
+  }
+  assert.ok(response.lines.length>0);
+  for(const row of response.lines)for(const team of row.teams)if(directory[team]?.logo)assert.equal(response.logos[team],directory[team].logo);
+ }
+ assert.equal(await readFile(file('app/lib/stats-v2/cfb-player-history.json'),'utf8'),historyText);
+});

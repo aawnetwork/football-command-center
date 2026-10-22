@@ -1,3 +1,6 @@
+import "./all-time.css";
+import { rankHistoricalRecords } from "../../lib/all-time-records";
+
 export type AllTimeRecord = {
   rank: number;
   player: string;
@@ -12,40 +15,50 @@ type AllTimeRecordGridProps = {
   categories?: {
     title: string;
     unit?: string;
+    sourceLabel?: string;
     records: AllTimeRecord[];
   }[];
   unavailableMessage?: string;
+  audience?: "individual" | "team";
 };
 
 export function AllTimeRecordGrid({
   period = "career",
   categories = [],
   unavailableMessage,
+  audience = "individual",
 }: AllTimeRecordGridProps) {
   if (unavailableMessage) {
     return <div className="all-time-panel__unavailable">{unavailableMessage}</div>;
   }
 
+  const tables = categories.map(category => ({...category, records: rankHistoricalRecords(category.records)}))
+    .filter(category => category.records.length > 0);
+  if (!tables.length) return <div className="all-time-panel__unavailable">No verified records are available for this selection.</div>;
+
   return (
     <div className="all-time-record-grid">
-      {categories.map(({ title, unit, records }) => (
-        <article className="all-time-record-card" data-desk-export="all-time" data-export-label={`${period === "single-game" ? "Single Game" : period === "season" ? "Season" : "Career"} · ${title}`} key={title}>
+      {tables.map(({ title, unit, records: ranked, sourceLabel }) => {
+        const boundary = ranked[9]?.value;
+        const visible = ranked.filter((record, index) => index < 10 || record.value === boundary);
+        return (
+        <article className="all-time-record-card" data-desk-export="all-time" data-export-label={`${audience === "team" ? period === "season" ? "Single Season" : "All-Time" : period === "single-game" ? "Single Game" : period === "season" ? "Season" : "Career"} · ${title}`} key={title}>
           <div className="all-time-record-card__title">
             <span>{title}</span>
-            <small>Top {Math.min(10, records.length)} of {records.length}</small>
+            <small>Top {visible.length} of {ranked.length}</small>
           </div>
-          {[...records]
-            .sort((left, right) => right.value - left.value || left.player.localeCompare(right.player))
-            .slice(0, 10)
-            .map((record, index) => {
-            const isActive = record.isActive ?? /(?:^|\D)2026(?:\D|$)/.test(record.years);
+          {sourceLabel && <p className="all-time-record-card__source">{sourceLabel}</p>}
+          {visible.map((record) => {
+            // A historical season/date is not evidence that a player is active.
+            const isActive = audience === "individual" && period === "career" &&
+              (record.isActive ?? /(?:^|\D)2026(?:\D|$)/.test(record.years));
 
             return (
               <div
                 className={`all-time-record-row${isActive ? " all-time-record-row--active" : ""}`}
-                key={`${title}-${record.rank}-${record.player}`}
+                key={`${title}-${record.rank}-${record.player}-${record.team}-${record.years}`}
               >
-                <span className="all-time-record-row__rank">{index + 1}</span>
+                <span className="all-time-record-row__rank">{record.rank}</span>
                 <div className="all-time-record-row__player">
                   <div>
                     {record.player}
@@ -57,14 +70,14 @@ export function AllTimeRecordGrid({
                   </small>
                 </div>
                 <strong>
-                  {record.value.toLocaleString()}
+                  {record.value.toLocaleString("en-GB")}
                   {unit ? ` ${unit}` : ""}
                 </strong>
               </div>
             );
           })}
         </article>
-      ))}
+      );})}
     </div>
   );
 }

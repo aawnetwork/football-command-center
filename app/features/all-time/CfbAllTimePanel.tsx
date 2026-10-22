@@ -12,6 +12,7 @@ import {
   cfbAllTimeCareerProgram,
   type CfbAllTimeProgramCategory,
 } from "../../cfb/data/cfb-all-time-program";
+import { AllTimeSources, recordSourceLabel, type AllTimeDatasetSources, type AllTimeSources as SourceInfo } from "./AllTimeSources";
 import { AllTimeRecordGrid, type AllTimeRecord } from "./AllTimeRecordGrid";
 
 type CfbAllTimePanelProps = {
@@ -48,7 +49,9 @@ export function CfbAllTimePanel({
 }: CfbAllTimePanelProps) {
   const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
 
-  const [source, setSource] = useState<{ mode: string; checkedAt: string | null } | null>(null);
+  const [source, setSource] = useState<SourceInfo | null>(null);
+
+  const [datasetSources, setDatasetSources] = useState<AllTimeDatasetSources>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +87,7 @@ export function CfbAllTimePanel({
         );
         setLiveLeaderboards(leaderboards);
         setSource(data.source ?? null);
+        setDatasetSources(data.datasets ?? {});
       })
       .catch(() => {
         // The bundled NCAA record-book snapshot remains available offline.
@@ -98,22 +102,24 @@ export function CfbAllTimePanel({
   }, []);
 
   const recordsFor = (audience: "individual" | "team", recordPeriod: "career" | "season" | "single-game", category: string, fallback: AllTimeRecord[]) =>
-    liveLeaderboards[`CFB:${audience}:${recordPeriod}:${category}`] ?? fallback;
+    liveLeaderboards[`CFB:${audience}:${recordPeriod}:${category}`]?.length ? liveLeaderboards[`CFB:${audience}:${recordPeriod}:${category}`] : fallback;
+
+  const displayPeriod = view === "team" ? "career" : period;
 
   const individualRecords =
-    view === "individual" && period === "career"
+    view === "individual" && displayPeriod === "career"
       ? cfbAllTimeCareerIndividual
-      : view === "individual" && period === "season"
+      : view === "individual" && displayPeriod === "season"
         ? cfbAllTimeSeasonIndividual
-        : view === "individual" && period === "single-game"
+        : view === "individual" && displayPeriod === "single-game"
           ? cfbAllTimeSingleGameIndividual
         : null;
-  const programRecords = view === "team" && period === "career" ? cfbAllTimeCareerProgram : null;
+  const programRecords = view === "team" && displayPeriod === "career" ? cfbAllTimeCareerProgram : null;
   const records = individualRecords ?? programRecords;
   const availablePeriods =
     view === "individual"
       ? (["career", "season", "single-game"] as const)
-      : (["career", "season"] as const);
+      : (["career"] as const);
 
   return (
     <section className="all-time-panel">
@@ -124,7 +130,7 @@ export function CfbAllTimePanel({
             aria-pressed={view === option}
             onClick={() => {
               onViewChange(option);
-              if (option === "team" && period === "single-game") {
+              if (option === "team" && period !== "career") {
                 onPeriodChange("career");
               }
             }}
@@ -135,29 +141,24 @@ export function CfbAllTimePanel({
       </div>
 
       <div className="all-time-panel__header centre-section-header">
-        <h2>🏆 All-Time</h2>
-        <p>Historical FBS leaders, organised by record holder and record type.</p>
+        <h2>🏆 All-Time Records</h2>
+        <p>Individual and program records from retained historical sources.</p>
       </div>
 
       <div className="all-time-panel__controls centre-category-controls" role="group" aria-label="Record period">
         {availablePeriods.map((option) => (
-          <button key={option} aria-pressed={period === option} onClick={() => onPeriodChange(option)}>
-            {option === "single-game" ? "Single Game" : option === "season" ? "Season" : "Career"}
+          <button key={option} aria-pressed={displayPeriod === option} onClick={() => onPeriodChange(option)}>
+            {view === "team" ? "All-Time" : option === "single-game" ? "Single Game" : option === "season" ? "Season" : "Career"}
           </button>
         ))}
+        {view === "team" && <button disabled title="Verified historical team-season records are not available from retained sources.">Single Season · Unavailable</button>}
       </div>
+      {view === "team" && <p className="all-time-panel__availability" role="status">Single Season records are unavailable until verified historical tables are added.</p>}
 
       <AllTimeRecordGrid
-        period={period}
-        unavailableMessage={
-          records
-            ? undefined
-            : view === "team" && period === "season"
-              ? "Program season records are being sourced next."
-              : view === "team"
-                ? "Program record sets are being sourced."
-              : "Individual record sets are ready for their source data."
-        }
+        period={displayPeriod}
+        audience={view}
+        unavailableMessage={records ? undefined : "No verified records are available for this selection."}
         categories={
           individualRecords
             ? categories.flatMap(([label, category, unit]) => {
@@ -167,7 +168,8 @@ export function CfbAllTimePanel({
                 return [{
                   title: label,
                   unit,
-                  records: recordsFor("individual", period, category, categoryRecords as AllTimeRecord[]),
+                  records: recordsFor("individual", displayPeriod, category, categoryRecords as AllTimeRecord[]),
+                  sourceLabel: recordSourceLabel(datasetSources[`CFB:individual:${displayPeriod}:${category}`]),
                 }];
               })
             : programRecords
@@ -178,20 +180,16 @@ export function CfbAllTimePanel({
                 return [{
                   title: label,
                   unit,
-                  records: recordsFor("team", "career", category, categoryRecords as AllTimeRecord[]),
+                  records: recordsFor("team", "career", category, categoryRecords as AllTimeRecord[]).map(record => ({...record, years: "Cutoff unverified", isActive: false})),
+                  sourceLabel: "Retained program snapshot · 25 programs",
                 }];
                 })
             : undefined
         }
       />
 
-      <p className="all-time-panel__source">
-        <strong>Historical data:</strong> NCAA FBS football record book. The
-        complete Top 25 for each category is retained in the underlying data;
-        this view displays ranks 1–10. This is a record-book snapshot; automated
-        checks do not collect new CFB career or season records.
-        {source?.checkedAt && <> Last catalog check: {new Date(source.checkedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK.</>}
-      </p>
+      <AllTimeSources league="CFB" audience={view} period={displayPeriod} source={source} />
+
     </section>
   );
 }

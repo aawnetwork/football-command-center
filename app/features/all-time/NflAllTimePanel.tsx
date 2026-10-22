@@ -13,6 +13,8 @@ import {
   nflAllTimeCareerTeam,
   type NflAllTimeTeamCategory,
 } from "../../nfl/data/nfl-all-time-team";
+import { AllTimeSources, recordSourceLabel, type AllTimeDatasetSources, type AllTimeSources as SourceInfo } from "./AllTimeSources";
+import { gamesPlayedRecords } from "../../lib/all-time-records";
 import { AllTimeRecordGrid, type AllTimeRecord } from "./AllTimeRecordGrid";
 
 type NflAllTimePanelProps = {
@@ -52,7 +54,9 @@ export function NflAllTimePanel({
 }: NflAllTimePanelProps) {
   const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
 
-  const [source, setSource] = useState<{ mode: string; checkedAt: string | null } | null>(null);
+  const [source, setSource] = useState<SourceInfo | null>(null);
+
+  const [datasetSources, setDatasetSources] = useState<AllTimeDatasetSources>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -88,6 +92,7 @@ export function NflAllTimePanel({
         );
         setLiveLeaderboards(leaderboards);
         setSource(data.source ?? null);
+        setDatasetSources(data.datasets ?? {});
       })
       .catch(() => {
         // The bundled record book remains the reliable fallback while offline.
@@ -102,23 +107,25 @@ export function NflAllTimePanel({
   }, []);
 
   const recordsFor = (audience: "individual" | "team", recordPeriod: "career" | "season" | "single-game", category: string, fallback: AllTimeRecord[]) =>
-    liveLeaderboards[`NFL:${audience}:${recordPeriod}:${category}`] ?? fallback;
+    liveLeaderboards[`NFL:${audience}:${recordPeriod}:${category}`]?.length ? liveLeaderboards[`NFL:${audience}:${recordPeriod}:${category}`] : fallback;
+
+  const displayPeriod = view === "team" ? "career" : period;
 
   const individualRecords =
-    view === "individual" && period === "career"
+    view === "individual" && displayPeriod === "career"
       ? nflAllTimeCareerIndividual
-      : view === "individual" && period === "season"
+      : view === "individual" && displayPeriod === "season"
         ? nflAllTimeSeasonIndividual
-        : view === "individual" && period === "single-game"
+        : view === "individual" && displayPeriod === "single-game"
           ? nflAllTimeSingleGameIndividual
         : null;
-  const teamRecords = view === "team" && period === "career" ? nflAllTimeCareerTeam : null;
+  const teamRecords = view === "team" && displayPeriod === "career" ? nflAllTimeCareerTeam : null;
   const records = individualRecords ?? teamRecords;
   const availablePeriods =
     view === "individual"
       ? (["career", "season", "single-game"] as const)
-      : (["career", "season"] as const);
-  const activeCategories = period === "single-game" ? singleGameCategories : categories;
+      : (["career"] as const);
+  const activeCategories = displayPeriod === "single-game" ? singleGameCategories : categories;
 
   return (
     <section className="all-time-panel">
@@ -129,7 +136,7 @@ export function NflAllTimePanel({
             aria-pressed={view === option}
             onClick={() => {
               onViewChange(option);
-              if (option === "team" && period === "single-game") {
+              if (option === "team" && period !== "career") {
                 onPeriodChange("career");
               }
             }}
@@ -140,57 +147,50 @@ export function NflAllTimePanel({
       </div>
 
       <div className="all-time-panel__header centre-section-header">
-        <h2>🏆 All-Time Leaders</h2>
+        <h2>🏆 All-Time Records</h2>
         <p>
-          NFL record leaders, organized by record holder and record type.
+          Individual and franchise records from retained historical sources.
         </p>
       </div>
 
       <div className="all-time-panel__controls centre-category-controls" role="group" aria-label="Record period">
         {availablePeriods.map((option) => (
-          <button key={option} aria-pressed={period === option} onClick={() => onPeriodChange(option)}>
-            {option === "single-game" ? "Single Game" : option === "season" ? "Season" : "Career"}
+          <button key={option} aria-pressed={displayPeriod === option} onClick={() => onPeriodChange(option)}>
+            {view === "team" ? "All-Time" : option === "single-game" ? "Single Game" : option === "season" ? "Season" : "Career"}
           </button>
         ))}
+        {view === "team" && <button disabled title="Verified historical team-season records are not available from retained sources.">Single Season · Unavailable</button>}
       </div>
+      {view === "team" && <p className="all-time-panel__availability" role="status">Single Season records are unavailable until verified historical tables are added.</p>}
 
       <AllTimeRecordGrid
-        period={period}
-        unavailableMessage={
-          records
-            ? undefined
-            : view === "team" && period === "season"
-              ? "Team season records are being sourced next."
-              : view === "team"
-                ? "Team record sets are being sourced."
-              : "Individual record sets are ready for their source data."
-        }
+        period={displayPeriod}
+        audience={view}
+        unavailableMessage={records ? undefined : "No verified records are available for this selection."}
         categories={
           individualRecords
             ? activeCategories.flatMap(([title, category]) => {
                 const categoryRecords = individualRecords[category as NflAllTimeCategory];
                 return categoryRecords
-                  ? [{ title, records: recordsFor("individual", period, category, categoryRecords) }]
+                  ? [{ title, records: recordsFor("individual", displayPeriod, category, categoryRecords), sourceLabel: recordSourceLabel(datasetSources[`NFL:individual:${displayPeriod}:${category}`]) }]
                   : [];
               })
             : teamRecords
-              ? teamCareerCategories.map(([title, category, unit]) => ({
-                  title,
-                  unit,
-                  records: recordsFor("team", "career", category, teamRecords[category] as AllTimeRecord[]),
-                }))
+              ? [...teamCareerCategories.map(([title, category, unit]) => ({
+                  title, unit,
+                  records: recordsFor("team", "career", category, teamRecords[category]).map(record => ({...record, years: "Cutoff unverified", isActive: false})),
+                  sourceLabel: "Retained franchise snapshot · 32 franchises",
+                })), {
+                  title: "🏟️ Games Played", unit: "games",
+                  records: gamesPlayedRecords(teamRecords.wins).map(record => ({...record, years: "Cutoff unverified", isActive: false})),
+                  sourceLabel: "From retained franchise W–L–T records · 32 franchises",
+                }]
             : undefined
         }
       />
 
-      <p className="all-time-panel__source">
-        <strong>Historical source:</strong> NFL Record &amp; Fact Book,
-        compiled by the Elias Sports Bureau. <strong>Active-player updates:</strong>{" "}
-        {source?.mode === "active-career" ? <>ESPN career stats, with roster selection from nflverse.
-          {source.checkedAt && <> Last successful catalog check: {new Date(source.checkedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })} UK.</>}
-          {" "}Checks run weekly; new candidates outside the bundled catalog and other record tables are not automatically collected.</>
-          : <>Bundled record-book snapshot shown; a verified active-career publication is unavailable.</>}
-      </p>
+      <AllTimeSources league="NFL" audience={view} period={displayPeriod} source={source} />
+
     </section>
   );
 }

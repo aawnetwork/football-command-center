@@ -27,18 +27,18 @@ test('performance categories retain their selected state and selection callbacks
 });
 test('both All-Time views separate holder navigation from periods and preserve supported period transitions',()=>{
  for(const league of ['Nfl','Cfb']){
-  const lower=league.toLowerCase(),prefix=lower+'AllTime';
+  const lower=league.toLowerCase();
   const hooks={useState:()=>[{},()=>{}],useEffect(){}};
-  const data=Object.fromEntries(['CareerIndividual','SeasonIndividual','SingleGameIndividual','CareerTeam','CareerProgram'].map(name=>[prefix+name,{}]));
-  const Panel=load(`app/features/all-time/${league}AllTimePanel.tsx`,{'react':hooks,[`../../${lower}/data/${lower}-all-time-career`]:data,[`../../${lower}/data/${lower}-all-time-${league==='Nfl'?'team':'program'}`]:data,'./AllTimeRecordGrid':{AllTimeRecordGrid:()=>null}})[league+'AllTimePanel'];
+  const data={...load(`app/${lower}/data/${lower}-all-time-career.ts`),...load(`app/${lower}/data/${lower}-all-time-${league==='Nfl'?'team':'program'}.ts`)};
+  const Panel=load(`app/features/all-time/${league}AllTimePanel.tsx`,{'react':hooks,[`../../${lower}/data/${lower}-all-time-career`]:data,[`../../${lower}/data/${lower}-all-time-${league==='Nfl'?'team':'program'}`]:data,'./AllTimeRecordGrid':{AllTimeRecordGrid:()=>null},'./AllTimeSources':{AllTimeSources:()=>null,recordSourceLabel:()=>''},'../../lib/all-time-records':load('app/lib/all-time-records.ts')})[league+'AllTimePanel'];
   let view='individual',period='single-game';const props=()=>({view,period,onViewChange:v=>view=v,onPeriodChange:p=>period=p});
   const tree=Panel(props()),markup=html(tree);
   assert.ok(markup.indexOf('Record holders')<markup.indexOf('<h2>'));
   assert.ok(markup.indexOf('<h2>')<markup.indexOf('Record period'));
   const buttons=elements(tree,'button');assert.deepEqual(buttons.map(b=>b.props.children),['Individual','Team','Career','Season','Single Game']);
   buttons[1].props.onClick();assert.equal(view,'team');assert.equal(period,'career');
-  const team=Panel(props());assert.deepEqual(elements(team,'button').map(b=>b.props.children),['Individual','Team','Career','Season']);
-  elements(team,'button')[3].props.onClick();assert.equal(period,'season');
+  const team=Panel(props());assert.deepEqual(elements(team,'button').map(b=>b.props.children),['Individual','Team','All-Time','Single Season · Unavailable']);
+  assert.equal(elements(team,'button')[3].props.disabled,true);assert.equal(elements(team,'button')[3].props.onClick,undefined);assert.equal(period,'career');
  }
 });
 test('Standings secondary navigation, conference filters and league-specific modes remain functional',()=>{
