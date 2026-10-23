@@ -18,9 +18,14 @@ export function GameDetailsPanel({data,context,tab}:{data:Payload;context:string
  const extraContext=additionalGameContext(context,data.context);
  const preview=data.stage==='scheduled',stats=preview?data.preview?.comparison??[]:data.stats;
  const useful=preview?stats:stats.filter(s=>s.home!==null||s.away!==null);
+ const comparisonNotes=preview?(data.preview?.comparison??[]).flatMap(s=>[s.awayCutoff,s.homeCutoff]).filter((s):s is string=>Boolean(s)):[];
+ const comparisonDates=[...new Set(comparisonNotes.flatMap(s=>s.match(/through games ([A-Za-z]+ \d{1,2}, \d{4})/)?.[1]??[]))];
+ const comparisonSource=data.identity.league==='CFB'?`NCAA / ESPN${comparisonDates.length?` · through ${comparisonDates.join(' / ')}`:''}`:data.preview?.comparison[0]?.cutoff;
+
  if(tab===0)return <>
   {extraContext.length>0&&<p className={styles.context}>{extraContext.join(' · ')}</p>}
-  {useful.length>0?<div className={styles.scroll}><table><caption>{preview?'Season matchup comparison':data.stage==='final'?'Final team comparison':'Live team comparison'}</caption><thead><tr><th scope="col">Statistic</th><th scope="col">{data.teams[0].name}</th><th scope="col">{data.teams[1].name}</th></tr></thead><tbody>{useful.map(s=><tr key={'key' in s?s.key:s.label}><th scope="row">{s.label}</th><td>{fmt(s.away)}{preview&&'awayCutoff'in s&&s.awayCutoff&&<small>{s.awayCutoff}</small>}</td><td>{fmt(s.home)}{preview&&'homeCutoff'in s&&s.homeCutoff&&<small>{s.homeCutoff}</small>}</td></tr>)}</tbody></table></div>:<p>{preview?'Season comparison unavailable for this matchup and cutoff.':'Team boxscore statistics have not been reported.'}</p>}
+  {useful.length>0?<div className={styles.scroll}><table><caption>{preview?'Season matchup comparison':data.stage==='final'?'Final team comparison':'Live team comparison'}</caption><thead><tr><th scope="col">Statistic</th><th scope="col">{data.teams[0].name}</th><th scope="col">{data.teams[1].name}</th></tr></thead><tbody>{useful.map(s=><tr key={'key' in s?s.key:s.label}><th scope="row">{s.label}</th><td>{fmt(s.away)}</td><td>{fmt(s.home)}</td></tr>)}</tbody></table></div>:<p>{preview?'Season comparison unavailable for this matchup and cutoff.':'Team boxscore statistics have not been reported.'}</p>}
+  {preview&&useful.length>0&&<p className={styles.muted}>{comparisonSource}{useful.some(s=>s.away===null||s.home===null)?' · Some statistics unavailable.':''}</p>}
  </>;
  if(tab===1)return preview?<>
   {data.preview?.watch&&<p className={styles.muted}>{data.preview.watch.cutoff} · Supported reported totals</p>}

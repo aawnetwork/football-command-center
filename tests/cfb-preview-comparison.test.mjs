@@ -60,6 +60,6 @@ test('actual comparison component renders all six source-backed matchups without
  for(let i=0;i<expected.length;i+=2){const d=detail(expected[i][0],expected[i+1][0]);
   const teams=[d.identity.away,d.identity.home].map(id=>({id,name:form.CFB.flatMap(g=>g.teams).find(t=>t.id===id).name}));
   const html=renderToStaticMarkup(React.createElement(GameDetailsPanel,{data:{...d,stage:'scheduled',context:[],teams,preview:{comparison:compare(d)}},context:null,tab:0}));
-  assert.match(html,/Passing YPG/);assert.match(html,/Rushing YPG/);assert.match(html,/Allowed YPG/);assert.match(html,/October 20, 2026/);assert.doesNotMatch(html,/October 15|—|NaN|undefined/);
+  assert.match(html,/Passing YPG/);assert.match(html,/Rushing YPG/);assert.match(html,/Allowed YPG/);assert.equal((html.match(/October 20, 2026/g)??[]).length,1);assert.doesNotMatch(html,/<td>[^<]*<small/);assert.doesNotMatch(html,/October 15|—|NaN|undefined/);
  }
 });
