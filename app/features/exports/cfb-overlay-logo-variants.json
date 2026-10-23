@@ -1,0 +1,941 @@
+{
+  "source": "Retained 2026 ESPN summary team.logos, rel=primary_logo_on_primary_color; latest retained reference per exact ESPN CFB team ID and supplied primary colour",
+  "teams": {
+    "2": {
+      "color": "#002b5c",
+      "logo": "https://a.espncdn.com/guid/6a581b24-2e59-a315-6f91-e85d722f4e9f/logos/primary_logo_on_primary_color.png"
+    },
+    "5": {
+      "color": "#1a5632",
+      "logo": "https://a.espncdn.com/guid/eaa0d4dc-a0ef-2faa-6c5d-ee4326bf5857/logos/primary_logo_on_primary_color.png"
+    },
+    "6": {
+      "color": "#00205b",
+      "logo": "https://a.espncdn.com/guid/9b9a3d1f-6d57-0dd0-9173-ecc56f34075e/logos/primary_logo_on_primary_color.png"
+    },
+    "8": {
+      "color": "#a32136",
+      "logo": "https://a.espncdn.com/guid/10e2d279-fb50-0b76-ba89-3dbe9d43fa2f/logos/primary_logo_on_primary_color.png"
+    },
+    "9": {
+      "color": "#ffc627",
+      "logo": "https://a.espncdn.com/guid/d60a0d84-8fa8-2bdf-13ec-fb0f9deda94c/logos/primary_logo_on_primary_color.png"
+    },
+    "12": {
+      "color": "#cc0033",
+      "logo": "https://a.espncdn.com/guid/5a61563b-c845-e697-bc8a-231ce180e0e3/logos/primary_logo_on_primary_color.png"
+    },
+    "13": {
+      "color": "#1E4D2B",
+      "logo": "https://a.espncdn.com/guid/33da649f-73fa-0862-8acc-5edb6b57d6e9/logos/primary_logo_on_primary_color.png"
+    },
+    "16": {
+      "color": "#00573C",
+      "logo": "https://a.espncdn.com/guid/2bcff5f8-a7ac-73b2-b5ff-dfbef2fa679c/logos/primary_logo_on_primary_color.png"
+    },
+    "21": {
+      "color": "#a6192e",
+      "logo": "https://a.espncdn.com/guid/9947474f-7dd9-968b-c95d-bcc11800bdcd/logos/primary_logo_on_primary_color.png"
+    },
+    "23": {
+      "color": "#0038a8",
+      "logo": "https://a.espncdn.com/guid/c9c00b13-c5de-9db2-8e27-7ed43d9a5c9a/logos/primary_logo_on_primary_color.png"
+    },
+    "24": {
+      "color": "#8c1515",
+      "logo": "https://a.espncdn.com/guid/f74a44c4-7492-7a6e-34fe-ab14da6d7f2a/logos/primary_logo_on_primary_color.png"
+    },
+    "25": {
+      "color": "#041e42",
+      "logo": "https://a.espncdn.com/guid/bc456bd2-12dc-1f16-79d5-da8899277a32/logos/primary_logo_on_primary_color.png"
+    },
+    "26": {
+      "color": "#2774ae",
+      "logo": "https://a.espncdn.com/guid/426a47d7-bf9e-2d90-af84-6533b43957e0/logos/primary_logo_on_primary_color.png"
+    },
+    "30": {
+      "color": "#9d2235",
+      "logo": "https://a.espncdn.com/guid/63d7a1b4-ee19-f0ae-33c5-42a14e000fb8/logos/primary_logo_on_primary_color.png"
+    },
+    "36": {
+      "color": "#004c23",
+      "logo": "https://a.espncdn.com/guid/0a69e6dc-71b5-57a3-7254-341426f50c2f/logos/primary_logo_on_primary_color.png"
+    },
+    "38": {
+      "color": "#cfb87c",
+      "logo": "https://a.espncdn.com/guid/78bdee7f-11f2-3bf9-f93e-a8e3831c2792/logos/primary_logo_on_primary_color.png"
+    },
+    "41": {
+      "color": "#0c2340",
+      "logo": "https://a.espncdn.com/guid/61fe4cfc-4b1e-a550-c0a4-818e3897b943/logos/primary_logo_on_primary_color.png"
+    },
+    "47": {
+      "color": "#003a63",
+      "logo": "https://a.espncdn.com/guid/abf70481-4ee5-4689-27af-4b0268406be2/logos/primary_logo_on_primary_color.png"
+    },
+    "48": {
+      "color": "#00539f",
+      "logo": "https://a.espncdn.com/guid/ea0ddc3a-a03e-1891-039e-46cb06e589f9/logos/primary_logo_on_primary_color.png"
+    },
+    "50": {
+      "color": "#F89728",
+      "logo": "https://a.espncdn.com/guid/6b48c5e2-7802-1086-f0cf-e2f21468bf48/logos/primary_logo_on_primary_color.png"
+    },
+    "52": {
+      "color": "#782f40",
+      "logo": "https://a.espncdn.com/guid/fa181128-4809-a209-1add-d5a3b0cefd3c/logos/primary_logo_on_primary_color.png"
+    },
+    "55": {
+      "color": "#cc0000",
+      "logo": "https://a.espncdn.com/guid/36b3d085-7d2b-1dbe-4f3b-404354883093/logos/primary_logo_on_primary_color.png"
+    },
+    "57": {
+      "color": "#0021a5",
+      "logo": "https://a.espncdn.com/guid/fe74bfd9-c15e-7b3a-ab25-ff4e5636282e/logos/primary_logo_on_primary_color.png"
+    },
+    "58": {
+      "color": "#006747",
+      "logo": "https://a.espncdn.com/guid/ffff063f-c8a9-7bd0-d414-93464f5b4ce0/logos/primary_logo_on_primary_color.png"
+    },
+    "59": {
+      "color": "#b3a369",
+      "logo": "https://a.espncdn.com/guid/e2e3ae48-f880-5489-0628-b2286d0adca1/logos/primary_logo_on_primary_color.png"
+    },
+    "61": {
+      "color": "#ba0c2f",
+      "logo": "https://a.espncdn.com/guid/4351fef8-fe69-53b1-ea57-72684b36ec35/logos/primary_logo_on_primary_color.png"
+    },
+    "62": {
+      "color": "#005737",
+      "logo": "https://a.espncdn.com/guid/d50009ca-5143-9322-d577-17d7115a6c54/logos/primary_logo_on_primary_color.png"
+    },
+    "66": {
+      "color": "#ae192d",
+      "logo": "https://a.espncdn.com/guid/98f92ad4-696c-890b-02e0-f7609d89e38c/logos/primary_logo_on_primary_color.png"
+    },
+    "68": {
+      "color": "#0033a0",
+      "logo": "https://a.espncdn.com/guid/ef2be04b-491c-0b6d-e4d9-1fbf2ab5cbca/logos/primary_logo_on_primary_color.png"
+    },
+    "70": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/17ac1718-672e-1ec9-97c0-dca947aa72f0/logos/primary_logo_on_primary_color.png"
+    },
+    "77": {
+      "color": "#492f92",
+      "logo": "https://a.espncdn.com/guid/ca8359bf-52ca-f069-b9c4-bbfbcfc15c64/logos/primary_logo_on_primary_color.png"
+    },
+    "79": {
+      "color": "#85283D",
+      "logo": "https://a.espncdn.com/guid/69b605d4-a0e2-3c47-f2bd-11418d66c83f/logos/primary_logo_on_primary_color.png"
+    },
+    "84": {
+      "color": "#970310",
+      "logo": "https://a.espncdn.com/guid/bd06efe1-3050-2356-37c1-4b3fef1c29be/logos/primary_logo_on_primary_color.png"
+    },
+    "87": {
+      "color": "#062340",
+      "logo": "https://a.espncdn.com/guid/ebc2999c-2ff4-8435-ca46-9641e9f9ea10/logos/primary_logo_on_primary_color.png"
+    },
+    "93": {
+      "color": "#002148",
+      "logo": "https://a.espncdn.com/guid/3b75f5c6-221d-212e-7a9a-a38339e0993d/logos/primary_logo_on_primary_color.png"
+    },
+    "96": {
+      "color": "#0033a0",
+      "logo": "https://a.espncdn.com/guid/d5ec1329-3c7b-93e8-6f57-982c4f33ea75/logos/primary_logo_on_primary_color.png"
+    },
+    "97": {
+      "color": "#c9001f",
+      "logo": "https://a.espncdn.com/guid/0584f11f-3e1c-d2ac-b852-35a74216c53e/logos/primary_logo_on_primary_color.png"
+    },
+    "98": {
+      "color": "#e13a3e",
+      "logo": "https://a.espncdn.com/guid/c040b0cf-ecec-ea8d-c2c6-e32eaf01fec9/logos/primary_logo_on_primary_color.png"
+    },
+    "99": {
+      "color": "#461d76",
+      "logo": "https://a.espncdn.com/guid/b9a22bd6-7449-92bc-0e95-a6d8da673b3e/logos/primary_logo_on_primary_color.png"
+    },
+    "103": {
+      "color": "#8c2232",
+      "logo": "https://a.espncdn.com/guid/4abb970f-c9e6-7576-3daa-703957b91293/logos/primary_logo_on_primary_color.png"
+    },
+    "107": {
+      "color": "#582c83",
+      "logo": "https://a.espncdn.com/guid/7fadd144-3a42-97a4-a693-b51eae5e260b/logos/primary_logo_on_primary_color.png"
+    },
+    "113": {
+      "color": "#881c1c",
+      "logo": "https://a.espncdn.com/guid/50c83446-93c9-1e06-72cb-e90a185624b8/logos/primary_logo_on_primary_color.png"
+    },
+    "119": {
+      "color": "#FFC229",
+      "logo": "https://a.espncdn.com/guid/e207845c-5a0c-0a4a-a4f9-d5e5c3071c99/logos/primary_logo_on_primary_color.png"
+    },
+    "120": {
+      "color": "#ce1126",
+      "logo": "https://a.espncdn.com/guid/7dae6b2a-7a04-6d4d-6e35-a625805c6c0a/logos/primary_logo_on_primary_color.png"
+    },
+    "127": {
+      "color": "#173f35",
+      "logo": "https://a.espncdn.com/guid/832ac71d-f1e2-6069-3386-0251865c339e/logos/primary_logo_on_primary_color.png"
+    },
+    "130": {
+      "color": "#00274c",
+      "logo": "https://a.espncdn.com/guid/ea1660a4-aeb8-b9da-7d9f-fcd70d3a0162/logos/primary_logo_on_primary_color.png"
+    },
+    "135": {
+      "color": "#5e0a2f",
+      "logo": "https://a.espncdn.com/guid/8389ae8e-d0ed-c4e5-b903-fcc01fc30fc2/logos/primary_logo_on_primary_color.png"
+    },
+    "142": {
+      "color": "#f1b82d",
+      "logo": "https://a.espncdn.com/guid/6bbe4a57-263d-12b2-639a-f1db99afcac9/logos/primary_logo_on_primary_color.png"
+    },
+    "145": {
+      "color": "#13294b",
+      "logo": "https://a.espncdn.com/guid/f6196074-c394-4821-7b0b-c4271d9467de/logos/primary_logo_on_primary_color.png"
+    },
+    "147": {
+      "color": "#00205c",
+      "logo": "https://a.espncdn.com/guid/19646b37-98b7-d657-9644-0f3c59758b54/logos/primary_logo_on_primary_color.png"
+    },
+    "149": {
+      "color": "#751D4A",
+      "logo": "https://a.espncdn.com/guid/eca4e1c0-120f-3210-14f1-552ce798f322/logos/primary_logo_on_primary_color.png"
+    },
+    "150": {
+      "color": "#00539b",
+      "logo": "https://a.espncdn.com/guid/33423e84-1594-6373-1025-20cdd256c421/logos/primary_logo_on_primary_color.png"
+    },
+    "151": {
+      "color": "#582c83",
+      "logo": "https://a.espncdn.com/guid/d42cb6f4-41d2-e072-0b54-e6d123a92654/logos/primary_logo_on_primary_color.png"
+    },
+    "152": {
+      "color": "#cc0000",
+      "logo": "https://a.espncdn.com/guid/1a66a197-258b-8ac5-56f9-6f4b6ec4d4ed/logos/primary_logo_on_primary_color.png"
+    },
+    "153": {
+      "color": "#7bafd4",
+      "logo": "https://a.espncdn.com/guid/30776972-a2c7-1cf2-4530-1c3820f5a4ea/logos/primary_logo_on_primary_color.png"
+    },
+    "154": {
+      "color": "#ceb888",
+      "logo": "https://a.espncdn.com/guid/f6a988be-475f-6cad-3569-47b6803c25cb/logos/primary_logo_on_primary_color.png"
+    },
+    "155": {
+      "color": "#00A26B",
+      "logo": "https://a.espncdn.com/guid/6f6b6dbc-b5bd-4085-4223-ad2a7dc9e90d/logos/primary_logo_on_primary_color.png"
+    },
+    "158": {
+      "color": "#e31937",
+      "logo": "https://a.espncdn.com/guid/e9635416-dfc2-d9d6-ff1c-3e0f70ab2d8c/logos/primary_logo_on_primary_color.png"
+    },
+    "160": {
+      "color": "#004990",
+      "logo": "https://a.espncdn.com/guid/2dde862f-4e3e-cb11-3a67-a2802e320756/logos/primary_logo_on_primary_color.png"
+    },
+    "164": {
+      "color": "#ce0e2d",
+      "logo": "https://a.espncdn.com/guid/3f06733d-8d8a-7044-6b24-e0ba817e25f0/logos/primary_logo_on_primary_color.png"
+    },
+    "166": {
+      "color": "#7e141b",
+      "logo": "https://a.espncdn.com/guid/e644e31c-a675-ce91-6e4a-78269c5b718a/logos/primary_logo_on_primary_color.png"
+    },
+    "167": {
+      "color": "#ba0c2f",
+      "logo": "https://a.espncdn.com/guid/a35083ab-ed9e-a3f2-be14-f7958c2b6655/logos/primary_logo_on_primary_color.png"
+    },
+    "183": {
+      "color": "#000e54",
+      "logo": "https://a.espncdn.com/guid/8a53c7d6-5f95-d1c0-ed4e-374f53b04443/logos/primary_logo_on_primary_color.png"
+    },
+    "189": {
+      "color": "#fd5000",
+      "logo": "https://a.espncdn.com/guid/bd2c9085-0c46-7f7d-4b18-8ee8ae1bf970/logos/primary_logo_on_primary_color.png"
+    },
+    "193": {
+      "color": "#c41230",
+      "logo": "https://a.espncdn.com/guid/4602583d-e1f5-2bad-c785-37bb45e2406b/logos/primary_logo_on_primary_color.png"
+    },
+    "194": {
+      "color": "#ba0c2f",
+      "logo": "https://a.espncdn.com/guid/2fc3b71f-8247-22a5-f6da-df3902cbb438/logos/primary_logo_on_primary_color.png"
+    },
+    "195": {
+      "color": "#154734",
+      "logo": "https://a.espncdn.com/guid/eb84d343-74ae-03e0-bff8-6c19b5b917e6/logos/primary_logo_on_primary_color.png"
+    },
+    "197": {
+      "color": "#fe5c00",
+      "logo": "https://a.espncdn.com/guid/556bcca7-0c38-f441-d76f-13bf46ff4042/logos/primary_logo_on_primary_color.png"
+    },
+    "201": {
+      "color": "#990000",
+      "logo": "https://a.espncdn.com/guid/67d60bca-1b6b-8d78-81ae-6889e883bb96/logos/primary_logo_on_primary_color.png"
+    },
+    "202": {
+      "color": "#003595",
+      "logo": "https://a.espncdn.com/guid/d4483de2-dfde-d0e7-9cca-63ecf8f72f4d/logos/primary_logo_on_primary_color.png"
+    },
+    "204": {
+      "color": "#dc4405",
+      "logo": "https://a.espncdn.com/guid/b6d75880-f28e-7a53-ae8a-bef390847086/logos/primary_logo_on_primary_color.png"
+    },
+    "213": {
+      "color": "#061440",
+      "logo": "https://a.espncdn.com/guid/899b6845-67a4-16b2-c4a6-2406312be7fc/logos/primary_logo_on_primary_color.png"
+    },
+    "218": {
+      "color": "#a41e35",
+      "logo": "https://a.espncdn.com/guid/4fa12e74-d34d-ac36-c5ed-49486b795781/logos/primary_logo_on_primary_color.png"
+    },
+    "221": {
+      "color": "#003594",
+      "logo": "https://a.espncdn.com/guid/f09e85bd-989f-dcff-53ac-0feda69b8959/logos/primary_logo_on_primary_color.png"
+    },
+    "222": {
+      "color": "#00205b",
+      "logo": "https://a.espncdn.com/guid/12df2e93-a8a5-389b-e71e-cedcbb195558/logos/primary_logo_on_primary_color.png"
+    },
+    "227": {
+      "color": "#091f3f",
+      "logo": "https://a.espncdn.com/guid/15cd4086-3778-806f-8613-6b1b54e7b138/logos/primary_logo_on_primary_color.png"
+    },
+    "228": {
+      "color": "#f56600",
+      "logo": "https://a.espncdn.com/guid/02382072-a5a3-24ff-6bd1-422a029bd33c/logos/primary_logo_on_primary_color.png"
+    },
+    "231": {
+      "color": "#582c83",
+      "logo": "https://a.espncdn.com/guid/244c534a-7125-17f9-149e-5b6e87a7cb52/logos/primary_logo_on_primary_color.png"
+    },
+    "233": {
+      "color": "#CD1241",
+      "logo": "https://a.espncdn.com/guid/685d1fc6-d6a0-edf9-8ced-aa8a01ec284d/logos/primary_logo_on_primary_color.png"
+    },
+    "235": {
+      "color": "#004991",
+      "logo": "https://a.espncdn.com/guid/29a2a6b5-5874-ac84-39e4-b5ab605e7449/logos/primary_logo_on_primary_color.png"
+    },
+    "238": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/f2c5bf52-4c7d-78ea-ce4d-6a91faee67c8/logos/primary_logo_on_primary_color.png"
+    },
+    "239": {
+      "color": "#154734",
+      "logo": "https://a.espncdn.com/guid/f09699d9-0894-3cf9-c5e4-cb392dfb72b8/logos/primary_logo_on_primary_color.png"
+    },
+    "242": {
+      "color": "#00205b",
+      "logo": "https://a.espncdn.com/guid/beb7c712-ded6-12a7-5f70-86c7344e288d/logos/primary_logo_on_primary_color.png"
+    },
+    "245": {
+      "color": "#500000",
+      "logo": "https://a.espncdn.com/guid/014788cd-231c-e33e-32c3-7e8d9a1e530f/logos/primary_logo_on_primary_color.png"
+    },
+    "248": {
+      "color": "#c8102e",
+      "logo": "https://a.espncdn.com/guid/508c397e-91bb-ed5c-a21c-d8faf8726265/logos/primary_logo_on_primary_color.png"
+    },
+    "249": {
+      "color": "#068f33",
+      "logo": "https://a.espncdn.com/guid/f27efab6-fcbe-7d0b-b71c-b06f0e56ecb8/logos/primary_logo_on_primary_color.png"
+    },
+    "251": {
+      "color": "#af5c37",
+      "logo": "https://a.espncdn.com/guid/013a8bab-0dd5-f6a0-45e6-1128a124f34b/logos/primary_logo_on_primary_color.png"
+    },
+    "252": {
+      "color": "#0047ba",
+      "logo": "https://a.espncdn.com/guid/fd2097de-a7e2-47ee-cc8a-e215a2b104c4/logos/primary_logo_on_primary_color.png"
+    },
+    "253": {
+      "color": "#c72026",
+      "logo": "https://a.espncdn.com/guid/a1b94182-f48d-e796-47d4-acbdb5dc5d55/logos/primary_logo_on_primary_color.png"
+    },
+    "254": {
+      "color": "#be0000",
+      "logo": "https://a.espncdn.com/guid/8dbdf443-6ffa-7a66-b58f-c0a7484ead29/logos/primary_logo_on_primary_color.png"
+    },
+    "256": {
+      "color": "#450084",
+      "logo": "https://a.espncdn.com/guid/d3179876-bd5b-83af-e4d7-e4aebd383f15/logos/primary_logo_on_primary_color.png"
+    },
+    "257": {
+      "color": "#9e0712",
+      "logo": "https://a.espncdn.com/guid/b9523936-292f-44f8-7ca7-1520102b6969/logos/primary_logo_on_primary_color.png"
+    },
+    "258": {
+      "color": "#232d4b",
+      "logo": "https://a.espncdn.com/guid/b5c648b5-0b1f-ba55-a77e-8150a1869d4c/logos/primary_logo_on_primary_color.png"
+    },
+    "259": {
+      "color": "#6a2c3e",
+      "logo": "https://a.espncdn.com/guid/806d08d1-ce5a-ee00-17c4-6eb1b1b3561d/logos/primary_logo_on_primary_color.png"
+    },
+    "264": {
+      "color": "#33006f",
+      "logo": "https://a.espncdn.com/guid/0c6752e3-aae3-f2c1-32c6-79b79425f9cc/logos/primary_logo_on_primary_color.png"
+    },
+    "265": {
+      "color": "#a60f2d",
+      "logo": "https://a.espncdn.com/guid/9514bdb8-6e1e-c7ca-4e29-aec887a42ae9/logos/primary_logo_on_primary_color.png"
+    },
+    "275": {
+      "color": "#a00000",
+      "logo": "https://a.espncdn.com/guid/79b14620-600c-7c79-3fb4-b62ed2a45ca0/logos/primary_logo_on_primary_color.png"
+    },
+    "276": {
+      "color": "#00b140",
+      "logo": "https://a.espncdn.com/guid/49112ca5-090e-1d1a-bbc9-a43086cc0d6a/logos/primary_logo_on_primary_color.png"
+    },
+    "277": {
+      "color": "#eaaa00",
+      "logo": "https://a.espncdn.com/guid/e5ca2c6f-2389-9da3-43cd-995fad2e06c5/logos/primary_logo_on_primary_color.png"
+    },
+    "278": {
+      "color": "#b1102b",
+      "logo": "https://a.espncdn.com/guid/2b421a62-df9b-86de-966c-52070634c8d2/logos/primary_logo_on_primary_color.png"
+    },
+    "282": {
+      "color": "#00669a",
+      "logo": "https://a.espncdn.com/guid/ff72b470-b7c2-afef-79a2-56688f82f8c8/logos/primary_logo_on_primary_color.png"
+    },
+    "284": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/50f09546-e343-2437-55c0-b8a5bf448e30/logos/primary_logo_on_primary_color.png"
+    },
+    "290": {
+      "color": "#041e42",
+      "logo": "https://a.espncdn.com/guid/23f25349-b9d6-0c18-5bc9-0b452cd006b6/logos/primary_logo_on_primary_color.png"
+    },
+    "295": {
+      "color": "#003768",
+      "logo": "https://a.espncdn.com/guid/fd3c53f2-7889-13ac-2f21-2e8960b7c2aa/logos/primary_logo_on_primary_color.png"
+    },
+    "302": {
+      "color": "#002855",
+      "logo": "https://a.espncdn.com/guid/e27d3bb5-d723-2365-1d65-58a4583735f6/logos/primary_logo_on_primary_color.png"
+    },
+    "304": {
+      "color": "#ef8c00",
+      "logo": "https://a.espncdn.com/guid/015f8185-33b5-ab25-83f2-967b77eaddc1/logos/primary_logo_on_primary_color.png"
+    },
+    "309": {
+      "color": "#ce181e",
+      "logo": "https://a.espncdn.com/guid/949cb228-b61b-3d98-8989-ab5fb86a5328/logos/primary_logo_on_primary_color.png"
+    },
+    "311": {
+      "color": "#127dbe",
+      "logo": "https://a.espncdn.com/guid/ddfd8c06-89f1-9e9f-d698-ec5ed6637891/logos/primary_logo_on_primary_color.png"
+    },
+    "322": {
+      "color": "#790000",
+      "logo": "https://a.espncdn.com/guid/5a55bd99-468b-05a3-a2be-ff1d2b1c14f7/logos/primary_logo_on_primary_color.png"
+    },
+    "324": {
+      "color": "#006f71",
+      "logo": "https://a.espncdn.com/guid/f4cf84a1-2a65-4f6d-57da-990e3b12ab94/logos/primary_logo_on_primary_color.png"
+    },
+    "326": {
+      "color": "#501214",
+      "logo": "https://a.espncdn.com/guid/c04c2f71-2724-9b62-6b26-830fe8438151/logos/primary_logo_on_primary_color.png"
+    },
+    "328": {
+      "color": "#0f2439",
+      "logo": "https://a.espncdn.com/guid/fa41bd5d-d79b-2fd4-e61e-78b7463de8e1/logos/primary_logo_on_primary_color.png"
+    },
+    "331": {
+      "color": "#a10022",
+      "logo": "https://a.espncdn.com/guid/b2e04ddc-10e9-e29f-a6d9-4557d2841e22/logos/primary_logo_on_primary_color.png"
+    },
+    "333": {
+      "color": "#9e1b32",
+      "logo": "https://a.espncdn.com/guid/258022c1-fed4-a0ce-c017-1f853c81d1a8/logos/primary_logo_on_primary_color.png"
+    },
+    "338": {
+      "color": "#fdbb30",
+      "logo": "https://a.espncdn.com/guid/42a09b71-db38-d5e6-05f8-36a343711210/logos/primary_logo_on_primary_color.png"
+    },
+    "344": {
+      "color": "#5d1725",
+      "logo": "https://a.espncdn.com/guid/44572c3a-e43a-0e8e-e71e-bf3c48784923/logos/primary_logo_on_primary_color.png"
+    },
+    "349": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/4ee86128-e7c4-fc44-0ef7-9d39671f35cb/logos/primary_logo_on_primary_color.png"
+    },
+    "356": {
+      "color": "#ff5f05",
+      "logo": "https://a.espncdn.com/guid/4ce2ebbc-45db-ed4d-a525-c3de0b375e88/logos/primary_logo_on_primary_color.png"
+    },
+    "399": {
+      "color": "#3D2777",
+      "logo": "https://a.espncdn.com/guid/81dee3f3-05ed-5385-ccbc-284e22fe04fc/logos/primary_logo_on_primary_color.png"
+    },
+    "2000": {
+      "color": "#592d82",
+      "logo": "https://a.espncdn.com/guid/1cfa765c-67f4-01ca-a794-7d000cdfb1a6/logos/primary_logo_on_primary_color.png"
+    },
+    "2005": {
+      "color": "#003594",
+      "logo": "https://a.espncdn.com/guid/cc5175c1-38c8-8a98-39ad-99b2201c7db7/logos/primary_logo_on_primary_color.png"
+    },
+    "2006": {
+      "color": "#041e42",
+      "logo": "https://a.espncdn.com/guid/c14c4165-7146-d53b-d109-869e4bf4be3e/logos/primary_logo_on_primary_color.png"
+    },
+    "2011": {
+      "color": "#e9a900",
+      "logo": "https://a.espncdn.com/guid/bb7ba63e-86ce-3d00-fa70-3c57b546bfb5/logos/primary_logo_on_primary_color.png"
+    },
+    "2016": {
+      "color": "#4b0058",
+      "logo": "https://a.espncdn.com/guid/e99d15d1-7126-6432-6796-c0e86cd44fcc/logos/primary_logo_on_primary_color.png"
+    },
+    "2026": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/7c2e9ccb-d483-2267-286a-af74e5c83036/logos/primary_logo_on_primary_color.png"
+    },
+    "2029": {
+      "color": "#e0aa0f",
+      "logo": "https://a.espncdn.com/guid/d30be099-7c47-3d1b-9c4e-dfeb710a5339/logos/primary_logo_on_primary_color.png"
+    },
+    "2032": {
+      "color": "#cc092f",
+      "logo": "https://a.espncdn.com/guid/27f770e6-1ed5-9f3e-a8d6-23fda9831def/logos/primary_logo_on_primary_color.png"
+    },
+    "2046": {
+      "color": "#8e0b0b",
+      "logo": "https://a.espncdn.com/guid/cdffaee7-5478-c1d7-aaa6-a012962b38f6/logos/primary_logo_on_primary_color.png"
+    },
+    "2050": {
+      "color": "#ba0c2f",
+      "logo": "https://a.espncdn.com/guid/536d28d5-5784-9129-f8d7-840bd213f260/logos/primary_logo_on_primary_color.png"
+    },
+    "2065": {
+      "color": "#7b1831",
+      "logo": "https://a.espncdn.com/guid/d66f851b-05d0-24d9-a156-3cf5e0fe50a2/logos/primary_logo_on_primary_color.png"
+    },
+    "2083": {
+      "color": "#000060",
+      "logo": "https://a.espncdn.com/guid/ae801204-4ddf-9719-cacd-a225a3fb0926/logos/primary_logo_on_primary_color.png"
+    },
+    "2084": {
+      "color": "#005bbb",
+      "logo": "https://a.espncdn.com/guid/14456181-a940-8b49-a48e-7fb74a4b5d65/logos/primary_logo_on_primary_color.png"
+    },
+    "2097": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/f76ae38d-adc8-ca05-8b1f-566b0bd32457/logos/primary_logo_on_primary_color.png"
+    },
+    "2110": {
+      "color": "#a7a9ac",
+      "logo": "https://a.espncdn.com/guid/fc4d58a1-ad90-ea08-a1a6-d6117d5e0f78/logos/primary_logo_on_primary_color.png"
+    },
+    "2115": {
+      "color": "#1B49A2",
+      "logo": "https://a.espncdn.com/guid/7c9e5422-19f2-9ea1-cdf2-3276580de560/logos/primary_logo_on_primary_color.png"
+    },
+    "2116": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/c9803f48-33e7-2ff2-03ef-ca6c319e1787/logos/primary_logo_on_primary_color.png"
+    },
+    "2117": {
+      "color": "#4c0027",
+      "logo": "https://a.espncdn.com/guid/201fb3b5-80d2-96f0-8692-a4cbfa5768e6/logos/primary_logo_on_primary_color.png"
+    },
+    "2127": {
+      "color": "#2e3192",
+      "logo": "https://a.espncdn.com/guid/d531ecc8-21ed-81e0-c93d-f8f7a87eb0c4/logos/primary_logo_on_primary_color.png"
+    },
+    "2132": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/8e2c392d-d2c3-6a0f-2870-6a4487fc967f/logos/primary_logo_on_primary_color.png"
+    },
+    "2142": {
+      "color": "#821019",
+      "logo": "https://a.espncdn.com/guid/752a89fd-1ca0-59f4-48cb-3733693a20b0/logos/primary_logo_on_primary_color.png"
+    },
+    "2169": {
+      "color": "#009cdb",
+      "logo": "https://a.espncdn.com/guid/dd379f8a-67bf-8e96-f137-dfa2cd622afd/logos/primary_logo_on_primary_color.png"
+    },
+    "2184": {
+      "color": "#002D62",
+      "logo": "https://a.espncdn.com/guid/18bdff23-1a60-91c9-e19a-211e7f04ac59/logos/primary_logo_on_primary_color.png"
+    },
+    "2193": {
+      "color": "#002d61",
+      "logo": "https://a.espncdn.com/guid/32d09e09-6e3f-e796-eea6-7c1dcbb497b8/logos/primary_logo_on_primary_color.png"
+    },
+    "2197": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/f106cf5e-7b8f-81d2-7d88-a70a3a169d57/logos/primary_logo_on_primary_color.png"
+    },
+    "2198": {
+      "color": "#660819",
+      "logo": "https://a.espncdn.com/guid/c2e0bb1d-03a1-6b92-7b92-84c3f532f7e8/logos/primary_logo_on_primary_color.png"
+    },
+    "2199": {
+      "color": "#006938",
+      "logo": "https://a.espncdn.com/guid/4fe149bf-abf3-1485-0582-3927ec0a6068/logos/primary_logo_on_primary_color.png"
+    },
+    "2210": {
+      "color": "#020303",
+      "logo": "https://a.espncdn.com/guid/eac6fbdd-5a8a-4943-4de8-a39558bda19a/logos/primary_logo_on_primary_color.png"
+    },
+    "2226": {
+      "color": "#003366",
+      "logo": "https://a.espncdn.com/guid/87a34b7e-ceeb-2909-37c5-90c59fcc4deb/logos/primary_logo_on_primary_color.png"
+    },
+    "2229": {
+      "color": "#091f3f",
+      "logo": "https://a.espncdn.com/guid/49b4cf79-4f17-4102-6ce7-d432bc46041b/logos/primary_logo_on_primary_color.png"
+    },
+    "2230": {
+      "color": "#830032",
+      "logo": "https://a.espncdn.com/guid/e985cfbe-7e7e-8056-4d68-1647069556b9/logos/primary_logo_on_primary_color.png"
+    },
+    "2241": {
+      "color": "#c12535",
+      "logo": "https://a.espncdn.com/guid/fe55e9be-32d4-3b70-1eeb-75e1fe8a0322/logos/primary_logo_on_primary_color.png"
+    },
+    "2247": {
+      "color": "#0039a6",
+      "logo": "https://a.espncdn.com/guid/729c7315-1812-052c-1123-f44cf21b435c/logos/primary_logo_on_primary_color.png"
+    },
+    "2261": {
+      "color": "#0067AC",
+      "logo": "https://a.espncdn.com/guid/a3b2d4f6-cfca-aa64-8618-f843fc46863b/logos/primary_logo_on_primary_color.png"
+    },
+    "2277": {
+      "color": "#00539c",
+      "logo": "https://a.espncdn.com/guid/ba9aceff-5120-74e5-fce4-dd4e17081fc6/logos/primary_logo_on_primary_color.png"
+    },
+    "2287": {
+      "color": "#CE1126",
+      "logo": "https://a.espncdn.com/guid/3d7c16a7-9d29-ad16-39c2-246298ef7f42/logos/primary_logo_on_primary_color.png"
+    },
+    "2294": {
+      "color": "#231f20",
+      "logo": "https://a.espncdn.com/guid/dbe71bf8-160a-45af-c855-b444d68fbe76/logos/primary_logo_on_primary_color.png"
+    },
+    "2305": {
+      "color": "#0051ba",
+      "logo": "https://a.espncdn.com/guid/ef1f570d-de44-06af-a61e-5f4ec79fa11f/logos/primary_logo_on_primary_color.png"
+    },
+    "2306": {
+      "color": "#330a57",
+      "logo": "https://a.espncdn.com/guid/b82ceb2c-b0bc-16f8-4cdb-d038df734db4/logos/primary_logo_on_primary_color.png"
+    },
+    "2309": {
+      "color": "#002664",
+      "logo": "https://a.espncdn.com/guid/fc40f1a0-dec2-2c11-7e0a-ad793f6ab9e9/logos/primary_logo_on_primary_color.png"
+    },
+    "2320": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/12827e28-8420-2bfd-ea41-bda839b51cdf/logos/primary_logo_on_primary_color.png"
+    },
+    "2335": {
+      "color": "#0a254e",
+      "logo": "https://a.espncdn.com/guid/fb2a277f-feda-6d2f-cc06-5ac1962c3c98/logos/primary_logo_on_primary_color.png"
+    },
+    "2348": {
+      "color": "#003087",
+      "logo": "https://a.espncdn.com/guid/fcf528e0-e753-a985-c2f8-1137335b071e/logos/primary_logo_on_primary_color.png"
+    },
+    "2377": {
+      "color": "#00529C",
+      "logo": "https://a.espncdn.com/guid/0bb96713-50c3-8b77-9d14-a16997479e12/logos/primary_logo_on_primary_color.png"
+    },
+    "2382": {
+      "color": "#ff7f29",
+      "logo": "https://a.espncdn.com/guid/dbb8478e-b573-55cd-dbfa-2482827ecfda/logos/primary_logo_on_primary_color.png"
+    },
+    "2385": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/247122df-a573-5cd1-eab8-8ea56ea2bf2d/logos/primary_logo_on_primary_color.png"
+    },
+    "2390": {
+      "color": "#f47423",
+      "logo": "https://a.espncdn.com/guid/2b3657a5-caae-31a2-899a-0d09df0f7bed/logos/primary_logo_on_primary_color.png"
+    },
+    "2393": {
+      "color": "#036eb7",
+      "logo": "https://a.espncdn.com/guid/12300c00-1093-0f17-95b2-26591412fdd3/logos/primary_logo_on_primary_color.png"
+    },
+    "2400": {
+      "color": "#005328",
+      "logo": "https://a.espncdn.com/guid/2e3fc0d3-c90d-8984-4d0e-faac5575ebbe/logos/primary_logo_on_primary_color.png"
+    },
+    "2405": {
+      "color": "#051844",
+      "logo": "https://a.espncdn.com/guid/bf137c85-46cc-ff0f-f9fe-b10fcf0a73e9/logos/primary_logo_on_primary_color.png"
+    },
+    "2415": {
+      "color": "#014786",
+      "logo": "https://a.espncdn.com/guid/98f21645-3b08-3b73-6d0a-0994f8bee411/logos/primary_logo_on_primary_color.png"
+    },
+    "2426": {
+      "color": "#00225b",
+      "logo": "https://a.espncdn.com/guid/6d79fd87-3903-89aa-8028-da81638e6989/logos/primary_logo_on_primary_color.png"
+    },
+    "2428": {
+      "color": "#880023",
+      "logo": "https://a.espncdn.com/guid/4c7bbef1-672e-28aa-baf5-1ffa9b410c25/logos/primary_logo_on_primary_color.png"
+    },
+    "2429": {
+      "color": "#005035",
+      "logo": "https://a.espncdn.com/guid/93f647dd-6cbb-7dac-b43a-b478f7acef9b/logos/primary_logo_on_primary_color.png"
+    },
+    "2433": {
+      "color": "#840029",
+      "logo": "https://a.espncdn.com/guid/4d57923d-7bd8-b4d2-1f96-8af3dc50127f/logos/primary_logo_on_primary_color.png"
+    },
+    "2439": {
+      "color": "#cf0a2c",
+      "logo": "https://a.espncdn.com/guid/1f3dbbad-f63b-a967-e511-b8c7464a9c5f/logos/primary_logo_on_primary_color.png"
+    },
+    "2440": {
+      "color": "#041e42",
+      "logo": "https://a.espncdn.com/guid/ed53380d-a53d-08d0-d5a4-53e0d61561eb/logos/primary_logo_on_primary_color.png"
+    },
+    "2447": {
+      "color": "#C41230",
+      "logo": "https://a.espncdn.com/guid/9e602331-1e90-8ad5-5c49-f82810f6f8b3/logos/primary_logo_on_primary_color.png"
+    },
+    "2448": {
+      "color": "#0505aa",
+      "logo": "https://a.espncdn.com/guid/2d61a2dc-8a5e-37be-571c-7510a88a4ec1/logos/primary_logo_on_primary_color.png"
+    },
+    "2449": {
+      "color": "#01402A",
+      "logo": "https://a.espncdn.com/guid/1ea4925c-7fb3-b48b-60c4-ed969feb6a1c/logos/primary_logo_on_primary_color.png"
+    },
+    "2450": {
+      "color": "#0c8968",
+      "logo": "https://a.espncdn.com/guid/1e5c44a9-fa42-75e0-edef-cda003bfadc9/logos/primary_logo_on_primary_color.png"
+    },
+    "2453": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/dce661ee-6917-d516-8b34-be6a33c0bc37/logos/primary_logo_on_primary_color.png"
+    },
+    "2458": {
+      "color": "#13558D",
+      "logo": "https://a.espncdn.com/guid/5aa1b1fb-16d0-2931-b773-89cf0f3d7a35/logos/primary_logo_on_primary_color.png"
+    },
+    "2459": {
+      "color": "#c8102e",
+      "logo": "https://a.espncdn.com/guid/69426e61-b945-05b3-175a-f5116c139508/logos/primary_logo_on_primary_color.png"
+    },
+    "2460": {
+      "color": "#473282",
+      "logo": "https://a.espncdn.com/guid/bc08e0d1-70d1-6dc0-71fb-1e1cfb84cf10/logos/primary_logo_on_primary_color.png"
+    },
+    "2464": {
+      "color": "#003976",
+      "logo": "https://a.espncdn.com/guid/13a1a38b-3653-40e9-52d2-4cce35138820/logos/primary_logo_on_primary_color.png"
+    },
+    "2466": {
+      "color": "#492F91",
+      "logo": "https://a.espncdn.com/guid/6c3c73e2-2c1d-ee88-822a-21c659960099/logos/primary_logo_on_primary_color.png"
+    },
+    "2483": {
+      "color": "#00934b",
+      "logo": "https://a.espncdn.com/guid/116d333f-cf1a-0c67-d450-36a834af56de/logos/primary_logo_on_primary_color.png"
+    },
+    "2502": {
+      "color": "#00311e",
+      "logo": "https://a.espncdn.com/guid/3950fceb-2c8c-4256-863f-d16fa46f5a4c/logos/primary_logo_on_primary_color.png"
+    },
+    "2504": {
+      "color": "#582c83",
+      "logo": "https://a.espncdn.com/guid/fd0d7650-6c9d-de89-ff1b-6bb350fa4877/logos/primary_logo_on_primary_color.png"
+    },
+    "2509": {
+      "color": "#ceb888",
+      "logo": "https://a.espncdn.com/guid/1f5f7b3a-6fac-b606-8dbe-3664c2d38f6b/logos/primary_logo_on_primary_color.png"
+    },
+    "2523": {
+      "color": "#00214D",
+      "logo": "https://a.espncdn.com/guid/a5e2510a-7dff-69ea-3d10-a7b30d66236c/logos/primary_logo_on_primary_color.png"
+    },
+    "2529": {
+      "color": "#a40012",
+      "logo": "https://a.espncdn.com/guid/6bf3f981-4bd5-5297-8188-848b8fec67ea/logos/primary_logo_on_primary_color.png"
+    },
+    "2534": {
+      "color": "#f56423",
+      "logo": "https://a.espncdn.com/guid/a0a4a10c-110e-d1f6-219c-d73de4944378/logos/primary_logo_on_primary_color.png"
+    },
+    "2535": {
+      "color": "#005485",
+      "logo": "https://a.espncdn.com/guid/f203e5ce-84f2-ecd6-e3f9-e4bf967190cb/logos/primary_logo_on_primary_color.png"
+    },
+    "2545": {
+      "color": "#215732",
+      "logo": "https://a.espncdn.com/guid/0dcbf577-33b5-b32b-a033-bce37eca9952/logos/primary_logo_on_primary_color.png"
+    },
+    "2546": {
+      "color": "#c8102e",
+      "logo": "https://a.espncdn.com/guid/0907c868-b7ab-15d3-f680-17c4ff6bc3ed/logos/primary_logo_on_primary_color.png"
+    },
+    "2567": {
+      "color": "#a80000",
+      "logo": "https://a.espncdn.com/guid/1ca864c9-0072-57e4-6fbf-d333f53e4409/logos/primary_logo_on_primary_color.png"
+    },
+    "2571": {
+      "color": "#0033a0",
+      "logo": "https://a.espncdn.com/guid/ff3cddaf-8c5a-25a4-1336-13419c5831c9/logos/primary_logo_on_primary_color.png"
+    },
+    "2572": {
+      "color": "#ffc72c",
+      "logo": "https://a.espncdn.com/guid/473ac550-dff2-5fe8-0182-5141a48397e0/logos/primary_logo_on_primary_color.png"
+    },
+    "2579": {
+      "color": "#73000a",
+      "logo": "https://a.espncdn.com/guid/6509690a-8cf2-b255-5af7-b6a1a1010ac4/logos/primary_logo_on_primary_color.png"
+    },
+    "2582": {
+      "color": "#004B97",
+      "logo": "https://a.espncdn.com/guid/5ee00c19-4e05-01a6-d294-1fdd27ecf572/logos/primary_logo_on_primary_color.png"
+    },
+    "2619": {
+      "color": "#990000",
+      "logo": "https://a.espncdn.com/guid/d82a523a-904b-afc7-d483-1e6ba52c4b53/logos/primary_logo_on_primary_color.png"
+    },
+    "2623": {
+      "color": "#5e0009",
+      "logo": "https://a.espncdn.com/guid/c015a92b-9a44-a2d3-59da-a0e275d9b7e9/logos/primary_logo_on_primary_color.png"
+    },
+    "2627": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/72016f8d-2eef-7886-baa4-143c577b0932/logos/primary_logo_on_primary_color.png"
+    },
+    "2628": {
+      "color": "#4d1979",
+      "logo": "https://a.espncdn.com/guid/f46ccf4d-1031-4373-2a4b-bc8b3ad9ba97/logos/primary_logo_on_primary_color.png"
+    },
+    "2630": {
+      "color": "#FF6700",
+      "logo": "https://a.espncdn.com/guid/114bcd68-c35c-308d-4853-6a2938c8ea2b/logos/primary_logo_on_primary_color.png"
+    },
+    "2633": {
+      "color": "#ff8200",
+      "logo": "https://a.espncdn.com/guid/de276cc4-dc02-159f-0c1c-67ddaf02a9ea/logos/primary_logo_on_primary_color.png"
+    },
+    "2634": {
+      "color": "#171796",
+      "logo": "https://a.espncdn.com/guid/b7939692-80c1-c761-bfce-4e7f148b7c8e/logos/primary_logo_on_primary_color.png"
+    },
+    "2636": {
+      "color": "#0c2340",
+      "logo": "https://a.espncdn.com/guid/43f30dfa-e0d9-ad12-1cb6-f8ceae32ffb4/logos/primary_logo_on_primary_color.png"
+    },
+    "2638": {
+      "color": "#ff8200",
+      "logo": "https://a.espncdn.com/guid/20cb6c64-58b0-6c86-56f9-c86672e59106/logos/primary_logo_on_primary_color.png"
+    },
+    "2640": {
+      "color": "#860038",
+      "logo": "https://a.espncdn.com/guid/54feefa7-8f08-d18e-fc85-94c1d77a5a57/logos/primary_logo_on_primary_color.png"
+    },
+    "2641": {
+      "color": "#da291c",
+      "logo": "https://a.espncdn.com/guid/4350bc91-1a0d-8292-bf66-9687147703f0/logos/primary_logo_on_primary_color.png"
+    },
+    "2643": {
+      "color": "#7badd3",
+      "logo": "https://a.espncdn.com/guid/57e9b7de-a257-bc7b-165c-b944ff9d9531/logos/primary_logo_on_primary_color.png"
+    },
+    "2649": {
+      "color": "#0b2240",
+      "logo": "https://a.espncdn.com/guid/fa2515be-1435-f76e-381c-1bde51bb4a64/logos/primary_logo_on_primary_color.png"
+    },
+    "2653": {
+      "color": "#862633",
+      "logo": "https://a.espncdn.com/guid/f3be554b-73fd-2c7c-912f-b494b05c7c47/logos/primary_logo_on_primary_color.png"
+    },
+    "2655": {
+      "color": "#006747",
+      "logo": "https://a.espncdn.com/guid/523d67cf-ee6a-4fb9-8dd4-44fd6a3a1115/logos/primary_logo_on_primary_color.png"
+    },
+    "2678": {
+      "color": "#ae122a",
+      "logo": "https://a.espncdn.com/guid/36fca66e-eead-2d9e-c4db-7b9e23a40d5d/logos/primary_logo_on_primary_color.png"
+    },
+    "2681": {
+      "color": "#00483A",
+      "logo": "https://a.espncdn.com/guid/01ca3293-0266-38e6-4100-d8767b860a96/logos/primary_logo_on_primary_color.png"
+    },
+    "2692": {
+      "color": "#18005a",
+      "logo": "https://a.espncdn.com/guid/6b244589-aa31-bbb2-0d09-6f91a3315ac2/logos/primary_logo_on_primary_color.png"
+    },
+    "2698": {
+      "color": "#0033a1",
+      "logo": "https://a.espncdn.com/guid/71aad3b9-d8a7-d72b-e6e7-01ac63457403/logos/primary_logo_on_primary_color.png"
+    },
+    "2710": {
+      "color": "#4e1e8a",
+      "logo": "https://a.espncdn.com/guid/35e27051-c394-546c-49f3-c3944745d6d2/logos/primary_logo_on_primary_color.png"
+    },
+    "2711": {
+      "color": "#532e1f",
+      "logo": "https://a.espncdn.com/guid/dc3e4fdc-c679-36f9-323c-75330c120fed/logos/primary_logo_on_primary_color.png"
+    },
+    "2717": {
+      "color": "#492F91",
+      "logo": "https://a.espncdn.com/guid/b111a1e5-8e6c-8c71-0605-9e84ee31b705/logos/primary_logo_on_primary_color.png"
+    },
+    "2729": {
+      "color": "#115740",
+      "logo": "https://a.espncdn.com/guid/68d3c546-a06a-ac4a-00d8-4a4935e392c1/logos/primary_logo_on_primary_color.png"
+    },
+    "2747": {
+      "color": "#533B23",
+      "logo": "https://a.espncdn.com/guid/6235fec2-035b-94e8-ef99-2e58d2afcc65/logos/primary_logo_on_primary_color.png"
+    },
+    "2751": {
+      "color": "#492f24",
+      "logo": "https://a.espncdn.com/guid/da12224c-5cfe-470b-a0c3-a2df7b134a8f/logos/primary_logo_on_primary_color.png"
+    },
+    "2754": {
+      "color": "#E51936",
+      "logo": "https://a.espncdn.com/guid/cd69011b-5910-aaae-1513-370475018c8a/logos/primary_logo_on_primary_color.png"
+    },
+    "2755": {
+      "color": "#ee8601",
+      "logo": "https://a.espncdn.com/guid/355b8768-d339-5bba-7bf0-e00392cffaa9/logos/primary_logo_on_primary_color.png"
+    },
+    "2771": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/3ad6816d-f117-d0a3-1f32-0f9e4e13ebda/logos/primary_logo_on_primary_color.png"
+    },
+    "2803": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/d729a3ea-21b1-cde5-7ea1-114bf847650b/logos/primary_logo_on_primary_color.png"
+    },
+    "2815": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/9d3d2b3e-0e06-08c5-9a7b-a286174a8eb3/logos/primary_logo_on_primary_color.png"
+    },
+    "2837": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/900ebf5e-5e87-9e6d-b8af-8c0275c8d2cc/logos/primary_logo_on_primary_color.png"
+    },
+    "2916": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/0d064cd0-f8f1-ee22-7ba3-0b1780db5a57/logos/primary_logo_on_primary_color.png"
+    },
+    "3101": {
+      "color": "#000000",
+      "logo": "https://a.espncdn.com/guid/83f45e8f-1b2c-e375-a09f-230955a9a74d/logos/primary_logo_on_primary_color.png"
+    }
+  }
+}
