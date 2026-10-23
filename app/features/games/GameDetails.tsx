@@ -17,7 +17,7 @@ export function GameDetailsPanel({data,context,tab}:{data:Payload;context:string
  const team=(id:string)=>data.teams.find(t=>t.id===id)?.name??'Team';
  const extraContext=additionalGameContext(context,data.context);
  const preview=data.stage==='scheduled',stats=preview?data.preview?.comparison??[]:data.stats;
- const useful=stats.filter(s=>s.home!==null||s.away!==null);
+ const useful=preview?stats:stats.filter(s=>s.home!==null||s.away!==null);
  if(tab===0)return <>
   {extraContext.length>0&&<p className={styles.context}>{extraContext.join(' · ')}</p>}
   {useful.length>0?<div className={styles.scroll}><table><caption>{preview?'Season matchup comparison':data.stage==='final'?'Final team comparison':'Live team comparison'}</caption><thead><tr><th scope="col">Statistic</th><th scope="col">{data.teams[0].name}</th><th scope="col">{data.teams[1].name}</th></tr></thead><tbody>{useful.map(s=><tr key={'key' in s?s.key:s.label}><th scope="row">{s.label}</th><td>{fmt(s.away)}{preview&&'awayCutoff'in s&&s.awayCutoff&&<small>{s.awayCutoff}</small>}</td><td>{fmt(s.home)}{preview&&'homeCutoff'in s&&s.homeCutoff&&<small>{s.homeCutoff}</small>}</td></tr>)}</tbody></table></div>:<p>{preview?'Season comparison unavailable for this matchup and cutoff.':'Team boxscore statistics have not been reported.'}</p>}
