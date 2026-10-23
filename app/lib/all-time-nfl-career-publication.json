@@ -1,0 +1,1786 @@
+{
+  "version": 1,
+  "checkedAt": "2026-10-23T00:19:07.404040+00:00",
+  "seasonType": "regular",
+  "season": 2026,
+  "cutoff": "2026 regular-season career totals reported by ESPN; exact through-games date not supplied",
+  "candidateCoverage": "45 source-qualified reviewed candidates; discovery is not an exhaustive census of all active NFL players",
+  "players": [
+    {
+      "playerId": "espn:nfl:8439",
+      "gsisId": "00-0023459",
+      "name": "Aaron Rodgers",
+      "team": "PIT",
+      "firstSeason": 2005,
+      "observedAt": "2026-10-23T00:19:07.404040+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/8439/stats?region=us&lang=en&contentorigin=espn",
+      "sha256": "c42d13631486bea5b3ff4cadfa3377c1c328120a7cf74113fd3fe18cd6943ef5",
+      "metrics": {
+        "passing-yards": {
+          "value": 67761,
+          "years": "2005\u20132026"
+        },
+        "passing-td": {
+          "value": 539,
+          "years": "2005\u20132026"
+        },
+        "rushing-yards": {
+          "value": 3651,
+          "years": "2005\u20132026"
+        },
+        "rushing-td": {
+          "value": 36,
+          "years": "2005\u20132026"
+        },
+        "receiving-yards": {
+          "value": -20,
+          "years": "2012\u20132025"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2012\u20132025"
+        },
+        "tackles": {
+          "value": 6,
+          "years": "2008\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2008\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2008\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:11252",
+      "gsisId": "00-0026158",
+      "name": "Joe Flacco",
+      "team": "CIN",
+      "firstSeason": 2008,
+      "observedAt": "2026-10-23T00:25:36.070706+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/11252/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "35b88dcb4782577b660568270705294f58313ccc9a9110ad8722ea927d75c6a0",
+      "metrics": {
+        "passing-yards": {
+          "value": 48176,
+          "years": "2008\u20132025"
+        },
+        "passing-td": {
+          "value": 272,
+          "years": "2008\u20132025"
+        },
+        "rushing-yards": {
+          "value": 925,
+          "years": "2008\u20132025"
+        },
+        "rushing-td": {
+          "value": 17,
+          "years": "2008\u20132025"
+        },
+        "receiving-yards": {
+          "value": 32,
+          "years": "2008\u20132022"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2008\u20132022"
+        },
+        "tackles": {
+          "value": 13,
+          "years": "2009\u20132024"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2009\u20132024"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2009\u20132024"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:11284",
+      "gsisId": "00-0026190",
+      "name": "Calais Campbell",
+      "team": "BAL",
+      "firstSeason": 2008,
+      "observedAt": "2026-10-23T00:25:36.719203+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/11284/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "66a2e898acc2a57e33f2648e9520e3aa23447b52c49c07ecf532a9afab433c1d",
+      "metrics": {
+        "tackles": {
+          "value": 970,
+          "years": "2008\u20132026"
+        },
+        "sacks": {
+          "value": 118,
+          "years": "2008\u20132026"
+        },
+        "interceptions": {
+          "value": 3,
+          "years": "2008\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:12483",
+      "gsisId": "00-0026498",
+      "name": "Matthew Stafford",
+      "team": "LA",
+      "firstSeason": 2009,
+      "observedAt": "2026-10-23T00:19:07.871651+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/12483/stats?region=us&lang=en&contentorigin=espn",
+      "sha256": "9d38e880740d28d24dcc6d8cc40d7a518612b67a87d9ca64b1f486b0090a8778",
+      "metrics": {
+        "passing-yards": {
+          "value": 66310,
+          "years": "2009\u20132026"
+        },
+        "passing-td": {
+          "value": 434,
+          "years": "2009\u20132026"
+        },
+        "rushing-yards": {
+          "value": 1378,
+          "years": "2009\u20132026"
+        },
+        "rushing-td": {
+          "value": 15,
+          "years": "2009\u20132026"
+        },
+        "receiving-yards": {
+          "value": -3,
+          "years": "2012\u20132020"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2012\u20132020"
+        },
+        "tackles": {
+          "value": 15,
+          "years": "2009\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2009\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2009\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:13976",
+      "gsisId": "00-0027940",
+      "name": "Von Miller",
+      "team": "DAL",
+      "firstSeason": 2011,
+      "observedAt": "2026-10-23T00:25:37.357586+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/13976/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "c9cbb3987b6a967a8e262082eada041db3ecc38df6a4bab71b80e91644397402",
+      "metrics": {
+        "tackles": {
+          "value": 609,
+          "years": "2011\u20132026"
+        },
+        "sacks": {
+          "value": 138.5,
+          "years": "2011\u20132026"
+        },
+        "interceptions": {
+          "value": 2,
+          "years": "2011\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:13971",
+      "gsisId": "00-0027962",
+      "name": "Cameron Jordan",
+      "team": "NO",
+      "firstSeason": 2011,
+      "observedAt": "2026-10-23T00:25:37.933767+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/13971/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "533f5aa6b80e5b28e739aa09f3bdfe5653339e1865add3082d82a5d2a3a7e6bb",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2025\u20132025"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2025\u20132025"
+        },
+        "tackles": {
+          "value": 773,
+          "years": "2011\u20132026"
+        },
+        "sacks": {
+          "value": 132,
+          "years": "2011\u20132026"
+        },
+        "interceptions": {
+          "value": 3,
+          "years": "2011\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:14880",
+      "gsisId": "00-0029604",
+      "name": "Kirk Cousins",
+      "team": "LV",
+      "firstSeason": 2012,
+      "observedAt": "2026-10-23T00:25:38.639320+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/14880/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "d1a7d8adb860e656c7ae60d12890653f55cf770f0b069694f94979de106f03df",
+      "metrics": {
+        "passing-yards": {
+          "value": 46282,
+          "years": "2012\u20132026"
+        },
+        "passing-td": {
+          "value": 312,
+          "years": "2012\u20132026"
+        },
+        "rushing-yards": {
+          "value": 963,
+          "years": "2012\u20132026"
+        },
+        "rushing-td": {
+          "value": 20,
+          "years": "2012\u20132026"
+        },
+        "receiving-yards": {
+          "value": -1,
+          "years": "2018\u20132019"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2018\u20132019"
+        },
+        "tackles": {
+          "value": 7,
+          "years": "2012\u20132022"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2012\u20132022"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2012\u20132022"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:14958",
+      "gsisId": "00-0029607",
+      "name": "Demario Davis",
+      "team": "NYJ",
+      "firstSeason": 2012,
+      "observedAt": "2026-10-23T00:25:39.248472+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/14958/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "62f1e59227db6de573bf719ac7a525572f86cc86b670a121c91fa9498f8571fe",
+      "metrics": {
+        "tackles": {
+          "value": 1580,
+          "years": "2012\u20132026"
+        },
+        "sacks": {
+          "value": 47,
+          "years": "2012\u20132026"
+        },
+        "interceptions": {
+          "value": 4,
+          "years": "2012\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:15847",
+      "gsisId": "00-0030506",
+      "name": "Travis Kelce",
+      "team": "KC",
+      "firstSeason": 2013,
+      "observedAt": "2026-10-23T00:25:39.757838+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/15847/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "8b040bb4eacd5ebb5db0063f0b81c6d9951ea3695ebd25952f36c19545fbcf50",
+      "metrics": {
+        "passing-yards": {
+          "value": 4,
+          "years": "2014\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "rushing-yards": {
+          "value": 16,
+          "years": "2016\u20132025"
+        },
+        "rushing-td": {
+          "value": 2,
+          "years": "2016\u20132025"
+        },
+        "receiving-yards": {
+          "value": 13301,
+          "years": "2014\u20132026"
+        },
+        "receiving-td": {
+          "value": 84,
+          "years": "2014\u20132026"
+        },
+        "tackles": {
+          "value": 11,
+          "years": "2017\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2017\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2017\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:16710",
+      "gsisId": "00-0031040",
+      "name": "Khalil Mack",
+      "team": "LAC",
+      "firstSeason": 2014,
+      "observedAt": "2026-10-23T00:25:40.406442+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/16710/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "0e6fabd3612eccb326d203c8d387857007487c4095314409ef21809eed2931b5",
+      "metrics": {
+        "tackles": {
+          "value": 680,
+          "years": "2014\u20132026"
+        },
+        "sacks": {
+          "value": 116,
+          "years": "2014\u20132026"
+        },
+        "interceptions": {
+          "value": 3,
+          "years": "2014\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:16800",
+      "gsisId": "00-0031381",
+      "name": "Davante Adams",
+      "team": "LA",
+      "firstSeason": 2014,
+      "observedAt": "2026-10-23T00:25:40.873114+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/16800/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "dc9badab97daafd3e6ec087b4676dbd848d04bc274e9f96724f0885af87ac217",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "rushing-yards": {
+          "value": -1,
+          "years": "2022\u20132022"
+        },
+        "rushing-td": {
+          "value": 0,
+          "years": "2022\u20132022"
+        },
+        "receiving-yards": {
+          "value": 13113,
+          "years": "2014\u20132026"
+        },
+        "receiving-td": {
+          "value": 121,
+          "years": "2014\u20132026"
+        },
+        "tackles": {
+          "value": 14,
+          "years": "2014\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2014\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:16716",
+      "gsisId": "00-0031388",
+      "name": "Aaron Donald",
+      "team": "LA",
+      "firstSeason": 2014,
+      "observedAt": "2026-10-23T00:25:41.788511+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/16716/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "3cc4c30c28f3fa40c7b0ceaab159d9bb2a2149143a8d9874561ab1ebd15501c7",
+      "metrics": {
+        "tackles": {
+          "value": 551,
+          "years": "2014\u20132026"
+        },
+        "sacks": {
+          "value": 111,
+          "years": "2014\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2014\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:16737",
+      "gsisId": "00-0031408",
+      "name": "Mike Evans",
+      "team": "SF",
+      "firstSeason": 2014,
+      "observedAt": "2026-10-23T00:25:42.439975+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/16737/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "60f70c42a9756c79cd854480134478928c7c681ddd48db6f21bdc8bf83ce73d7",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2014\u20132026"
+        },
+        "rushing-yards": {
+          "value": 10,
+          "years": "2021\u20132021"
+        },
+        "rushing-td": {
+          "value": 0,
+          "years": "2021\u20132021"
+        },
+        "receiving-yards": {
+          "value": 13472,
+          "years": "2014\u20132026"
+        },
+        "receiving-td": {
+          "value": 111,
+          "years": "2014\u20132026"
+        },
+        "tackles": {
+          "value": 31,
+          "years": "2014\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2014\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2014\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:2969939",
+      "gsisId": "00-0031503",
+      "name": "Jameis Winston",
+      "team": "NYG",
+      "firstSeason": 2015,
+      "observedAt": "2026-10-23T00:25:43.085709+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/2969939/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "167fcc6808b862c442e67f4b27384dc10c5412a90b89da8f9a0c90fbbc3780d5",
+      "metrics": {
+        "passing-yards": {
+          "value": 25749,
+          "years": "2015\u20132026"
+        },
+        "passing-td": {
+          "value": 163,
+          "years": "2015\u20132026"
+        },
+        "rushing-yards": {
+          "value": 1366,
+          "years": "2015\u20132026"
+        },
+        "rushing-td": {
+          "value": 13,
+          "years": "2015\u20132026"
+        },
+        "receiving-yards": {
+          "value": 33,
+          "years": "2025\u20132025"
+        },
+        "receiving-td": {
+          "value": 1,
+          "years": "2025\u20132025"
+        },
+        "tackles": {
+          "value": 12,
+          "years": "2015\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2015\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2015\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:2612151",
+      "gsisId": "00-0031898",
+      "name": "Alex Singleton",
+      "team": "DEN",
+      "firstSeason": 2015,
+      "observedAt": "2026-10-23T00:25:43.660405+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/2612151/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "c2c526d0b4bf365bfee2db978a7f0a3885026d1f798566b317075b621536da46",
+      "metrics": {
+        "tackles": {
+          "value": 836,
+          "years": "2019\u20132026"
+        },
+        "sacks": {
+          "value": 5,
+          "years": "2019\u20132026"
+        },
+        "interceptions": {
+          "value": 3,
+          "years": "2019\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3043078",
+      "gsisId": "00-0032764",
+      "name": "Derrick Henry",
+      "team": "BAL",
+      "firstSeason": 2016,
+      "observedAt": "2026-10-23T00:19:08.335687+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3043078/stats?region=us&lang=en&contentorigin=espn",
+      "sha256": "d2d0af5996e3a49db8c987c963f0ece71ee34495724894a901c8522cf43ae5d0",
+      "metrics": {
+        "passing-yards": {
+          "value": 37,
+          "years": "2016\u20132026"
+        },
+        "passing-td": {
+          "value": 4,
+          "years": "2016\u20132026"
+        },
+        "rushing-yards": {
+          "value": 13552,
+          "years": "2016\u20132026"
+        },
+        "rushing-td": {
+          "value": 129,
+          "years": "2016\u20132026"
+        },
+        "receiving-yards": {
+          "value": 1865,
+          "years": "2016\u20132026"
+        },
+        "receiving-td": {
+          "value": 6,
+          "years": "2016\u20132026"
+        },
+        "tackles": {
+          "value": 5,
+          "years": "2018\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2018\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2018\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:2577417",
+      "gsisId": "00-0033077",
+      "name": "Dak Prescott",
+      "team": "DAL",
+      "firstSeason": 2016,
+      "observedAt": "2026-10-23T00:25:44.303241+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/2577417/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "0ad9adcbf863112681251e895beefe15f7db12fcbc01bc1b1b7eafc6554c2a24",
+      "metrics": {
+        "passing-yards": {
+          "value": 37628,
+          "years": "2016\u20132026"
+        },
+        "passing-td": {
+          "value": 253,
+          "years": "2016\u20132026"
+        },
+        "rushing-yards": {
+          "value": 2188,
+          "years": "2016\u20132026"
+        },
+        "rushing-td": {
+          "value": 31,
+          "years": "2016\u20132026"
+        },
+        "receiving-yards": {
+          "value": 11,
+          "years": "2017\u20132026"
+        },
+        "receiving-td": {
+          "value": 1,
+          "years": "2017\u20132026"
+        },
+        "tackles": {
+          "value": 8,
+          "years": "2016\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2016\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2016\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3046779",
+      "gsisId": "00-0033106",
+      "name": "Jared Goff",
+      "team": "DET",
+      "firstSeason": 2016,
+      "observedAt": "2026-10-23T00:25:44.955502+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3046779/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "f36802e8ee0d717b08e8fd5bb1304c975b6cd38411aad08dc3c7bef3fab6be53",
+      "metrics": {
+        "passing-yards": {
+          "value": 41107,
+          "years": "2016\u20132026"
+        },
+        "passing-td": {
+          "value": 268,
+          "years": "2016\u20132026"
+        },
+        "rushing-yards": {
+          "value": 612,
+          "years": "2016\u20132026"
+        },
+        "rushing-td": {
+          "value": 13,
+          "years": "2016\u20132026"
+        },
+        "receiving-yards": {
+          "value": 12,
+          "years": "2022\u20132024"
+        },
+        "receiving-td": {
+          "value": 1,
+          "years": "2022\u20132024"
+        },
+        "tackles": {
+          "value": 8,
+          "years": "2016\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2016\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2016\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3122132",
+      "gsisId": "00-0033868",
+      "name": "Myles Garrett",
+      "team": "LA",
+      "firstSeason": 2017,
+      "observedAt": "2026-10-23T00:25:45.415719+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3122132/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "c1fbb9b501ed616fde76e8435fe5d550f5acb73edf08e137677660f516bdd50a",
+      "metrics": {
+        "tackles": {
+          "value": 412,
+          "years": "2017\u20132025"
+        },
+        "sacks": {
+          "value": 125.5,
+          "years": "2017\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2017\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3139477",
+      "gsisId": "00-0033873",
+      "name": "Patrick Mahomes",
+      "team": "KC",
+      "firstSeason": 2017,
+      "observedAt": "2026-10-23T00:25:45.793245+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3139477/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "cadd754cedfff0d2a9f634c62de891ec4c864ddc8ba644845e7df3212f9b03fa",
+      "metrics": {
+        "passing-yards": {
+          "value": 37248,
+          "years": "2017\u20132026"
+        },
+        "passing-td": {
+          "value": 276,
+          "years": "2017\u20132026"
+        },
+        "rushing-yards": {
+          "value": 2722,
+          "years": "2017\u20132026"
+        },
+        "rushing-td": {
+          "value": 20,
+          "years": "2017\u20132026"
+        },
+        "receiving-yards": {
+          "value": -2,
+          "years": "2020\u20132025"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2020\u20132025"
+        },
+        "tackles": {
+          "value": 8,
+          "years": "2020\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3045282",
+      "gsisId": "00-0033886",
+      "name": "T.J. Watt",
+      "team": "PIT",
+      "firstSeason": 2017,
+      "observedAt": "2026-10-23T00:25:46.169770+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3045282/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "9b50b3b5023c56ff79e6fbb0cd9cd9a88faed4946ea9c80e2f396d6689d2d986",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2026\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2026\u20132026"
+        },
+        "tackles": {
+          "value": 532,
+          "years": "2017\u20132026"
+        },
+        "sacks": {
+          "value": 119.5,
+          "years": "2017\u20132026"
+        },
+        "interceptions": {
+          "value": 10,
+          "years": "2017\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:2977187",
+      "gsisId": "00-0033908",
+      "name": "Cooper Kupp",
+      "team": "SEA",
+      "firstSeason": 2017,
+      "observedAt": "2026-10-23T00:25:46.651003+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/2977187/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "98fb23e0bdec80ebb99adbc838dfe86867d420eb499e0ef264b5e7e4b88c6b93",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2017\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2017\u20132026"
+        },
+        "rushing-yards": {
+          "value": 139,
+          "years": "2018\u20132024"
+        },
+        "rushing-td": {
+          "value": 1,
+          "years": "2018\u20132024"
+        },
+        "receiving-yards": {
+          "value": 8548,
+          "years": "2017\u20132026"
+        },
+        "receiving-td": {
+          "value": 60,
+          "years": "2017\u20132026"
+        },
+        "tackles": {
+          "value": 16,
+          "years": "2017\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2017\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2017\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3050073",
+      "gsisId": "00-0034413",
+      "name": "Foyesade Oluokun",
+      "team": "JAX",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:47.129140+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3050073/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "409e5948536a4f1dadeff31c9cd3d75c3cb882f7db179b4b2ccaff42b0f2e1e8",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2020\u20132020"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2020\u20132020"
+        },
+        "tackles": {
+          "value": 1111,
+          "years": "2018\u20132026"
+        },
+        "sacks": {
+          "value": 11.5,
+          "years": "2018\u20132026"
+        },
+        "interceptions": {
+          "value": 10,
+          "years": "2018\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3124005",
+      "gsisId": "00-0034431",
+      "name": "Zaire Franklin",
+      "team": "GB",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:47.620147+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3124005/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "dfde0fbdc4b4f37c3d50b54f383eecc6484b55d7a046c4dbb4cdb2c1dcdba0ba",
+      "metrics": {
+        "tackles": {
+          "value": 779,
+          "years": "2018\u20132026"
+        },
+        "sacks": {
+          "value": 10,
+          "years": "2018\u20132026"
+        },
+        "interceptions": {
+          "value": 3,
+          "years": "2018\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3916387",
+      "gsisId": "00-0034796",
+      "name": "Lamar Jackson",
+      "team": "BAL",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:48.073320+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3916387/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "25aa62b96f6478b7816cb90e614b8a99bf7f640a22b824efba671370976f7342",
+      "metrics": {
+        "passing-yards": {
+          "value": 23575,
+          "years": "2018\u20132026"
+        },
+        "passing-td": {
+          "value": 193,
+          "years": "2018\u20132026"
+        },
+        "rushing-yards": {
+          "value": 6666,
+          "years": "2018\u20132026"
+        },
+        "rushing-td": {
+          "value": 36,
+          "years": "2018\u20132026"
+        },
+        "receiving-yards": {
+          "value": 0,
+          "years": "2018\u20132018"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2018\u20132018"
+        },
+        "tackles": {
+          "value": 13,
+          "years": "2018\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2018\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2018\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3929630",
+      "gsisId": "00-0034844",
+      "name": "Saquon Barkley",
+      "team": "PHI",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:48.530452+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3929630/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "6d768777fcb0152ca2a570d5267ee4e342880ddd67f807c49618667c011e3d90",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2018\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2018\u20132026"
+        },
+        "rushing-yards": {
+          "value": 8538,
+          "years": "2018\u20132026"
+        },
+        "rushing-td": {
+          "value": 55,
+          "years": "2018\u20132026"
+        },
+        "receiving-yards": {
+          "value": 2659,
+          "years": "2018\u20132026"
+        },
+        "receiving-td": {
+          "value": 16,
+          "years": "2018\u20132026"
+        },
+        "tackles": {
+          "value": 4,
+          "years": "2018\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2018\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2018\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3052587",
+      "gsisId": "00-0034855",
+      "name": "Baker Mayfield",
+      "team": "TB",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:48.992333+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3052587/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "bc3c3597f2aa494cd03e85a1863f3d2f189fb76b2b00b5bf020099da3e575911",
+      "metrics": {
+        "passing-yards": {
+          "value": 29140,
+          "years": "2018\u20132026"
+        },
+        "passing-td": {
+          "value": 199,
+          "years": "2018\u20132026"
+        },
+        "rushing-yards": {
+          "value": 1648,
+          "years": "2018\u20132026"
+        },
+        "rushing-td": {
+          "value": 12,
+          "years": "2018\u20132026"
+        },
+        "receiving-yards": {
+          "value": 17,
+          "years": "2018\u20132021"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2018\u20132021"
+        },
+        "tackles": {
+          "value": 2,
+          "years": "2019\u20132022"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2019\u20132022"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2019\u20132022"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3918298",
+      "gsisId": "00-0034857",
+      "name": "Josh Allen",
+      "team": "BUF",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:49.454743+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3918298/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "580b556ac35ce4a3a6682834527e03483b16b0430e217c7f79157a5892944073",
+      "metrics": {
+        "passing-yards": {
+          "value": 31606,
+          "years": "2018\u20132026"
+        },
+        "passing-td": {
+          "value": 229,
+          "years": "2018\u20132026"
+        },
+        "rushing-yards": {
+          "value": 4961,
+          "years": "2018\u20132026"
+        },
+        "rushing-td": {
+          "value": 87,
+          "years": "2018\u20132026"
+        },
+        "receiving-yards": {
+          "value": 20,
+          "years": "2018\u20132026"
+        },
+        "receiving-td": {
+          "value": 2,
+          "years": "2018\u20132026"
+        },
+        "tackles": {
+          "value": 9,
+          "years": "2018\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2018\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2018\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3915189",
+      "gsisId": "00-0034874",
+      "name": "Roquan Smith",
+      "team": "BAL",
+      "firstSeason": 2018,
+      "observedAt": "2026-10-23T00:25:50.056955+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3915189/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "415d4d199d4defea260201bcf9c82100313c118eb7f9a9b1cd1574473ca67b49",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2020\u20132020"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2020\u20132020"
+        },
+        "tackles": {
+          "value": 1183,
+          "years": "2018\u20132026"
+        },
+        "sacks": {
+          "value": 23.5,
+          "years": "2018\u20132026"
+        },
+        "interceptions": {
+          "value": 11,
+          "years": "2018\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3116724",
+      "gsisId": "00-0035697",
+      "name": "Germaine Pratt",
+      "team": "IND",
+      "firstSeason": 2019,
+      "observedAt": "2026-10-23T00:25:50.635714+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3116724/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "55fba1f049e237928ce6e58ca20902be52149589b1a85178ea4c383733c82811",
+      "metrics": {
+        "tackles": {
+          "value": 742,
+          "years": "2019\u20132025"
+        },
+        "sacks": {
+          "value": 3.5,
+          "years": "2019\u20132025"
+        },
+        "interceptions": {
+          "value": 8,
+          "years": "2019\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4047365",
+      "gsisId": "00-0035700",
+      "name": "Josh Jacobs",
+      "team": "GB",
+      "firstSeason": 2019,
+      "observedAt": "2026-10-23T00:25:51.207235+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4047365/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "4866f0c03e9f5dd36e5afbcf5e356e9a3403da3206c5bc59a12cd1729f0831c6",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2019\u20132025"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2019\u20132025"
+        },
+        "rushing-yards": {
+          "value": 7803,
+          "years": "2019\u20132025"
+        },
+        "rushing-td": {
+          "value": 74,
+          "years": "2019\u20132025"
+        },
+        "receiving-yards": {
+          "value": 2072,
+          "years": "2019\u20132025"
+        },
+        "receiving-td": {
+          "value": 2,
+          "years": "2019\u20132025"
+        },
+        "tackles": {
+          "value": 8,
+          "years": "2019\u20132024"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2019\u20132024"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2019\u20132024"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4242335",
+      "gsisId": "00-0036223",
+      "name": "Jonathan Taylor",
+      "team": "IND",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:51.673819+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4242335/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "98cd5b72b343c795da3903a3f26dc54e932499137baae11d842eb6d9b1139732",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "rushing-yards": {
+          "value": 8090,
+          "years": "2020\u20132026"
+        },
+        "rushing-td": {
+          "value": 76,
+          "years": "2020\u20132026"
+        },
+        "receiving-yards": {
+          "value": 1632,
+          "years": "2020\u20132026"
+        },
+        "receiving-td": {
+          "value": 7,
+          "years": "2020\u20132026"
+        },
+        "tackles": {
+          "value": 3,
+          "years": "2020\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4262921",
+      "gsisId": "00-0036322",
+      "name": "Justin Jefferson",
+      "team": "MIN",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:52.128783+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4262921/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "16cbee81648109f418b7f60f11b4171ca8f1dd9ac7b1a6caff266af2dbdbc129",
+      "metrics": {
+        "passing-yards": {
+          "value": 91,
+          "years": "2020\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "rushing-yards": {
+          "value": 27,
+          "years": "2020\u20132026"
+        },
+        "rushing-td": {
+          "value": 1,
+          "years": "2020\u20132026"
+        },
+        "receiving-yards": {
+          "value": 8738,
+          "years": "2020\u20132026"
+        },
+        "receiving-td": {
+          "value": 45,
+          "years": "2020\u20132026"
+        },
+        "tackles": {
+          "value": 8,
+          "years": "2020\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4038941",
+      "gsisId": "00-0036355",
+      "name": "Justin Herbert",
+      "team": "LAC",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:52.760551+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4038941/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "40782dd338655172d5e42e27217c40cf4ba64f6b3075785714398ee0cc48b474",
+      "metrics": {
+        "passing-yards": {
+          "value": 25961,
+          "years": "2020\u20132026"
+        },
+        "passing-td": {
+          "value": 168,
+          "years": "2020\u20132026"
+        },
+        "rushing-yards": {
+          "value": 1883,
+          "years": "2020\u20132026"
+        },
+        "rushing-td": {
+          "value": 15,
+          "years": "2020\u20132026"
+        },
+        "receiving-yards": {
+          "value": 0,
+          "years": "2022\u20132026"
+        },
+        "receiving-td": {
+          "value": 0,
+          "years": "2022\u20132026"
+        },
+        "tackles": {
+          "value": 10,
+          "years": "2020\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4241389",
+      "gsisId": "00-0036358",
+      "name": "CeeDee Lamb",
+      "team": "DAL",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:53.352545+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4241389/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "90198e7f351ced45fe55fff210974c66e32e773c082374d0e893bd6cb5292330",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2020\u20132026"
+        },
+        "rushing-yards": {
+          "value": 384,
+          "years": "2020\u20132026"
+        },
+        "rushing-td": {
+          "value": 3,
+          "years": "2020\u20132026"
+        },
+        "receiving-yards": {
+          "value": 7993,
+          "years": "2020\u20132026"
+        },
+        "receiving-td": {
+          "value": 45,
+          "years": "2020\u20132026"
+        },
+        "tackles": {
+          "value": 11,
+          "years": "2020\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4043130",
+      "gsisId": "00-0036409",
+      "name": "Jordyn Brooks",
+      "team": "MIA",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:53.806958+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4043130/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "1fc32d52173ad2dbb7d7a03f28258655f735ac3436f84d44f2c80751fe46171d",
+      "metrics": {
+        "tackles": {
+          "value": 882,
+          "years": "2020\u20132026"
+        },
+        "sacks": {
+          "value": 13,
+          "years": "2020\u20132026"
+        },
+        "interceptions": {
+          "value": 1,
+          "years": "2020\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3915511",
+      "gsisId": "00-0036442",
+      "name": "Joe Burrow",
+      "team": "CIN",
+      "firstSeason": 2020,
+      "observedAt": "2026-10-23T00:25:54.175553+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3915511/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "5c7a04b172a4f2bc875568f6e018756c64ad5b14d80c5830fb8e163ba7062e7e",
+      "metrics": {
+        "passing-yards": {
+          "value": 22171,
+          "years": "2020\u20132026"
+        },
+        "passing-td": {
+          "value": 168,
+          "years": "2020\u20132026"
+        },
+        "rushing-yards": {
+          "value": 895,
+          "years": "2020\u20132026"
+        },
+        "rushing-td": {
+          "value": 13,
+          "years": "2020\u20132026"
+        },
+        "tackles": {
+          "value": 3,
+          "years": "2021\u20132024"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2021\u20132024"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2021\u20132024"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4362759",
+      "gsisId": "00-0036621",
+      "name": "Nick Bolton",
+      "team": "KC",
+      "firstSeason": 2021,
+      "observedAt": "2026-10-23T00:25:54.642950+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4362759/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "5fa4c252674b6b8ce2a6692df41961313d35ac3e062eda25fe2ea1a3cebe5642",
+      "metrics": {
+        "tackles": {
+          "value": 660,
+          "years": "2021\u20132026"
+        },
+        "sacks": {
+          "value": 6,
+          "years": "2021\u20132026"
+        },
+        "interceptions": {
+          "value": 5,
+          "years": "2021\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4362628",
+      "gsisId": "00-0036900",
+      "name": "Ja'Marr Chase",
+      "team": "CIN",
+      "firstSeason": 2021,
+      "observedAt": "2026-10-23T00:25:55.104379+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4362628/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "817f05c2fd9de4881775aace9ad35bf0b1a9b8de46ba046b84d1e294d6b4d444",
+      "metrics": {
+        "passing-yards": {
+          "value": -7,
+          "years": "2021\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2021\u20132026"
+        },
+        "rushing-yards": {
+          "value": 69,
+          "years": "2021\u20132025"
+        },
+        "rushing-td": {
+          "value": 0,
+          "years": "2021\u20132025"
+        },
+        "receiving-yards": {
+          "value": 7126,
+          "years": "2021\u20132026"
+        },
+        "receiving-td": {
+          "value": 58,
+          "years": "2021\u20132026"
+        },
+        "tackles": {
+          "value": 21,
+          "years": "2021\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2021\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2021\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4372099",
+      "gsisId": "00-0037236",
+      "name": "Aidan Hutchinson",
+      "team": "DET",
+      "firstSeason": 2022,
+      "observedAt": "2026-10-23T00:25:55.558414+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4372099/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "e1d4a9d5668adec95cfec4407d7e612a56414b0c7fbb0d5f3223846b730bee01",
+      "metrics": {
+        "tackles": {
+          "value": 191,
+          "years": "2022\u20132026"
+        },
+        "sacks": {
+          "value": 47,
+          "years": "2022\u20132026"
+        },
+        "interceptions": {
+          "value": 5,
+          "years": "2022\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4430878",
+      "gsisId": "00-0038543",
+      "name": "Jaxon Smith-Njigba",
+      "team": "SEA",
+      "firstSeason": 2023,
+      "observedAt": "2026-10-23T00:25:56.022183+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4430878/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "ef9c4f8d453ee9fb63728a3033b31f078304b785e8f6304186d5742909d10c57",
+      "metrics": {
+        "passing-yards": {
+          "value": 49,
+          "years": "2023\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2023\u20132026"
+        },
+        "rushing-yards": {
+          "value": 78,
+          "years": "2024\u20132026"
+        },
+        "rushing-td": {
+          "value": 0,
+          "years": "2024\u20132026"
+        },
+        "receiving-yards": {
+          "value": 4268,
+          "years": "2023\u20132026"
+        },
+        "receiving-td": {
+          "value": 27,
+          "years": "2023\u20132026"
+        },
+        "tackles": {
+          "value": 10,
+          "years": "2023\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2023\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2023\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4569465",
+      "gsisId": "00-0039018",
+      "name": "Jack Campbell",
+      "team": "DET",
+      "firstSeason": 2023,
+      "observedAt": "2026-10-23T00:25:56.471154+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4569465/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "7490ec06799555ba2788e04d4b430509869aa6c264100366825a6634738af5f2",
+      "metrics": {
+        "tackles": {
+          "value": 445,
+          "years": "2023\u20132026"
+        },
+        "sacks": {
+          "value": 8.5,
+          "years": "2023\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2023\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:4426515",
+      "gsisId": "00-0039075",
+      "name": "Puka Nacua",
+      "team": "LA",
+      "firstSeason": 2023,
+      "observedAt": "2026-10-23T00:25:57.053439+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/4426515/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "d69cc0b3d0f1c5c01d49c9e6430783efd2d143ba51bb2de574bef9c174ae8f59",
+      "metrics": {
+        "passing-yards": {
+          "value": 0,
+          "years": "2023\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2023\u20132026"
+        },
+        "rushing-yards": {
+          "value": 251,
+          "years": "2023\u20132026"
+        },
+        "rushing-td": {
+          "value": 3,
+          "years": "2023\u20132026"
+        },
+        "receiving-yards": {
+          "value": 4608,
+          "years": "2023\u20132026"
+        },
+        "receiving-td": {
+          "value": 20,
+          "years": "2023\u20132026"
+        },
+        "tackles": {
+          "value": 4,
+          "years": "2023\u20132026"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2023\u20132026"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2023\u20132026"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:15818",
+      "gsisId": "00-0030279",
+      "name": "Keenan Allen",
+      "team": "IND",
+      "firstSeason": 2013,
+      "observedAt": "2026-10-23T00:25:57.507082+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/15818/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "b16fa48d4765fa6ed6fd23f653fbf2eca2e08b358f328980f7e0354fa234186d",
+      "metrics": {
+        "passing-yards": {
+          "value": 49,
+          "years": "2013\u20132026"
+        },
+        "passing-td": {
+          "value": 1,
+          "years": "2013\u20132026"
+        },
+        "rushing-yards": {
+          "value": 113,
+          "years": "2017\u20132023"
+        },
+        "rushing-td": {
+          "value": 0,
+          "years": "2017\u20132023"
+        },
+        "receiving-yards": {
+          "value": 12278,
+          "years": "2013\u20132026"
+        },
+        "receiving-td": {
+          "value": 71,
+          "years": "2013\u20132026"
+        },
+        "tackles": {
+          "value": 23,
+          "years": "2013\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2013\u20132025"
+        },
+        "interceptions": {
+          "value": 1,
+          "years": "2013\u20132025"
+        }
+      }
+    },
+    {
+      "playerId": "espn:nfl:3054850",
+      "gsisId": "00-0033906",
+      "name": "Alvin Kamara",
+      "team": "NO",
+      "firstSeason": 2017,
+      "observedAt": "2026-10-23T00:26:10.751189+00:00",
+      "sourceUrl": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/3054850/stats?seasontype=2&region=us&lang=en&contentorigin=espn",
+      "sha256": "471ad841aedd3cad221e9f3a6c5fb7913dd3c517c149ddb3f42e5a841e152a79",
+      "metrics": {
+        "passing-yards": {
+          "value": 13,
+          "years": "2017\u20132026"
+        },
+        "passing-td": {
+          "value": 0,
+          "years": "2017\u20132026"
+        },
+        "rushing-yards": {
+          "value": 7370,
+          "years": "2017\u20132026"
+        },
+        "rushing-td": {
+          "value": 63,
+          "years": "2017\u20132026"
+        },
+        "receiving-yards": {
+          "value": 5024,
+          "years": "2017\u20132026"
+        },
+        "receiving-td": {
+          "value": 26,
+          "years": "2017\u20132026"
+        },
+        "tackles": {
+          "value": 6,
+          "years": "2020\u20132025"
+        },
+        "sacks": {
+          "value": 0,
+          "years": "2020\u20132025"
+        },
+        "interceptions": {
+          "value": 0,
+          "years": "2020\u20132025"
+        }
+      }
+    }
+  ]
+}

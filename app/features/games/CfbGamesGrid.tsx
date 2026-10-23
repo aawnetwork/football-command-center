@@ -1,3 +1,4 @@
+import { GameDetails } from "./GameDetails";
 import { GameCard } from "../../components/GameCard";
 import { useHubPreferences } from "../preferences/HubPreferences";
 import { favouriteSides } from "../../lib/local-preferences";
@@ -113,6 +114,7 @@ export function CfbGamesGrid({
 
         return (
           <GameCard
+            details={<GameDetails context={game.context} status={game.completed ? "final" : game.live ? "live" : "scheduled"} matchupContext={indicator?.label} />}
             favourite={Object.values(favouriteSides(game.context, "CFB", favourites.CFB)).some(Boolean)}
             key={game.id}
             possession={game.possession}

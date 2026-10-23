@@ -3,18 +3,17 @@
 import { useEffect, useState } from "react";
 
 import {
-  nflAllTimeCareerIndividual,
   nflAllTimeSeasonIndividual,
   nflAllTimeSingleGameIndividual,
   type NflAllTimeCategory,
   type NflAllTimeSingleGameCategory,
 } from "../../nfl/data/nfl-all-time-career";
 import {
-  nflAllTimeCareerTeam,
   type NflAllTimeTeamCategory,
 } from "../../nfl/data/nfl-all-time-team";
+import {nflCareerRecordSets, nflCareerPublication, nflCareerCategories} from "../../lib/all-time-nfl-careers";
 import { AllTimeSources, recordSourceLabel, type AllTimeDatasetSources, type AllTimeSources as SourceInfo } from "./AllTimeSources";
-import { gamesPlayedRecords } from "../../lib/all-time-records";
+import { nflTeamRecordSets } from "../../lib/all-time-nfl-teams";
 import { AllTimeRecordGrid, type AllTimeRecord } from "./AllTimeRecordGrid";
 
 type NflAllTimePanelProps = {
@@ -54,9 +53,9 @@ export function NflAllTimePanel({
 }: NflAllTimePanelProps) {
   const [liveLeaderboards, setLiveLeaderboards] = useState<Record<string, AllTimeRecord[]>>({});
 
-  const [source, setSource] = useState<SourceInfo | null>(null);
+  const [source, setSource] = useState<SourceInfo | null>({mode:"active-career",checkedAt:nflCareerPublication.checkedAt,careerCutoff:nflCareerPublication.cutoff});
 
-  const [datasetSources, setDatasetSources] = useState<AllTimeDatasetSources>({});
+  const [datasetSources, setDatasetSources] = useState<AllTimeDatasetSources>(Object.fromEntries(nflCareerCategories.map(category => [`NFL:individual:career:${category}`,{mode:"active-career",checkedAt:nflCareerPublication.checkedAt}])));
 
   useEffect(() => {
     let cancelled = false;
@@ -95,7 +94,8 @@ export function NflAllTimePanel({
         setDatasetSources(data.datasets ?? {});
       })
       .catch(() => {
-        // The bundled record book remains the reliable fallback while offline.
+        // Keep the last received observations, not a rollback to the older base.
+        setSource(previous => previous ? {...previous, publicationAvailable:false} : {mode:"record-book",checkedAt:null,publicationAvailable:false});
       });
 
     loadLeaderboards();
@@ -113,13 +113,13 @@ export function NflAllTimePanel({
 
   const individualRecords =
     view === "individual" && displayPeriod === "career"
-      ? nflAllTimeCareerIndividual
+      ? nflCareerRecordSets()
       : view === "individual" && displayPeriod === "season"
         ? nflAllTimeSeasonIndividual
         : view === "individual" && displayPeriod === "single-game"
           ? nflAllTimeSingleGameIndividual
         : null;
-  const teamRecords = view === "team" && displayPeriod === "career" ? nflAllTimeCareerTeam : null;
+  const teamRecords = view === "team" && displayPeriod === "career" ? nflTeamRecordSets() : null;
   const records = individualRecords ?? teamRecords;
   const availablePeriods =
     view === "individual"
@@ -178,12 +178,12 @@ export function NflAllTimePanel({
             : teamRecords
               ? [...teamCareerCategories.map(([title, category, unit]) => ({
                   title, unit,
-                  records: recordsFor("team", "career", category, teamRecords[category]).map(record => ({...record, years: "Cutoff unverified", isActive: false})),
-                  sourceLabel: "Retained franchise snapshot · 32 franchises",
+                  records: recordsFor("team", "career", category, teamRecords[category]).map(record => ({...record, isActive: false})),
+                  sourceLabel: recordSourceLabel(datasetSources[`NFL:team:career:${category}`] ?? {mode:"verified-baseline",checkedAt:null}),
                 })), {
                   title: "🏟️ Games Played", unit: "games",
-                  records: gamesPlayedRecords(teamRecords.wins).map(record => ({...record, years: "Cutoff unverified", isActive: false})),
-                  sourceLabel: "From retained franchise W–L–T records · 32 franchises",
+                  records: recordsFor("team", "career", "games-played", teamRecords["games-played"]).map(record => ({...record, isActive: false})),
+                  sourceLabel: recordSourceLabel(datasetSources["NFL:team:career:games-played"] ?? {mode:"verified-baseline",checkedAt:null}),
                 }]
             : undefined
         }

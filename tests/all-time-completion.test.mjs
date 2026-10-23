@@ -1,3 +1,4 @@
+import {compileLocalModule} from './helpers/compile-local-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -55,7 +56,7 @@ async function monitorRead(state,run){
  globalThis.fetch=async(url,options={})=>{assert.ok(String(url).startsWith('https://all-time-test.invalid/rest/v1/all_time_monitor_state?'));assert.equal(options.method,undefined,'no database or provider writes');reads++;return state===null?new Response('',{status:503}):Response.json([{state}]);};
  try{
   let source=await read('app/lib/all-time-monitor.ts');for(const rel of ['./all-time-records','./all-time-comparison','./all-time-signal-retention','../cfb/data/cfb-all-time-career','../cfb/data/cfb-all-time-program','../nfl/data/nfl-all-time-career','../nfl/data/nfl-all-time-team'])source=source.replace(JSON.stringify(rel),JSON.stringify(new URL('../app/lib/'+rel+'.ts',import.meta.url).href));
-  source=source.replace('"./all-time-live-sources"',JSON.stringify(compile('export async function loadNflActiveCareerSource(){throw Error("No providers allowed")}')));
+  for(const name of ['all-time-nfl-teams','all-time-nfl-results','all-time-nfl-careers'])source=source.replace(JSON.stringify('./'+name),JSON.stringify(await compileLocalModule(new URL('../app/lib/'+name+'.ts',import.meta.url))));source=source.replace('"./all-time-live-sources"',JSON.stringify(compile('export async function loadNflActiveCareerSource(){throw Error("No providers allowed")}')));
   const mod=await import(compile(source+'\n// isolated fixture module '+monitorSequence++));await run(mod);assert.ok(reads>0);
  }finally{globalThis.fetch=old;for(const k of keys){if(saved[k]===undefined)delete process.env[k];else process.env[k]=saved[k];}}
 }
@@ -66,14 +67,15 @@ test('new bundled categories and corrections override stale static storage witho
  const nfl=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(nfl.leaderboards['NFL:individual:season:passing-yards'][0].value,5477);assert.equal(nfl.leaderboards['NFL:team:career:wins'].length,32);assert.equal(nfl.leaderboards['NFL:team:career:games-played'][0].value,1503);
 }));
 test('verified active career publications and downward corrections propagate on the next read, independently of static tables',async()=>{
- const state={version:1,catalogVersion:'espn-active-career-v3',signals:[],snapshots:[snapshot('NFL','individual','career','passing-yards',[entry,{...entry,id:'stale-retired',name:'Tom Brady',value:999999,isActive:false}])]};
+ const state={version:1,catalogVersion:'espn-active-career-v4',signals:[],snapshots:[snapshot('NFL','individual','career','passing-yards',[{...entry,playerId:'espn:nfl:8439'},{...entry,id:'stale-retired',name:'Tom Brady',value:999999,isActive:false}])]};
  await monitorRead(state,async mod=>{
-  const before=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(before.leaderboards['NFL:individual:career:passing-yards'].find(row=>row.name==='Aaron Rodgers').value,67000);assert.equal(before.leaderboards['NFL:individual:career:passing-yards'][0].value,89214);assert.equal(before.leaderboards['NFL:individual:career:passing-yards'].length,25);assert.equal(before.source.checkedAt,'2026-10-21T12:00:00Z');assert.equal(before.datasets['NFL:team:career:wins'].mode,'record-book');
+  state.snapshots[0].checkedAt='2026-10-24T12:00:00Z';const before=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(before.leaderboards['NFL:individual:career:passing-yards'].find(row=>row.name==='Aaron Rodgers').value,67000);assert.equal(before.leaderboards['NFL:individual:career:passing-yards'][0].value,89214);assert.equal(before.leaderboards['NFL:individual:career:passing-yards'].length,25);assert.ok(before.source.checkedAt);assert.equal(before.datasets['NFL:team:career:wins'].mode,'verified-baseline');
   state.snapshots[0].entries[0].value=66990;const corrected=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(corrected.leaderboards['NFL:individual:career:passing-yards'].find(row=>row.name==='Aaron Rodgers').value,66990);assert.ok(!('signals' in corrected));
   state.snapshots[0].entries[0].value=90000;const newLeader=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(newLeader.leaderboards['NFL:individual:career:passing-yards'][0].name,'Aaron Rodgers');
-  state.snapshots[0].entries[0].value=null;const invalid=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(invalid.leaderboards['NFL:individual:career:passing-yards'][0].value,89214);assert.equal(invalid.source.mode,'record-book');
+  state.snapshots[0].entries[0].value=null;const invalid=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(invalid.leaderboards['NFL:individual:career:passing-yards'][0].value,89214);assert.equal(invalid.source.mode,'active-career');
  });
 });
-test('unavailable storage serves bundled records without inventing source refresh dates',()=>monitorRead(null,async mod=>{
- const result=await mod.getAllTimeLeaderboardFeed('NFL');assert.equal(result.source.publicationAvailable,false);assert.equal(result.source.checkedAt,null);assert.equal(result.leaderboards['NFL:team:career:wins'].length,32);assert.equal(result.leaderboards['NFL:individual:career:passing-yards'][0].name,'Tom Brady');
+test('storage failure cannot regress a published NFL ledger to the baseline; static CFB remains available',()=>monitorRead(null,async mod=>{
+ await assert.rejects(mod.getAllTimeLeaderboardFeed('NFL'),/monitor read failed/);
+ const cfb=await mod.getAllTimeLeaderboardFeed('CFB');assert.equal(cfb.source.publicationAvailable,false);assert.equal(cfb.source.checkedAt,null);assert.equal(cfb.leaderboards['CFB:team:career:wins'].length,25);
 }));

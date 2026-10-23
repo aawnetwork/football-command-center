@@ -1,0 +1,170 @@
+{
+  "note": "Existing retained nflverse game row and ESPN final scoreboard; no new collection",
+  "row": {
+    "game_id": "2026_02_WAS_DAL",
+    "season": "2026",
+    "game_type": "REG",
+    "week": "2",
+    "gameday": "2026-09-20",
+    "weekday": "Sunday",
+    "gametime": "16:25",
+    "away_team": "WAS",
+    "away_score": "20",
+    "home_team": "DAL",
+    "home_score": "37",
+    "location": "Home",
+    "result": "17",
+    "total": "57",
+    "overtime": "0",
+    "old_game_id": "2026092011",
+    "gsis": "60206",
+    "nfl_detail_id": "",
+    "pfr": "202609200dal",
+    "pff": "30633",
+    "espn": "401872944",
+    "ftn": "7047",
+    "away_rest": "7",
+    "home_rest": "7",
+    "away_moneyline": "180",
+    "home_moneyline": "-218",
+    "spread_line": "3.5",
+    "away_spread_odds": "100",
+    "home_spread_odds": "-120",
+    "total_line": "51.5",
+    "under_odds": "-115",
+    "over_odds": "-105",
+    "div_game": "1",
+    "roof": "closed",
+    "surface": "matrixturf",
+    "temp": "",
+    "wind": "",
+    "away_qb_id": "00-0039910",
+    "home_qb_id": "00-0033077",
+    "away_qb_name": "Jayden Daniels",
+    "home_qb_name": "Dak Prescott",
+    "away_coach": "Dan Quinn",
+    "home_coach": "Brian Schottenheimer",
+    "referee": "Shawn Hochuli",
+    "stadium_id": "DAL00",
+    "stadium": "AT&T Stadium"
+  },
+  "board": {
+    "season": {
+      "year": 2026,
+      "type": 2
+    },
+    "week": {
+      "number": 2
+    },
+    "events": [
+      {
+        "id": "401872944",
+        "date": "2026-09-20T20:25Z",
+        "season": {
+          "year": 2026,
+          "type": 2
+        },
+        "competitions": [
+          {
+            "id": "401872944",
+            "date": "2026-09-20T20:25Z",
+            "status": {
+              "type": {
+                "id": "3",
+                "name": "STATUS_FINAL",
+                "state": "post",
+                "completed": true,
+                "description": "Final",
+                "detail": "Final",
+                "shortDetail": "Final"
+              },
+              "isTBDFlex": false
+            },
+            "competitors": [
+              {
+                "id": "6",
+                "uid": "s:20~l:28~t:6",
+                "order": 0,
+                "homeAway": "home",
+                "winner": true,
+                "team": {
+                  "id": "6",
+                  "abbreviation": "DAL",
+                  "displayName": "Dallas Cowboys"
+                },
+                "score": "37",
+                "linescores": [
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "7"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "10"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "1-1",
+                    "displayValue": "1-1"
+                  },
+                  {
+                    "type": "home",
+                    "summary": "1-0",
+                    "displayValue": "1-0"
+                  }
+                ],
+                "possession": false
+              },
+              {
+                "id": "28",
+                "uid": "s:20~l:28~t:28",
+                "order": 1,
+                "homeAway": "away",
+                "winner": false,
+                "team": {
+                  "id": "28",
+                  "abbreviation": "WSH",
+                  "displayName": "Washington Commanders"
+                },
+                "score": "20",
+                "linescores": [
+                  {
+                    "displayValue": "0"
+                  },
+                  {
+                    "displayValue": "10"
+                  },
+                  {
+                    "displayValue": "3"
+                  },
+                  {
+                    "displayValue": "7"
+                  }
+                ],
+                "record": [
+                  {
+                    "type": "total",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  },
+                  {
+                    "type": "road",
+                    "summary": "0-2",
+                    "displayValue": "0-2"
+                  }
+                ],
+                "possession": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

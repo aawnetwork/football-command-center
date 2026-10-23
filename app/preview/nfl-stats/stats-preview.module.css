@@ -105,3 +105,15 @@
 .studio[data-league='CFB'] .tableWrap .openRow > .player,
 .studio[data-league='CFB'] .tableWrap .openRow > td { background:#fff0e5; }
 .studio[data-league='CFB'] .playing { background:#B94700; border-color:#B94700; color:#fff; }
+
+.coverage { margin: 0 0 12px; font-size: 11px; line-height: 1.5; }
+.coverageSummary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.coverageBadge { display: inline-block; border: 1px solid var(--accent); border-radius: 2px; padding: 2px 6px; color: var(--cc-text); font-size: 10px; }
+.coverageCounts { margin: 5px 0; color: var(--cc-muted); }
+.coverageImportant { margin: 5px 0; color: var(--cc-text); font-weight: 700; }
+.methodology { margin-top: 6px; border-top: 1px solid var(--cc-border); padding-top: 6px; color: var(--cc-muted); }
+.methodology summary { cursor: pointer; color: var(--cc-text); font-weight: 700; width: fit-content; }
+.methodology summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.methodology p { margin: 7px 0; }
+.methodology ul { padding-left: 18px; margin: 7px 0; }
+.methodology li + li { margin-top: 5px; }

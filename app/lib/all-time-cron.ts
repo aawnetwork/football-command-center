@@ -9,7 +9,9 @@ export async function runAllTimeCron(request: Request, league: AllTimeLeague) {
   }
 
   try {
-    return NextResponse.json(await refreshAllTimeMonitor(league));
+    const result = await refreshAllTimeMonitor(league);
+    // A partial publication is retained, but must not report a fully successful job.
+    return NextResponse.json(result,{status:result.failures.team || result.failures.individual ? 503 : 200});
   } catch (error) {
     console.error(`All-time ${league} cron failed`, error);
     return NextResponse.json({ error: `Unable to refresh ${league} all-time monitor.` }, { status: 500 });

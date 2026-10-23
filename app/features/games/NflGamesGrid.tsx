@@ -1,3 +1,4 @@
+import { GameDetails } from "./GameDetails";
 import { GameCard } from "../../components/GameCard";
 import { useHubPreferences } from "../preferences/HubPreferences";
 import { favouriteSides } from "../../lib/local-preferences";
@@ -37,6 +38,7 @@ export function NflGamesGrid({
 
         return (
           <GameCard
+            details={<GameDetails context={game.context} status={game.completed ? "final" : game.live ? "live" : "scheduled"} matchupContext={indicator?.label} />}
             favourite={Object.values(favouriteSides(game.context, "NFL", favourites.NFL)).some(Boolean)}
             key={game.id}
             possession={game.possession}

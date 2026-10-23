@@ -1,0 +1,490 @@
+{
+  "version": 1,
+  "throughSeason": 2025,
+  "scope": "NFL regular season franchise records",
+  "verifiedAt": "2026-10-22T23:41:22.773662+00:00",
+  "source": "Pro Football Hall of Fame Team Facts; At Start of 2026 Season",
+  "teams": [
+    {
+      "name": "Green Bay Packers",
+      "wins": 819,
+      "losses": 611,
+      "ties": 39,
+      "sourceUrl": "https://www.profootballhof.com/teams/green-bay-packers/team-facts",
+      "sourceSha256": "0dc4cdb9731fa892670d466b564eaac7e0fa48e4636211b38ca7543a54024033",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 819-611-39",
+      "retainedMatches": true,
+      "priorRecord": [
+        819,
+        611,
+        39
+      ]
+    },
+    {
+      "name": "Chicago Bears",
+      "wins": 809,
+      "losses": 652,
+      "ties": 42,
+      "sourceUrl": "https://www.profootballhof.com/teams/chicago-bears/team-facts",
+      "sourceSha256": "992a427d4a8df46df973675305a9755c685ae73d0a861811b6a3c12afbac8f1b",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 809-652-42",
+      "retainedMatches": true,
+      "priorRecord": [
+        809,
+        652,
+        42
+      ]
+    },
+    {
+      "name": "New York Giants",
+      "wins": 728,
+      "losses": 676,
+      "ties": 34,
+      "sourceUrl": "https://www.profootballhof.com/teams/new-york-giants/team-facts",
+      "sourceSha256": "3c96dae63221044649344500d1b95ff5eec1d3c066c2a99e83f9dec3a7196da9",
+      "evidence": "All-Time Record: (At start of 2026 Season) 728-676-34",
+      "retainedMatches": true,
+      "priorRecord": [
+        728,
+        676,
+        34
+      ]
+    },
+    {
+      "name": "Pittsburgh Steelers",
+      "wins": 691,
+      "losses": 592,
+      "ties": 22,
+      "sourceUrl": "https://www.profootballhof.com/teams/pittsburgh-steelers/team-facts",
+      "sourceSha256": "6ad08f6cf186f9b28cd65cfc7ad6644ee02f76818c7d4285cd3f3457303207e3",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 691-592-22",
+      "retainedMatches": true,
+      "priorRecord": [
+        691,
+        592,
+        22
+      ]
+    },
+    {
+      "name": "Philadelphia Eagles",
+      "wins": 649,
+      "losses": 645,
+      "ties": 27,
+      "sourceUrl": "https://www.profootballhof.com/teams/philadelphia-eagles/team-facts",
+      "sourceSha256": "9fe67a6e0a0f0c6aa816e4512bc1f54951318e928310fc62135463d64e35c321",
+      "evidence": "All-Time Record: (At start of 2026 Season) 649-645-27",
+      "retainedMatches": true,
+      "priorRecord": [
+        649,
+        645,
+        27
+      ]
+    },
+    {
+      "name": "Washington Commanders",
+      "wins": 646,
+      "losses": 660,
+      "ties": 29,
+      "sourceUrl": "https://www.profootballhof.com/teams/washington-commanders/team-facts",
+      "sourceSha256": "9caf826c2ff4db29c648902d84f69b903b48872dbcf90cdaa64011b09e7013bb",
+      "evidence": "All-time record: (At start of 2026 season) 646-660-29",
+      "retainedMatches": true,
+      "priorRecord": [
+        646,
+        660,
+        29
+      ]
+    },
+    {
+      "name": "San Francisco 49ers",
+      "wins": 642,
+      "losses": 531,
+      "ties": 16,
+      "sourceUrl": "https://www.profootballhof.com/teams/san-francisco-49ers/team-facts",
+      "sourceSha256": "83dd19fd283aea0c3f859ba6f8a299344a9e2ebb300e4572bb9029480acd34e5",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 642-531-16",
+      "retainedMatches": false,
+      "priorRecord": [
+        644,
+        531,
+        16
+      ]
+    },
+    {
+      "name": "Los Angeles Rams",
+      "wins": 636,
+      "losses": 611,
+      "ties": 21,
+      "sourceUrl": "https://www.profootballhof.com/teams/los-angeles-rams/team-facts",
+      "sourceSha256": "df33577347ca71cb78f4bd8d5aebe8bb24dc631c872a2a978268092c55d477b2",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 636-611-21",
+      "retainedMatches": true,
+      "priorRecord": [
+        636,
+        611,
+        21
+      ]
+    },
+    {
+      "name": "Detroit Lions",
+      "wins": 615,
+      "losses": 717,
+      "ties": 34,
+      "sourceUrl": "https://www.profootballhof.com/teams/detroit-lions/team-facts",
+      "sourceSha256": "144d4fd57c0274f777f1621afd3f36633d4939922312d4fe7b171c56733e4c0b",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 615-717-34",
+      "retainedMatches": true,
+      "priorRecord": [
+        615,
+        717,
+        34
+      ]
+    },
+    {
+      "name": "Arizona Cardinals",
+      "wins": 596,
+      "losses": 826,
+      "ties": 41,
+      "sourceUrl": "https://www.profootballhof.com/teams/arizona-cardinals/team-facts",
+      "sourceSha256": "3c7ddba4f189ea043f1d8895b85ef469af8eafa739c1a1532ad8bacfa628039b",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 596-826-41",
+      "retainedMatches": true,
+      "priorRecord": [
+        596,
+        826,
+        41
+      ]
+    },
+    {
+      "name": "Dallas Cowboys",
+      "wins": 576,
+      "losses": 432,
+      "ties": 7,
+      "sourceUrl": "https://www.profootballhof.com/teams/dallas-cowboys/team-facts",
+      "sourceSha256": "a55d8ec5561e59f18d1bac8d488047ab4802276e13c1df71fdaa20a26c51aa30",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 576-432-7",
+      "retainedMatches": true,
+      "priorRecord": [
+        576,
+        432,
+        7
+      ]
+    },
+    {
+      "name": "Indianapolis Colts",
+      "wins": 572,
+      "losses": 519,
+      "ties": 8,
+      "sourceUrl": "https://www.profootballhof.com/teams/indianapolis-colts/team-facts",
+      "sourceSha256": "1e74e59261ff63227c61a60a24b9484e570e1213992ce8ccbcc7d4b9b2b9ae30",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 572-519-8",
+      "retainedMatches": true,
+      "priorRecord": [
+        572,
+        519,
+        8
+      ]
+    },
+    {
+      "name": "Cleveland Browns",
+      "wins": 567,
+      "losses": 560,
+      "ties": 14,
+      "sourceUrl": "https://www.profootballhof.com/teams/cleveland-browns/team-facts",
+      "sourceSha256": "daf55e4a259142cbe418bc86b288d9c7b51bb5793dc9c37d1fd212b0c6e21f11",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 567-560-14",
+      "retainedMatches": true,
+      "priorRecord": [
+        567,
+        560,
+        14
+      ]
+    },
+    {
+      "name": "New England Patriots",
+      "wins": 559,
+      "losses": 449,
+      "ties": 9,
+      "sourceUrl": "https://www.profootballhof.com/teams/new-england-patriots/team-facts",
+      "sourceSha256": "fa344912ba21aaa5de182198450496bb0cbef3e5ffefa56a66d934e495d26e13",
+      "evidence": "All-Time Record: (At start of 2026 Season) 559-449-9",
+      "retainedMatches": true,
+      "priorRecord": [
+        559,
+        449,
+        9
+      ]
+    },
+    {
+      "name": "Kansas City Chiefs",
+      "wins": 553,
+      "losses": 452,
+      "ties": 12,
+      "sourceUrl": "https://www.profootballhof.com/teams/kansas-city-chiefs/team-facts",
+      "sourceSha256": "8ce3faa32220221cb9397b69ea85bd3ee0bc14c294ad16f42901165dbd98a580",
+      "evidence": "All-Time Record: (At start of 2026 Season) 553-452-12",
+      "retainedMatches": true,
+      "priorRecord": [
+        553,
+        452,
+        12
+      ]
+    },
+    {
+      "name": "Minnesota Vikings",
+      "wins": 546,
+      "losses": 446,
+      "ties": 11,
+      "sourceUrl": "https://www.profootballhof.com/teams/minnesota-vikings/team-facts",
+      "sourceSha256": "c70a4979b32fbd906cd08e72f7edc55a73bf608190e216afd7aece8ac70be0e5",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 546-446-11",
+      "retainedMatches": true,
+      "priorRecord": [
+        546,
+        446,
+        11
+      ]
+    },
+    {
+      "name": "Denver Broncos",
+      "wins": 532,
+      "losses": 475,
+      "ties": 10,
+      "sourceUrl": "https://www.profootballhof.com/teams/denver-broncos/team-facts",
+      "sourceSha256": "73dae0fd1caec65c8c9941e1c5ed42445285c728dcd93c016fcf96785e8b241f",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 532-475-10",
+      "retainedMatches": true,
+      "priorRecord": [
+        532,
+        475,
+        10
+      ]
+    },
+    {
+      "name": "Las Vegas Raiders",
+      "wins": 512,
+      "losses": 494,
+      "ties": 11,
+      "sourceUrl": "https://www.profootballhof.com/teams/las-vegas-raiders/team-facts",
+      "sourceSha256": "c06c5f8619e956d00a75b494e8578b9d18543e7a0d67c1741052a2a410969c9e",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 512-494-11",
+      "retainedMatches": true,
+      "priorRecord": [
+        512,
+        494,
+        11
+      ]
+    },
+    {
+      "name": "Miami Dolphins",
+      "wins": 511,
+      "losses": 418,
+      "ties": 4,
+      "sourceUrl": "https://www.profootballhof.com/teams/miami-dolphins/team-facts",
+      "sourceSha256": "e3f8eaf384924a2d87c480e4f2fd047126c20af3192ebb2d745aef4e8202d185",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 511-418-4",
+      "retainedMatches": true,
+      "priorRecord": [
+        511,
+        418,
+        4
+      ]
+    },
+    {
+      "name": "Los Angeles Chargers",
+      "wins": 505,
+      "losses": 501,
+      "ties": 11,
+      "sourceUrl": "https://www.profootballhof.com/teams/los-angeles-chargers/team-facts",
+      "sourceSha256": "b9596b7b404b58ca67586d5562ab3beac24cb62eb6c4c6434619fda15279226c",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 505-501-11",
+      "retainedMatches": true,
+      "priorRecord": [
+        505,
+        501,
+        11
+      ]
+    },
+    {
+      "name": "Buffalo Bills",
+      "wins": 498,
+      "losses": 510,
+      "ties": 8,
+      "sourceUrl": "https://www.profootballhof.com/teams/buffalo-bills/team-facts",
+      "sourceSha256": "4667be2b2f0a79bcc6bd33b91d2db4be0c9b97c78058206087e75d6b2fb6d9af",
+      "evidence": "All-Time Record: (At the start of 2026 season) 498-510-8",
+      "retainedMatches": true,
+      "priorRecord": [
+        498,
+        510,
+        8
+      ]
+    },
+    {
+      "name": "Tennessee Titans",
+      "wins": 482,
+      "losses": 529,
+      "ties": 6,
+      "sourceUrl": "https://www.profootballhof.com/teams/tennessee-titans/team-facts",
+      "sourceSha256": "1210aba90809f7c20d11a99b1f4c11f823d7c94cf8486f775b23e996d1855284",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 482-529-6",
+      "retainedMatches": true,
+      "priorRecord": [
+        482,
+        529,
+        6
+      ]
+    },
+    {
+      "name": "New York Jets",
+      "wins": 436,
+      "losses": 573,
+      "ties": 8,
+      "sourceUrl": "https://www.profootballhof.com/teams/new-york-jets/team-facts",
+      "sourceSha256": "0f402abda0fbb7a820a0068e86ccb2def30081fd0eef59d591737f20328fdf17",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 436-573-8",
+      "retainedMatches": true,
+      "priorRecord": [
+        436,
+        573,
+        8
+      ]
+    },
+    {
+      "name": "New Orleans Saints",
+      "wins": 423,
+      "losses": 491,
+      "ties": 5,
+      "sourceUrl": "https://www.profootballhof.com/teams/new-orleans-saints/team-facts",
+      "sourceSha256": "e2a55ca3febde63fc37e3153bcd3845b5187638569db8ebc194f5fe91b4221a0",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 423-491-5",
+      "retainedMatches": true,
+      "priorRecord": [
+        423,
+        491,
+        5
+      ]
+    },
+    {
+      "name": "Seattle Seahawks",
+      "wins": 416,
+      "losses": 376,
+      "ties": 1,
+      "sourceUrl": "https://www.profootballhof.com/teams/seattle-seahawks/team-facts",
+      "sourceSha256": "b84d3347c2ffe6ee54e39178525c976a289654597a3f131fc899a2842e6774ec",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 416-376-1",
+      "retainedMatches": true,
+      "priorRecord": [
+        416,
+        376,
+        1
+      ]
+    },
+    {
+      "name": "Cincinnati Bengals",
+      "wins": 409,
+      "losses": 490,
+      "ties": 5,
+      "sourceUrl": "https://www.profootballhof.com/teams/cincinnati-bengals/team-facts",
+      "sourceSha256": "194cab2325850dabffbfaba85c892e5ab9a04a097fae3357e017493f1c2b9ede",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 409-490-5",
+      "retainedMatches": true,
+      "priorRecord": [
+        409,
+        490,
+        5
+      ]
+    },
+    {
+      "name": "Atlanta Falcons",
+      "wins": 406,
+      "losses": 521,
+      "ties": 6,
+      "sourceUrl": "https://www.profootballhof.com/teams/atlanta-falcons/team-facts",
+      "sourceSha256": "5148e9326807923bce85d88f0be08dcdde3753d85c0c4a5593cd0292889426c2",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 406-521-6",
+      "retainedMatches": true,
+      "priorRecord": [
+        406,
+        521,
+        6
+      ]
+    },
+    {
+      "name": "Tampa Bay Buccaneers",
+      "wins": 326,
+      "losses": 466,
+      "ties": 1,
+      "sourceUrl": "https://www.profootballhof.com/teams/tampa-bay-buccaneers/team-facts",
+      "sourceSha256": "945de51b467c25460cb6db1ad2f425bf1757e0b500cbd349f87375533ea65a2d",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 326-466-1",
+      "retainedMatches": true,
+      "priorRecord": [
+        326,
+        466,
+        1
+      ]
+    },
+    {
+      "name": "Baltimore Ravens",
+      "wins": 276,
+      "losses": 208,
+      "ties": 1,
+      "sourceUrl": "https://www.profootballhof.com/teams/baltimore-ravens/team-facts",
+      "sourceSha256": "feba0f242d94747b78d94a431ec65c0f5dc882543c2ef3da7bf85be1dfa90001",
+      "evidence": "All-Time Record: (At start of 2026 Season) 276-208-1",
+      "retainedMatches": true,
+      "priorRecord": [
+        276,
+        208,
+        1
+      ]
+    },
+    {
+      "name": "Carolina Panthers",
+      "wins": 227,
+      "losses": 273,
+      "ties": 1,
+      "sourceUrl": "https://www.profootballhof.com/teams/carolina-panthers/team-facts",
+      "sourceSha256": "83103396cc8667323d934e6b2a614221bd535e7c8dfb37767668776e2c59dfe2",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 227-273-1",
+      "retainedMatches": true,
+      "priorRecord": [
+        227,
+        273,
+        1
+      ]
+    },
+    {
+      "name": "Jacksonville Jaguars",
+      "wins": 215,
+      "losses": 286,
+      "ties": 0,
+      "sourceUrl": "https://www.profootballhof.com/teams/jacksonville-jaguars/team-facts",
+      "sourceSha256": "b2cc3d0ab095afefe72ee98f68684bdcc830be74d66cce5f5545a0d29bf7debe",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 215-286-0",
+      "retainedMatches": true,
+      "priorRecord": [
+        215,
+        286,
+        0
+      ]
+    },
+    {
+      "name": "Houston Texans",
+      "wins": 174,
+      "losses": 214,
+      "ties": 1,
+      "sourceUrl": "https://www.profootballhof.com/teams/houston-texans/team-facts",
+      "sourceSha256": "0daf3ddc776a787c4ae8d9a8ca31bc3a94da7775c3bb922c274628dc52323781",
+      "evidence": "All-Time Record: (At Start of 2026 Season) 174-214-1",
+      "retainedMatches": true,
+      "priorRecord": [
+        174,
+        214,
+        1
+      ]
+    }
+  ],
+  "fingerprint": "0c2bce0d050169a190dad91d4ddbc99cc2fee7220bb22a54b0c4b7a890ba5d17"
+}

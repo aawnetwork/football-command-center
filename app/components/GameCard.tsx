@@ -21,6 +21,7 @@ type GameCardProps = {
   } | null;
   headerRight?: ReactNode;
   footer: ReactNode;
+  details?: ReactNode;
 };
 
 export function GameCard({
@@ -41,6 +42,7 @@ export function GameCard({
   indicator,
   headerRight,
   footer,
+  details,
 }: GameCardProps) {
   return (
     <article className="game-card" data-desk-export="game" data-export-label={`${awayTeam} @ ${homeTeam}`}>
@@ -82,6 +84,7 @@ export function GameCard({
         <div className="game-card__time">{time}</div>
         {footer}
       </div>
+      {details}
     </article>
   );
 }
