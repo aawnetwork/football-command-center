@@ -90,3 +90,28 @@ test('exact CFB provider variants retain primary backgrounds for previously fail
  const e=scheduled();e.competitions[0].competitors[0].team={id:'277',color:'123456',displayName:'West Virginia Mountaineers',logo:'/original.png'};
  assert.equal(project(e)[0].away.primarySurfaceLogo,null);e.competitions[0].competitors[0].team.color='eaaa00';assert.equal(project(e,'NFL')[0].away.primarySurfaceLogo,null);
 });
+
+test('live projection supports scores, period, clock, half and overtime without masquerading as final',()=>{
+ const e=scheduled();e.date='2026-10-20T10:00Z';const c=e.competitions[0];c.status={type:{state:'in',name:'STATUS_IN_PROGRESS',completed:false},period:1,displayClock:'4:32'};
+ let g=project(e)[0];assert.equal(g.stage,'live');assert.equal(g.liveLabel,'LIVE | 1st · 4:32');assert.equal(g.away.score,0);
+ c.status.type.name='STATUS_HALFTIME';assert.equal(project(e)[0].liveLabel,'LIVE | HALF');
+ c.status.type.name='STATUS_IN_PROGRESS';c.status.period=6;delete c.status.displayClock;assert.equal(project(e)[0].liveLabel,'LIVE | 2OT');
+ c.competitors[0].score=null;assert.deepEqual(project(e),[]);
+});
+test('existing CFB rivalry catalogue applies to pregame, live and final overlays',()=>{
+ const e=scheduled(),c=e.competitions[0];c.competitors[0].team.displayName='Akron Zips';c.competitors[1].team.displayName='Kent State Golden Flashes';
+ assert.match(project(e)[0].context,/RIVALRY — Akron–Kent State Rivalry/);
+ e.date='2026-10-20T10:00Z';c.status={type:{state:'in',name:'STATUS_IN_PROGRESS',completed:false},period:1};assert.match(project(e)[0].context,/RIVALRY/);
+ c.status.type={state:'post',name:'STATUS_FINAL',completed:true};assert.match(project(e)[0].context,/RIVALRY/);
+});
+test('retained CFB live observation projects exact scores; refreshed scores and final status replace the prior export',()=>{
+ const retained=JSON.parse(readFileSync(new URL('./fixtures/cfb-live-week8.json',import.meta.url),'utf8'));
+ const event=retained.scoreboard.events[0],c=event.competitions[0];
+ const at=retained.observedAt??'2026-10-22T23:00:00Z';
+ const rows=projectOverlayGames({events:[event]},'CFB',at),g=rows[0];assert.equal(g.stage,'live');
+ assert.equal(g.away.score,Number(c.competitors.find(t=>t.homeAway==='away').score));assert.equal(g.home.score,Number(c.competitors.find(t=>t.homeAway==='home').score));
+ const changed=structuredClone(event),own=changed.competitions[0].competitors.find(t=>t.homeAway==='away');own.score=String(Number(own.score)+7);
+ assert.equal(projectOverlayGames({events:[changed]},'CFB',at)[0].away.score,g.away.score+7);
+ changed.competitions[0].status.type={state:'post',name:'STATUS_FINAL',completed:true};changed.status=changed.competitions[0].status;
+ assert.equal(projectOverlayGames({events:[changed]},'CFB',at)[0].stage,'final');
+});

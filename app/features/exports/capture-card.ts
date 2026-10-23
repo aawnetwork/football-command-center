@@ -6,6 +6,10 @@ export async function captureCard(source: HTMLElement) {
   if (!sourceWindow || !source.isConnected) throw new Error("This card is no longer available. Select it again.");
   await source.ownerDocument.fonts.ready;
   await document.fonts.ready;
+  // Font waiting must not let a selection change turn the source into a detached,
+  // zero-width node (which otherwise produces a thin PNG on a second capture).
+  if (!source.isConnected || source.getBoundingClientRect().width < 1) throw new Error("This card changed. Select it again before exporting.");
+  const sourceWidth = Math.ceil(source.getBoundingClientRect().width);
   const clone = document.importNode(source, true);
   const originals = [source, ...Array.from(source.querySelectorAll<HTMLElement>("*"))];
   const copies = [clone, ...Array.from(clone.querySelectorAll<HTMLElement>("*"))];
@@ -18,7 +22,9 @@ export async function captureCard(source: HTMLElement) {
     if (original.tagName !== "IMG" && original.tagName !== "SVG") copy.style.height = "auto";
   });
   clone.querySelectorAll("[data-export-omit], button, input, select, textarea").forEach((node) => node.remove());
-  clone.style.width = `${Math.ceil(source.getBoundingClientRect().width)}px`;
+  clone.style.width = `${sourceWidth}px`;
+  clone.style.minWidth = `${sourceWidth}px`;
+  clone.style.flexShrink = "0";
   clone.style.margin = "0";
   clone.style.maxHeight = "none";
   clone.style.transform = "none";
@@ -52,6 +58,7 @@ export async function captureCard(source: HTMLElement) {
   try {
     const width = Math.ceil(canvasArea.getBoundingClientRect().width);
     const height = Math.ceil(canvasArea.getBoundingClientRect().height);
+    if (width < sourceWidth || height < 1) throw new Error("The export layout is not ready. Please generate it again.");
     if (width * height * 4 > 32_000_000 || height * 2 > 16_000) throw new Error("This table is too large for one PNG at 2× resolution.");
     const logos = Array.from(clone.querySelectorAll<HTMLImageElement>("img")).filter(
       (image) => !image.hidden && image.style.display !== "none" && image.style.visibility !== "hidden" && image.style.objectFit === "contain"
@@ -69,7 +76,7 @@ export async function captureCard(source: HTMLElement) {
     const area = canvasArea.getBoundingClientRect();
     for (const image of logos) {
       const bounds = image.getBoundingClientRect();
-      if (!bounds.width || !bounds.height || !image.naturalWidth) continue;
+      if (!bounds.width || !bounds.height || !image.naturalWidth) throw new Error("A logo has no visible export area. Refresh the card before exporting.");
       const scale = Math.min(bounds.width / image.naturalWidth, bounds.height / image.naturalHeight);
       const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
       context.drawImage(image, (bounds.left - area.left + (bounds.width - w) / 2) * 2,

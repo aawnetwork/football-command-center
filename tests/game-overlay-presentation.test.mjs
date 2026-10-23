@@ -8,7 +8,7 @@ import {createElement} from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import ts from 'typescript';
 const root=fileURLToPath(new URL('../',import.meta.url)),require=createRequire(import.meta.url),cache=new Map();
-function load(file){if(cache.has(file))return cache.get(file).exports;const unit={exports:{}};cache.set(file,unit);const code=ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;new Function('require','module','exports',code)(name=>{if(!name.startsWith('.'))return require(name);const base=path.resolve(path.dirname(file),name);if(name.endsWith('.json'))return {default:require(base)};return load(base+(base.endsWith('game-overlay')?'.ts':'.tsx'));},unit,unit.exports);return unit.exports;}
+function load(file){if(cache.has(file))return cache.get(file).exports;const unit={exports:{}};cache.set(file,unit);const code=ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;new Function('require','module','exports',code)(name=>{if(!name.startsWith('.'))return require(name);const base=path.resolve(path.dirname(file),name);if(name.endsWith('.json'))return {default:require(base)};return load(base+(base.endsWith('game-overlay')||base.endsWith('cfb-rivalries')||base.endsWith('/rivalries')?'.ts':'.tsx'));},unit,unit.exports);return unit.exports;}
 const {GameOverlay}=load(path.join(root,'app/features/exports/GameOverlay.tsx'));
 const fixture=()=>({id:'fixture',league:'CFB',stage:'pregame',kickoff:'2026-10-25T01:30Z',neutral:false,finalLabel:'FINAL / 2OT',context:'RANKED MATCHUP',observedAt:'2026-10-23T00:00Z',platforms:['Sky Sports'],away:{id:'a',name:'Away University',logo:'/a.png',rank:4,record:'4–2',score:0},home:{id:'h',name:'Home University',logo:'/h.png',rank:5,record:'5–1',score:0}});
 const render=(game,treatment='dark')=>renderToStaticMarkup(createElement(GameOverlay,{game,treatment}));
@@ -60,4 +60,13 @@ test('approved pregame carries dynamic solid colours, a central blend, and optio
  const css=readFileSync(path.join(root,'app/features/exports/export-studio.css'),'utf8').split('/* Approved pregame companion:')[1];
  assert.match(css,/linear-gradient\(90deg,var\(--away-colour\) 0%/);assert.match(css,/color-mix\(in srgb/);assert.match(css,/var\(--home-colour\) 100%/);assert.match(css,/background:transparent/);assert.match(css,/border-radius:0/);
  g.platforms=[];assert.doesNotMatch(render(g),/WATCH/);
+});
+
+test('live scorebug uses current scores, period/clock, broadcast footer and qualifier without a final winner',()=>{
+ const g=fixture();g.stage='live';g.liveLabel='LIVE | 1st · 4:32';g.context='RIVALRY — Duke–Virginia Rivalry';g.away.score=7;g.home.score=0;
+ const html=render(g);assert.match(html,/LIVE \| 1st · 4:32/);assert.match(html,/RIVALRY — Duke–Virginia Rivalry/);assert.match(html,/<footer>.*WATCH · Sky Sports/);assert.match(html,/live score/);assert.doesNotMatch(html,/team--winner|FINAL|PREGAME/);
+});
+test('record metadata cannot wrap hyphenated records and source artwork stays mounted between captures',()=>{
+ const css=readFileSync(path.join(root,'app/features/exports/export-studio.css'),'utf8');assert.match(css,/scorebug__record[^}]*white-space:nowrap/);
+ const studio=readFileSync(path.join(root,'app/features/exports/OverlayStudio.tsx'),'utf8');assert.equal((studio.match(/ref=\{artwork\}/g)||[]).length,1);assert.doesNotMatch(studio,/left:-100000|result\?<div/);
 });

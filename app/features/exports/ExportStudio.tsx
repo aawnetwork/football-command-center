@@ -79,8 +79,8 @@ export function ExportStudio() {
 
   return <main className="export-studio">
     <header><p>AAW · PRIVATE EXPORTS</p><h1>Export Studio</h1><p>Transparent PNGs for your photography in Canva. Nothing is uploaded or published.</p><a href="/admin/decks">Deck Manager</a></header>
-    <section className="export-studio__controls" aria-label="Output selection"><label>Output<select value={mode} disabled={busy} onChange={e=>{setMode(e.target.value);setResult(null);}}><option value="original">Existing cards and tables</option><option value="pregame">Pregame matchup overlay</option><option value="final">Final score overlay</option></select></label>{mode !== "original" && <label>League<select value={league} onChange={e=>setLeague(e.target.value)}><option value="cfb">College football</option><option value="nfl">NFL</option></select></label>}</section>
-    {mode !== "original" ? <OverlayStudio key={`${league}:${mode}`} league={league} stage={mode as 'pregame'|'final'} /> : <>
+    <section className="export-studio__controls" aria-label="Output selection"><label>Output<select value={mode} disabled={busy} onChange={e=>{setMode(e.target.value);setResult(null);}}><option value="original">Existing cards and tables</option><option value="pregame">Pregame matchup overlay</option><option value="live">Live score overlay</option><option value="final">Final score overlay</option></select></label>{mode !== "original" && <label>League<select value={league} onChange={e=>setLeague(e.target.value)}><option value="cfb">College football</option><option value="nfl">NFL</option></select></label>}</section>
+    {mode !== "original" ? <OverlayStudio key={`${league}:${mode}`} league={league} stage={mode as 'pregame'|'live'|'final'} /> : <>
     <section className="export-studio__controls" aria-label="Export controls">
       <label>League <select value={league} disabled={busy} onChange={(event) => {
         setCards([]); setSelected(""); setResult(null); setLeague(event.target.value);

@@ -1,7 +1,9 @@
+import { findCfbRivalry } from '../../lib/cfb-rivalries';
+import { rivalries } from '../../cfb/data/rivalries';
 import retainedLogoVariants from './cfb-overlay-logo-variants.json';
 /** Export-only projection. Never infer a final result from the presence of scores. */
 export type OverlayTeam = {id:string;name:string;logo:string|null;color?:string|null;secondaryColor?:string|null;darkLogo?:string|null;primarySurfaceLogo?:string|null;rank:number|null;record:string|null;score:number|null};
-export type OverlayGame = {id:string;league:'CFB'|'NFL';stage:'pregame'|'final';kickoff:string;neutral:boolean;away:OverlayTeam;home:OverlayTeam;finalLabel:string;context:string|null;observedAt:string;platforms?:string[]};
+export type OverlayGame = {id:string;league:'CFB'|'NFL';stage:'pregame'|'live'|'final';liveLabel?:string;kickoff:string;neutral:boolean;away:OverlayTeam;home:OverlayTeam;finalLabel:string;context:string|null;observedAt:string;platforms?:string[]};
 const object=(value:unknown):Record<string,unknown>=>value!==null&&typeof value==='object'?value as Record<string,unknown>:{};
 const text=(value:unknown)=>typeof value==='string'&&value.trim()?value.trim():null;
 const list=(value:unknown):unknown[]=>Array.isArray(value)?value:[];
@@ -13,8 +15,8 @@ export function projectOverlayGames(feed:unknown,league:'CFB'|'NFL',observedAt:s
   const event=object(value),competition=object(list(event.competitions)[0]),status=object(object(competition.status).type),eventStatus=object(object(event.status).type);
   if(Object.keys(eventStatus).length&&['name','state','completed'].some(key=>eventStatus[key]!==status[key]))continue;
   const id=text(event.id),kickoff=text(event.date),participants=list(competition.competitors).map(object);
-  const stage=status.state==='pre'&&status.name==='STATUS_SCHEDULED'&&status.completed===false?'pregame':status.state==='post'&&/^STATUS_FINAL/.test(String(status.name))&&status.completed===true?'final':null;
-  if(!id||counts.get(id)!==1||!kickoff||!Number.isFinite(Date.parse(kickoff))||!stage||participants.length!==2||stage==='pregame'&&Date.parse(kickoff)<=Date.parse(observedAt))continue;
+  const stage=status.state==='pre'&&status.name==='STATUS_SCHEDULED'&&status.completed===false?'pregame':status.state==='in'&&['STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD'].includes(String(status.name))&&status.completed===false?'live':status.state==='post'&&/^STATUS_FINAL/.test(String(status.name))&&status.completed===true?'final':null;
+  if(!id||counts.get(id)!==1||!kickoff||!Number.isFinite(Date.parse(kickoff))||!stage||stage==='live'&&Date.parse(kickoff)>Date.parse(observedAt)||participants.length!==2||stage==='pregame'&&Date.parse(kickoff)<=Date.parse(observedAt))continue;
   const team=(side:string):OverlayTeam|null=>{
    const entry=participants.find(row=>row.homeAway===side);if(!entry)return null;
    const t=object(entry.team),teamId=text(t.id),name=text(t.displayName);if(!teamId||!name)return null;
@@ -25,13 +27,18 @@ export function projectOverlayGames(feed:unknown,league:'CFB'|'NFL',observedAt:s
    const primarySurfaceLogo=text(object(list(t.logos).find(value=>list(object(value).rel).includes('primary_logo_on_primary_color'))).href)??(retained&&overlayColour(retained.color)===color?retained.logo:null);
    return {id:teamId,name,color,secondaryColor,darkLogo,primarySurfaceLogo,logo:text(t.logo)??text(object(list(t.logos)[0]).href),rank:league==='CFB'&&rank!==null&&rank>=1&&rank<=25?rank:null,record:text(object(list(entry.records).find(row=>object(row).type==='total')).summary),score:score(entry.score)};
   };
-  const away=team('away'),home=team('home');if(!away||!home||away.id===home.id||stage==='final'&&(away.score===null||home.score===null))continue;
+  const away=team('away'),home=team('home');if(!away||!home||away.id===home.id||stage!=='pregame'&&(away.score===null||home.score===null))continue;
   const period=score(object(competition.status).period)??score(object(event.status).period);
   const otDetail=/^Final\/(\d*)OT$/i.exec(String(status.shortDetail??status.detail??''));
   const overtime=stage==='final'?(period!==null&&period>4?period-4:otDetail?Number(otDetail[1]||1):0):0;
   const ranked=away.rank!==null&&home.rank!==null;
   const upset=stage==='final'&&away.rank!==null&&home.rank!==null&&away.score!==home.score&&((away.score!>home.score!&&(home.rank!==null&&(away.rank===null||away.rank>home.rank)))||(home.score!>away.score!&&(away.rank!==null&&(home.rank===null||home.rank>away.rank))));
-  result.push({id,league,stage,kickoff,neutral:competition.neutralSite===true,away,home,finalLabel:overtime?`FINAL / ${overtime===1?'OT':`${overtime}OT`}`:'FINAL',context:stage==='pregame'&&ranked?'RANKED MATCHUP':upset?'RANKED UPSET':null,observedAt});
+  const liveLabel=status.name==='STATUS_HALFTIME'?'LIVE | HALF':period!==null&&period>0?`LIVE | ${period>4?(period===5?'OT':`${period-4}OT`):['1st','2nd','3rd','4th'][period-1]}`:'LIVE';
+  const clock=text(object(competition.status).displayClock)??text(object(event.status).displayClock);
+  const statusLabel=stage==='live'&&status.name==='STATUS_IN_PROGRESS'&&(period!==null&&period<=4||league==='NFL')&&clock&&/^\d{1,2}:\d{2}$/.test(clock)?`${liveLabel} · ${clock}`:liveLabel;
+  const rivalry=league==='CFB'?findCfbRivalry({awayTeam:away.name,homeTeam:home.name},rivalries):undefined;
+  const context=[rivalry?`RIVALRY — ${rivalry.name}`:null,upset?'RANKED UPSET':ranked?'RANKED MATCHUP':null].filter(Boolean).join(' · ')||null;
+  result.push({id,league,stage,liveLabel:statusLabel,kickoff,neutral:competition.neutralSite===true,away,home,finalLabel:overtime?`FINAL / ${overtime===1?'OT':`${overtime}OT`}`:'FINAL',context,observedAt});
  }
  return result;
 }

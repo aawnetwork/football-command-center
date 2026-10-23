@@ -4,7 +4,7 @@ import type {OverlayGame,OverlayTeam} from './game-overlay';
 import {ukKickoff,pregameTeamAppearance,pregameJoinInk,pregameJoinColour} from './game-overlay';
 import {FinalScoreOverlay} from './FinalScoreOverlay';
 export function GameOverlay({game,treatment='dark'}:{game:OverlayGame;treatment?:'dark'|'light'}){
- if(game.stage==='final')return <FinalScoreOverlay game={game} treatment={treatment}/>;
+ if(game.stage==='final'||game.stage==='live')return <FinalScoreOverlay game={game} treatment={treatment}/>;
  const date=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(new Date(game.kickoff));
  const time=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(new Date(game.kickoff));
  const away=pregameTeamAppearance(game.away),home=pregameTeamAppearance(game.home);
