@@ -31,7 +31,7 @@ export default function StatsPreview({ development = false, initialFixture = fal
   const [fixture, setFixture] = useState(initialFixture);
   const nflTeams = useNflPreviewTeams(league === 'NFL');
   const endpoint = fixture ? '/preview/nfl-stats/data' : league === 'NFL' ? '/api/nfl/stats-v2' : '/api/cfb/stats-v2';
-  const [category, setCategory] = useState<Category>('QB'), [mode, setMode] = useState('weekly'), [week, setWeek] = useState(league === 'CFB' ? '7' : '');
+  const [category, setCategory] = useState<Category>('QB'), [mode, setMode] = useState('weekly'), [week, setWeek] = useState('');
   const [metric, setMetric] = useState<MetricKey>('passing_yards'), [ascending, setAscending] = useState(false), [search, setSearch] = useState('');
   const [data, setData] = useState<Data | null>(null), [error, setError] = useState(''), [refreshing, setRefreshing] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]), [details, setDetails] = useState<Record<string, DetailLine>>({}), [detailError, setDetailError] = useState('');
