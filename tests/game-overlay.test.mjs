@@ -115,3 +115,29 @@ test('retained CFB live observation projects exact scores; refreshed scores and 
  changed.competitions[0].status.type={state:'post',name:'STATUS_FINAL',completed:true};changed.status=changed.competitions[0].status;
  assert.equal(projectOverlayGames({events:[changed]},'CFB',at)[0].stage,'final');
 });
+test('retained final summaries preserve explicit rank and total record fields without borrowing conference records',()=>{
+ const retained=JSON.parse(readFileSync(new URL('./fixtures/game-details/cfb-final.json',import.meta.url),'utf8')).summary;
+ const c=retained.header.competitions[0],event={...retained.header,date:c.date,competitions:[c]};
+ const g=projectOverlayGames({events:[event]},'CFB','2026-10-24T00:00Z')[0];
+ for(const [side,team] of [['away',g.away],['home',g.home]]){
+  const source=c.competitors.find(t=>t.homeAway===side);assert.equal(team.rank,source.rank??null);assert.equal(team.record,source.record.find(r=>r.type==='total').summary);
+ }
+ const e=scheduled(),own=e.competitions[0].competitors[0];own.record=[{type:'vsconf',summary:'3-1'}];assert.equal(project(e)[0].away.record,null);
+ own.record=[{type:'total',summary:'0-0'}];assert.equal(project(e)[0].away.record,'0-0');
+ own.records=[{type:'total',summary:'4-1'}];assert.equal(project(e)[0].away.record,null);
+});
+
+test('all 32 retained NFL primary-surface logos reach scheduled overlays, including Packers and Lions',async()=>{
+ const {pregameTeamAppearance}=await import(await compileLocalModule(new URL('../app/features/exports/game-overlay.ts',import.meta.url)));
+ const retained=JSON.parse(readFileSync(new URL('../app/features/exports/nfl-overlay-logo-variants.json',import.meta.url),'utf8'));
+ assert.equal(Object.keys(retained.teams).length,32);
+ for(const [id,entry] of Object.entries(retained.teams)){
+  const e=scheduled();e.competitions[0].competitors[0].team={id,displayName:'Retained NFL team',color:entry.color,logo:'/original.png'};e.competitions[0].competitors[1].team.id='999';
+  const game=project(e,'NFL')[0],appearance=pregameTeamAppearance(game.away);
+  assert.equal(appearance.surface,entry.color);assert.equal(appearance.logo,entry.logo);assert.notEqual(appearance.surface,'#fffaf0');
+  e.competitions[0].competitors[0].team.color='abcdef';assert.equal(project(e,'NFL')[0].away.primarySurfaceLogo,null,'colour mismatch fails closed');
+ }
+ assert.equal(retained.teams['9'].color,'#204e32');assert.equal(retained.teams['8'].color,'#0076b6');
+ const final=scheduled();final.competitions[0].status={type:{state:'post',name:'STATUS_FINAL',completed:true}};final.competitions[0].competitors[0].team={id:'9',displayName:'Packers',color:'204e32',logo:'/original.png'};
+ assert.equal(project(final,'NFL')[0].away.primarySurfaceLogo,null,'final path unchanged');
+});

@@ -1,6 +1,7 @@
 import { findCfbRivalry } from '../../lib/cfb-rivalries';
 import { rivalries } from '../../cfb/data/rivalries';
 import retainedLogoVariants from './cfb-overlay-logo-variants.json';
+import nflLogoVariants from './nfl-overlay-logo-variants.json';
 /** Export-only projection. Never infer a final result from the presence of scores. */
 export type OverlayTeam = {id:string;name:string;logo:string|null;color?:string|null;secondaryColor?:string|null;darkLogo?:string|null;primarySurfaceLogo?:string|null;rank:number|null;record:string|null;score:number|null};
 export type OverlayGame = {id:string;league:'CFB'|'NFL';stage:'pregame'|'live'|'final';liveLabel?:string;kickoff:string;neutral:boolean;away:OverlayTeam;home:OverlayTeam;finalLabel:string;context:string|null;observedAt:string;platforms?:string[]};
@@ -20,12 +21,16 @@ export function projectOverlayGames(feed:unknown,league:'CFB'|'NFL',observedAt:s
   const team=(side:string):OverlayTeam|null=>{
    const entry=participants.find(row=>row.homeAway===side);if(!entry)return null;
    const t=object(entry.team),teamId=text(t.id),name=text(t.displayName);if(!teamId||!name)return null;
-   const rank=score(object(entry.curatedRank).current);
+   const rank=score(object(entry.curatedRank).current??entry.rank);
+   const totalRecords=[...list(entry.records),...list(entry.record)].map(object).filter(row=>row.type==='total');
+   const reportedRecords=[...new Set(totalRecords.map(row=>text(row.summary)??text(row.displayValue)).filter((value):value is string=>value!==null))];
+   const record=reportedRecords.length===1?reportedRecords[0]:null;
    const color=overlayColour(t.color),secondaryColor=overlayColour(t.alternateColor);
    const darkLogo=text(object(list(t.logos).find(value=>list(object(value).rel).includes('dark'))).href);
-   const retained=league==='CFB'?(retainedLogoVariants.teams as Record<string,{color:string;logo:string}>)[teamId]:undefined;
+   const variants=league==='CFB'?retainedLogoVariants:stage==='pregame'?nflLogoVariants:null;
+   const retained=variants?(variants.teams as Record<string,{color:string;logo:string}>)[teamId]:undefined;
    const primarySurfaceLogo=text(object(list(t.logos).find(value=>list(object(value).rel).includes('primary_logo_on_primary_color'))).href)??(retained&&overlayColour(retained.color)===color?retained.logo:null);
-   return {id:teamId,name,color,secondaryColor,darkLogo,primarySurfaceLogo,logo:text(t.logo)??text(object(list(t.logos)[0]).href),rank:league==='CFB'&&rank!==null&&rank>=1&&rank<=25?rank:null,record:text(object(list(entry.records).find(row=>object(row).type==='total')).summary),score:score(entry.score)};
+   return {id:teamId,name,color,secondaryColor,darkLogo,primarySurfaceLogo,logo:text(t.logo)??text(object(list(t.logos)[0]).href),rank:league==='CFB'&&rank!==null&&rank>=1&&rank<=25?rank:null,record,score:score(entry.score)};
   };
   const away=team('away'),home=team('home');if(!away||!home||away.id===home.id||stage!=='pregame'&&(away.score===null||home.score===null))continue;
   const period=score(object(competition.status).period)??score(object(event.status).period);

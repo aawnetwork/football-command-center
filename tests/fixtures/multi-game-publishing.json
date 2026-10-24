@@ -1,0 +1,493 @@
+{
+  "evidence": {
+    "pregameCFB": "Exact matchups/records/kickoffs retained from owner-reviewed Week 8 exports; no claim of a fresh schedule check.",
+    "pregameNFL": "Controlled scheduled fixtures using genuine retained NFL identities. Dates/status/broadcasters are test inputs, not current listings.",
+    "finals": "Genuine retained completed games.",
+    "provenance": [
+      {
+        "id": "401858469",
+        "league": "CFB",
+        "week": 4,
+        "sourceFileSha256": "4c7eae23d6d4b5fba3c2c47617032bf24c4b2fedbc06fc66791f10bb2fbe608a",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      },
+      {
+        "id": "401858250",
+        "league": "CFB",
+        "week": 5,
+        "sourceFileSha256": "05b6d257539ade39b6167835732088aae174fa1e73040273b920e7109f4d2b8a",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      },
+      {
+        "id": "401858253",
+        "league": "CFB",
+        "week": 5,
+        "sourceFileSha256": "a3c8684ef971d62f4165cce3b1205f779b187c5952756a99309234f8c1485431",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      },
+      {
+        "id": "401858263",
+        "league": "CFB",
+        "week": 7,
+        "sourceFileSha256": "2986005aa8cf067d5b4d6613074b6506aaee8411b7954547b4659f11c760e948",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      },
+      {
+        "id": "401872930",
+        "league": "NFL",
+        "week": 1,
+        "sourceFileSha256": "caadb52dae816f8e1c6f9b0b82cd7f8d519885291aa19781d11ed3b2ff024f8f",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      },
+      {
+        "id": "401872944",
+        "league": "NFL",
+        "week": 2,
+        "sourceFileSha256": "77c0f1c756240965aef340f96cb17c6df2271710da59b165d771fe08663d3e14",
+        "evidence": "Retained ESPN final game summary; scores, records and overtime are reported fields."
+      }
+    ]
+  },
+  "pregame": {
+    "CFB": [
+      {
+        "id": "401856841",
+        "league": "CFB",
+        "stage": "pregame",
+        "kickoff": "2026-10-24T16:00Z",
+        "neutral": false,
+        "away": {
+          "id": "277",
+          "name": "West Virginia Mountaineers",
+          "color": "#eaaa00",
+          "secondaryColor": "#002855",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/277.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/277.png",
+          "rank": null,
+          "record": "4-3",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/e5ca2c6f-2389-9da3-43cd-995fad2e06c5/logos/primary_logo_on_primary_color.png"
+        },
+        "home": {
+          "id": "2628",
+          "name": "TCU Horned Frogs",
+          "color": "#4d1979",
+          "secondaryColor": "#ffffff",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/2628.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png",
+          "rank": null,
+          "record": "3-3",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/f46ccf4d-1031-4373-2a4b-bc8b3ad9ba97/logos/primary_logo_on_primary_color.png"
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-23T00:00Z"
+      },
+      {
+        "id": "401858498",
+        "league": "CFB",
+        "stage": "pregame",
+        "kickoff": "2026-10-24T16:00Z",
+        "neutral": false,
+        "away": {
+          "id": "164",
+          "name": "Rutgers Scarlet Knights",
+          "color": "#ce0e2d",
+          "secondaryColor": "#ffffff",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/164.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/164.png",
+          "rank": null,
+          "record": "2-4",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/3f06733d-8d8a-7044-6b24-e0ba817e25f0/logos/primary_logo_on_primary_color.png"
+        },
+        "home": {
+          "id": "77",
+          "name": "Northwestern Wildcats",
+          "color": "#492f92",
+          "secondaryColor": "#ffffff",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/77.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/77.png",
+          "rank": 24,
+          "record": "5-1",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/ca8359bf-52ca-f069-b9c4-bbfbcfc15c64/logos/primary_logo_on_primary_color.png"
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-23T00:00Z"
+      },
+      {
+        "id": "401866449",
+        "league": "CFB",
+        "stage": "pregame",
+        "kickoff": "2026-10-24T20:00Z",
+        "neutral": false,
+        "away": {
+          "id": "2199",
+          "name": "Eastern Michigan Eagles",
+          "color": "#006938",
+          "secondaryColor": "#ffffff",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/2199.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2199.png",
+          "rank": null,
+          "record": "4-4",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/4fe149bf-abf3-1485-0582-3927ec0a6068/logos/primary_logo_on_primary_color.png"
+        },
+        "home": {
+          "id": "195",
+          "name": "Ohio Bobcats",
+          "color": "#154734",
+          "secondaryColor": "#ffffff",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/195.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/195.png",
+          "rank": null,
+          "record": "5-2",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/eb84d343-74ae-03e0-bff8-6c19b5b917e6/logos/primary_logo_on_primary_color.png"
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-23T00:00Z"
+      },
+      {
+        "id": "401858495",
+        "league": "CFB",
+        "stage": "pregame",
+        "kickoff": "2026-10-24T19:00Z",
+        "neutral": false,
+        "away": {
+          "id": "2483",
+          "name": "Oregon Ducks",
+          "color": "#00934b",
+          "secondaryColor": "#fff41b",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/2483.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",
+          "rank": null,
+          "record": "4-2",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/116d333f-cf1a-0c67-d450-36a834af56de/logos/primary_logo_on_primary_color.png"
+        },
+        "home": {
+          "id": "356",
+          "name": "Illinois Fighting Illini",
+          "color": "#ff5f05",
+          "secondaryColor": "#13294b",
+          "darkLogo": null,
+          "primarySurfaceLogo": "/multi-proof-primary/356.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/356.png",
+          "rank": null,
+          "record": "3-3",
+          "score": null,
+          "providerPrimaryLogo": "https://a.espncdn.com/guid/4ce2ebbc-45db-ed4d-a525-c3de0b375e88/logos/primary_logo_on_primary_color.png"
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-23T00:00Z"
+      }
+    ],
+    "NFL": [
+      {
+        "id": "controlled-scheduled-401872930",
+        "league": "NFL",
+        "stage": "pregame",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-10-25T17:00:00Z",
+        "neutral": false,
+        "away": {
+          "id": "6",
+          "name": "Dallas Cowboys",
+          "color": "#002a5c",
+          "secondaryColor": "#b0b7bc",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/dal.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/b0fc8fb7-9dbe-e574-9008-6f0ee7c6b234/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+          "rank": null,
+          "record": "0-1",
+          "score": null
+        },
+        "home": {
+          "id": "19",
+          "name": "New York Giants",
+          "color": "#003c7f",
+          "secondaryColor": "#c9243f",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/378600ea-2397-8364-8399-b7c1606a49a7/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",
+          "rank": null,
+          "record": "1-0",
+          "score": null
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-24T00:00:00Z",
+        "platforms": [
+          "DAZN"
+        ]
+      },
+      {
+        "id": "controlled-scheduled-401872944",
+        "league": "NFL",
+        "stage": "pregame",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-10-26T01:30:00Z",
+        "neutral": false,
+        "away": {
+          "id": "28",
+          "name": "Washington Commanders",
+          "color": "#5a1414",
+          "secondaryColor": "#ffb612",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/wsh.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/fbeaf73e-6d6c-cca4-0809-713d9d741f90/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+          "rank": null,
+          "record": "0-2",
+          "score": null
+        },
+        "home": {
+          "id": "6",
+          "name": "Dallas Cowboys",
+          "color": "#002a5c",
+          "secondaryColor": "#b0b7bc",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/dal.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/b0fc8fb7-9dbe-e574-9008-6f0ee7c6b234/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+          "rank": null,
+          "record": "1-1",
+          "score": null
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-24T00:00:00Z",
+        "platforms": [
+          "Sky Sports"
+        ]
+      }
+    ]
+  },
+  "finals": {
+    "CFB": [
+      {
+        "id": "401858469",
+        "league": "CFB",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-09-26T23:30Z",
+        "neutral": false,
+        "away": {
+          "id": "2483",
+          "name": "Oregon Ducks",
+          "color": "#00934b",
+          "secondaryColor": "#fff41b",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2483.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/116d333f-cf1a-0c67-d450-36a834af56de/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",
+          "rank": 20,
+          "record": "3-1",
+          "score": 41
+        },
+        "home": {
+          "id": "30",
+          "name": "USC Trojans",
+          "color": "#9d2235",
+          "secondaryColor": "#ffc72c",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/30.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/63d7a1b4-ee19-f0ae-33c5-42a14e000fb8/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",
+          "rank": 12,
+          "record": "4-1",
+          "score": 27
+        },
+        "finalLabel": "FINAL",
+        "context": "RANKED UPSET",
+        "observedAt": "2026-10-24T00:00:00Z"
+      },
+      {
+        "id": "401858250",
+        "league": "CFB",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-10-03T16:00Z",
+        "neutral": false,
+        "away": {
+          "id": "87",
+          "name": "Notre Dame Fighting Irish",
+          "color": "#062340",
+          "secondaryColor": "#c99700",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/87.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/ebc2999c-2ff4-8435-ca46-9641e9f9ea10/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",
+          "rank": 3,
+          "record": "5-0",
+          "score": 37
+        },
+        "home": {
+          "id": "153",
+          "name": "North Carolina Tar Heels",
+          "color": "#7bafd4",
+          "secondaryColor": "#13294b",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/153.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/30776972-a2c7-1cf2-4530-1c3820f5a4ea/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",
+          "rank": null,
+          "record": "2-2",
+          "score": 26
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-24T00:00:00Z"
+      },
+      {
+        "id": "401858253",
+        "league": "CFB",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-10-03T19:30Z",
+        "neutral": false,
+        "away": {
+          "id": "258",
+          "name": "Virginia Cavaliers",
+          "color": "#232d4b",
+          "secondaryColor": "#f84c1e",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/258.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/b5c648b5-0b1f-ba55-a77e-8150a1869d4c/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",
+          "rank": null,
+          "record": "3-2",
+          "score": 7
+        },
+        "home": {
+          "id": "52",
+          "name": "Florida State Seminoles",
+          "color": "#782f40",
+          "secondaryColor": "#ceb888",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/52.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/fa181128-4809-a209-1add-d5a3b0cefd3c/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/52.png",
+          "rank": null,
+          "record": "3-2",
+          "score": 38
+        },
+        "finalLabel": "FINAL",
+        "context": "RIVALRY — Florida State–Virginia Rivalry",
+        "observedAt": "2026-10-24T00:00:00Z"
+      },
+      {
+        "id": "401858263",
+        "league": "CFB",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-10-17T23:00Z",
+        "neutral": false,
+        "away": {
+          "id": "52",
+          "name": "Florida State Seminoles",
+          "color": "#782f40",
+          "secondaryColor": "#ceb888",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/52.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/fa181128-4809-a209-1add-d5a3b0cefd3c/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/52.png",
+          "rank": null,
+          "record": "3-4",
+          "score": 35
+        },
+        "home": {
+          "id": "2390",
+          "name": "Miami Hurricanes",
+          "color": "#f47423",
+          "secondaryColor": "#035131",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2390.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/2b3657a5-caae-31a2-899a-0d09df0f7bed/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",
+          "rank": 3,
+          "record": "6-0",
+          "score": 43
+        },
+        "finalLabel": "FINAL / 2OT",
+        "context": "RIVALRY — Florida State–Miami Rivalry",
+        "observedAt": "2026-10-24T00:00:00Z"
+      }
+    ],
+    "NFL": [
+      {
+        "id": "401872930",
+        "league": "NFL",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-09-14T00:20Z",
+        "neutral": false,
+        "away": {
+          "id": "6",
+          "name": "Dallas Cowboys",
+          "color": "#002a5c",
+          "secondaryColor": "#b0b7bc",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/dal.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/b0fc8fb7-9dbe-e574-9008-6f0ee7c6b234/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+          "rank": null,
+          "record": "0-1",
+          "score": 20
+        },
+        "home": {
+          "id": "19",
+          "name": "New York Giants",
+          "color": "#003c7f",
+          "secondaryColor": "#c9243f",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/378600ea-2397-8364-8399-b7c1606a49a7/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",
+          "rank": null,
+          "record": "1-0",
+          "score": 28
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-24T00:00:00Z"
+      },
+      {
+        "id": "401872944",
+        "league": "NFL",
+        "stage": "final",
+        "liveLabel": "LIVE",
+        "kickoff": "2026-09-20T20:25Z",
+        "neutral": false,
+        "away": {
+          "id": "28",
+          "name": "Washington Commanders",
+          "color": "#5a1414",
+          "secondaryColor": "#ffb612",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/wsh.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/fbeaf73e-6d6c-cca4-0809-713d9d741f90/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+          "rank": null,
+          "record": "0-2",
+          "score": 20
+        },
+        "home": {
+          "id": "6",
+          "name": "Dallas Cowboys",
+          "color": "#002a5c",
+          "secondaryColor": "#b0b7bc",
+          "darkLogo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/dal.png",
+          "primarySurfaceLogo": "https://a.espncdn.com/guid/b0fc8fb7-9dbe-e574-9008-6f0ee7c6b234/logos/primary_logo_on_primary_color.png",
+          "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+          "rank": null,
+          "record": "1-1",
+          "score": 37
+        },
+        "finalLabel": "FINAL",
+        "context": null,
+        "observedAt": "2026-10-24T00:00:00Z"
+      }
+    ]
+  }
+}

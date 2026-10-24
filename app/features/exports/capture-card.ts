@@ -1,4 +1,4 @@
-import { toCanvas } from "html-to-image";
+import { toCanvas, getFontEmbedCSS } from "html-to-image";
 import { compactStats } from "./compact-stats";
 
 export async function captureCard(source: HTMLElement) {
@@ -9,6 +9,12 @@ export async function captureCard(source: HTMLElement) {
   // Font waiting must not let a selection change turn the source into a detached,
   // zero-width node (which otherwise produces a thin PNG on a second capture).
   if (!source.isConnected || source.getBoundingClientRect().width < 1) throw new Error("This card changed. Select it again before exporting.");
+  // Next-generated font aliases must be resolved on the live artwork. Resolving
+  // them after the renderer has cloned it can lose the condensed heading face.
+  // Keep the approved individual/legacy capture path unchanged.
+  const multiGame = source.classList.contains("multi-graphic") || source.classList.contains("statistical-graphic");
+  const fontEmbedCSS = multiGame ? await getFontEmbedCSS(source, { preferredFontFormat: "woff2" }) : undefined;
+  if (!source.isConnected) throw new Error("This card changed. Select it again before exporting.");
   const sourceWidth = Math.ceil(source.getBoundingClientRect().width);
   const clone = document.importNode(source, true);
   const originals = [source, ...Array.from(source.querySelectorAll<HTMLElement>("*"))];
@@ -66,7 +72,7 @@ export async function captureCard(source: HTMLElement) {
     // Reserve their space but render these once, directly, to avoid doubling
     // translucent edges in browsers whose foreignObject images do work.
     logos.forEach((image) => { image.style.visibility = "hidden"; });
-    const canvas = await toCanvas(canvasArea, { width, height, pixelRatio: 2, preferredFontFormat: "woff2" });
+    const canvas = await toCanvas(canvasArea, { width, height, pixelRatio: 2, preferredFontFormat: "woff2", ...(fontEmbedCSS !== undefined ? { fontEmbedCSS } : {}) });
     logos.forEach((image) => { image.style.visibility = "visible"; });
     // WebKit can omit decoded images inside the library's SVG foreignObject.
     // Paint contained team logos directly onto the final canvas at the same
