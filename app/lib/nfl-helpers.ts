@@ -116,7 +116,7 @@ export function formatGameTime(date: string) {
   });
 }
 
-export function getNflPrimeTimeIndicator(game: NFLGame) {
+export function getNflPrimeTimeIndicator(game: Pick<NFLGame, "startDate" | "broadcasts">) {
   const gameDay = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     timeZone: "America/New_York",
@@ -163,7 +163,7 @@ export function getNflPrimeTimeIndicator(game: NFLGame) {
   return null;
 }
 
-export function getNflInternationalIndicator(game: NFLGame) {
+export function getNflInternationalIndicator(game: Pick<NFLGame, "venueCountry" | "venueCity">) {
   const country = game.venueCountry?.trim().toLowerCase();
   if (!country || ["united states", "usa", "us", "u.s."].includes(country)) {
     return null;

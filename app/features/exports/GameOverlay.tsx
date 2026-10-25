@@ -1,3 +1,4 @@
+import {GameOverlayHeader} from './GameOverlayHeader';
 /* eslint-disable @next/next/no-img-element -- Native brand and team images are embedded by the existing PNG engine. */
 import type {CSSProperties} from 'react';
 import type {OverlayGame,OverlayTeam} from './game-overlay';
@@ -20,9 +21,9 @@ export function GameOverlay({game,treatment='dark'}:{game:OverlayGame;treatment?
  }
  return <article className={`game-overlay game-overlay--${treatment} game-overlay--scorebug game-overlay--pregame`} data-league={game.league} aria-label="Pregame matchup overlay" style={colours}>
   <div className="game-overlay__panel">
-   <header><img className="game-overlay__network-logo" src="/exports/aaw-network-wordmark.png" alt="AAW Network"/><strong className="game-overlay__status">PREGAME</strong>{game.context&&<span className="scorebug__context">{game.context}</span>}</header>
+   <GameOverlayHeader status="PREGAME" context={game.context}/>
    <div className="game-overlay__matchup">{team(game.away,'away')}<span className="game-overlay__versus">{game.neutral?'vs':'@'}</span>{team(game.home,'home')}</div>
-   <footer aria-label={ukKickoff(game.kickoff)??undefined}><time dateTime={game.kickoff}>{date}</time><span>{time} · UK</span>{Boolean(game.platforms?.length)&&<span className="game-overlay__broadcast">WATCH · {game.platforms!.join(' · ')}</span>}</footer>
+   <footer aria-label={ukKickoff(game.kickoff)??undefined}><time dateTime={game.kickoff}>{date}</time><span>{time} · UK</span>{game.league==='CFB'&&Boolean(game.platforms?.length)&&<span className="game-overlay__broadcast">WATCH · {game.platforms!.join(' · ')}</span>}</footer>
   </div>
  </article>;
 }

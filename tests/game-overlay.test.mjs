@@ -141,3 +141,17 @@ test('all 32 retained NFL primary-surface logos reach scheduled overlays, includ
  const final=scheduled();final.competitions[0].status={type:{state:'post',name:'STATUS_FINAL',completed:true}};final.competitions[0].competitors[0].team={id:'9',displayName:'Packers',color:'204e32',logo:'/original.png'};
  assert.equal(project(final,'NFL')[0].away.primarySurfaceLogo,null,'final path unchanged');
 });
+test('NFL header context reuses sourced prime-time and international indicators; ordinary games stay blank',()=>{
+ const feed=JSON.parse(readFileSync(new URL('fixtures/nfl-export-context.json',import.meta.url),'utf8'));
+ const rows=projectOverlayGames(feed,'NFL','2026-10-25T16:00:00Z');
+ assert.equal(rows.find(g=>g.id==='401873010').context,'THURSDAY NIGHT FOOTBALL');
+ assert.match(rows.find(g=>g.id==='401873011').context,/^INTERNATIONAL GAME · SAINT-DENIS, FRANCE$/);
+ assert.equal(rows.find(g=>g.id==='401873017').context,null);
+ for(const row of rows)assert.doesNotMatch(row.context??'',/NFL Regular Season|RIVALRY/);
+});
+test('NFL neutral venue and Thursday date alone never invent an international or TNF distinction',()=>{
+ const e=scheduled();e.date='2026-10-23T00:15:00Z';e.competitions[0].status={type:{name:'STATUS_FINAL',state:'post',completed:true}};
+ e.competitions[0].neutralSite=true;e.competitions[0].venue={address:{city:'London'}};e.competitions[0].broadcasts=[{names:['CBS']}];
+ assert.equal(project(e,'NFL')[0].context,null);
+ e.competitions[0].broadcasts=[{names:['Prime Video']}];assert.equal(project(e,'NFL')[0].context,'THURSDAY NIGHT FOOTBALL');
+});

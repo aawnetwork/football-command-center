@@ -1,4 +1,5 @@
 import { GameDetails } from "./GameDetails";
+import { NflUkBroadcasts } from "./NflUkBroadcasts";
 import { GameCard } from "../../components/GameCard";
 import { useHubPreferences } from "../preferences/HubPreferences";
 import { favouriteSides } from "../../lib/local-preferences";
@@ -28,7 +29,7 @@ export function NflGamesGrid({
 }: NflGamesGridProps) {
   const { favourites, interact } = useHubPreferences();
   return (
-    <div className="command-center__game-grid">
+    <div className="command-center__game-grid command-center__game-grid--nfl">
       {games.map((game) => {
         const tier = gameTiers[game.id];
         const suggestedTier = game.importance ?? "C";
@@ -56,9 +57,7 @@ export function NflGamesGrid({
             time={formatGameTime(game.startDate)}
             indicator={indicator}
             headerRight={
-              broadcastAvailability[game.id]?.length ? (
-                <div className="game-card__broadcast">📺 {broadcastAvailability[game.id].join(" · ")}</div>
-              ) : null
+              broadcastAvailability[game.id]?.length ? <NflUkBroadcasts platforms={broadcastAvailability[game.id]} /> : null
             }
             footer={
               <GameTierControls

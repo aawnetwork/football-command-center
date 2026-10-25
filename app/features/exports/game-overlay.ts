@@ -1,3 +1,4 @@
+import {getNflInternationalIndicator,getNflPrimeTimeIndicator} from '../../lib/nfl-helpers';
 import { findCfbRivalry } from '../../lib/cfb-rivalries';
 import { rivalries } from '../../cfb/data/rivalries';
 import retainedLogoVariants from './cfb-overlay-logo-variants.json';
@@ -42,7 +43,11 @@ export function projectOverlayGames(feed:unknown,league:'CFB'|'NFL',observedAt:s
   const clock=text(object(competition.status).displayClock)??text(object(event.status).displayClock);
   const statusLabel=stage==='live'&&status.name==='STATUS_IN_PROGRESS'&&(period!==null&&period<=4||league==='NFL')&&clock&&/^\d{1,2}:\d{2}$/.test(clock)?`${liveLabel} · ${clock}`:liveLabel;
   const rivalry=league==='CFB'?findCfbRivalry({awayTeam:away.name,homeTeam:home.name},rivalries):undefined;
-  const context=[rivalry?`RIVALRY — ${rivalry.name}`:null,upset?'RANKED UPSET':ranked?'RANKED MATCHUP':null].filter(Boolean).join(' · ')||null;
+  const cfbContext=[rivalry?`RIVALRY — ${rivalry.name}`:null,upset?'RANKED UPSET':ranked?'RANKED MATCHUP':null].filter(Boolean).join(' · ')||null;
+  const venue=object(competition.venue),address=object(venue.address);
+  const broadcasts=list(competition.broadcasts).flatMap(value=>list(object(value).names)).filter((name):name is string=>typeof name==='string');
+  const nflIndicator=league==='NFL'?(getNflInternationalIndicator({venueCountry:text(address.country),venueCity:text(address.city)})??getNflPrimeTimeIndicator({startDate:kickoff,broadcasts})):null;
+  const context=league==='CFB'?cfbContext:nflIndicator?.label.replace(/^[^A-Z]+/u,'')??null;
   result.push({id,league,stage,liveLabel:statusLabel,kickoff,neutral:competition.neutralSite===true,away,home,finalLabel:overtime?`FINAL / ${overtime===1?'OT':`${overtime}OT`}`:'FINAL',context,observedAt});
  }
  return result;

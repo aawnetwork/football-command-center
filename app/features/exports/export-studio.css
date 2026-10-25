@@ -45,7 +45,13 @@
 .game-overlay--scorebug .game-overlay__panel { border:1px solid #405366; border-top:0; border-radius:0; overflow:visible; background:#0b1f33; clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px); }
 .game-overlay--scorebug header { display:grid; grid-template-columns:minmax(0,1fr) 224px minmax(0,1fr); align-items:stretch; gap:0; min-height:42px; padding:0; border:0; background:#071827; }
 .game-overlay--scorebug .game-overlay__network-logo { align-self:center; display:block; width:160px; height:22px; object-fit:contain; margin:0 22px; }
-.game-overlay--scorebug .game-overlay__status { display:flex; align-items:center; justify-content:center; grid-column:2; margin:0; background:var(--bug-paper); color:var(--bug-score); font-size:13px; font-weight:850; letter-spacing:.16em; clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 100%,0 100%); border-top:3px solid var(--overlay-accent); }
+.game-overlay--scorebug .game-overlay__status { display:flex; align-items:center; justify-content:flex-start; grid-column:1; grid-row:1; margin:0; padding:0 22px; background:transparent; color:#fffaf0; font-size:12px; font-weight:850; letter-spacing:.08em; text-align:left; border:0; clip-path:none; }
+.game-overlay--scorebug .scorebug__branding { display:flex; align-items:center; justify-content:center; grid-column:2; grid-row:1; background:var(--bug-paper); clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 100%,0 100%); }
+/* Official supplied PNG, unchanged. Clip only its transparent sheet padding.
+   min-height survives captureCard height:auto normalisation and prevents a PNG-only logo shift. */
+.game-overlay--scorebug .scorebug__brand-artwork { position:relative; display:block; width:160px; height:22px; min-height:22px; overflow:hidden; }
+.game-overlay--scorebug .scorebug__branding .game-overlay__network-logo { position:absolute; display:block; width:200.08px; height:200.08px; max-width:none; left:-19.7px; top:-88.73px; margin:0; padding:0; background:transparent; }
+.game-overlay--scorebug .scorebug__context { grid-column:3; grid-row:1; }
 .game-overlay--scorebug .scorebug__context { display:flex; align-items:center; justify-content:flex-end; padding:0 22px; font-size:10px; font-weight:800; letter-spacing:.12em; color:#fffaf0; }
 .game-overlay--scorebug .game-overlay__matchup { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0; }
 .game-overlay--scorebug .game-overlay__team { --team-ink:#0b1f33; display:grid; grid-template-columns:minmax(0,1fr) 112px; align-items:stretch; gap:0; min-height:140px; padding:0; }
@@ -70,7 +76,7 @@
 .game-overlay--scorebug.game-overlay--light { --bug-type:#fffaf0; --bug-muted:#fffaf0; }
 .game-overlay--scorebug.game-overlay--light .scorebug__identity { background:var(--team-ink); }
 .game-overlay--scorebug.game-overlay--light .game-overlay__team--home .scorebug__identity { background:var(--team-ink); }
-.game-overlay--scorebug[data-league] .game-overlay__status { color:var(--bug-score); }
+.game-overlay--scorebug[data-league] .game-overlay__status { color:#fffaf0; }
 
 /* Approved pregame companion: team colours meet directly without a badge or navy fade. */
 .game-overlay--pregame.game-overlay--scorebug .game-overlay__matchup { position:relative; }

@@ -1346,3 +1346,9 @@
   .command-center .stats-leaderboard td:last-child { white-space: nowrap; }
   .all-time-record-row { min-width: 0; }
 }
+
+/* NFL uses the existing approved UK listings; allow any number of services. */
+.command-center__game-grid--nfl .game-card__status-row{grid-template-columns:minmax(0,1fr);align-items:start}
+.command-center__game-grid--nfl .game-card__header-right{justify-self:stretch;min-width:0;max-width:100%;white-space:normal;text-align:left}
+.command-center--nfl .game-card__broadcast.nfl-uk-broadcasts{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;line-height:1.6;max-width:100%;min-width:0}
+.nfl-uk-broadcasts [role=listitem]{max-width:100%;overflow-wrap:anywhere;min-width:0}

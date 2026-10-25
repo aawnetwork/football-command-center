@@ -18,7 +18,7 @@ export function OverlayStudio({league,stage}:{league:string;stage:'pregame'|'liv
    if(!response.ok||!Array.isArray(body.games))throw Error(body.error||'Schedule unavailable.');
    const rows:OverlayGame[]=body.games.filter((game:OverlayGame)=>game.stage===stage);
    let broadcastFailed=false;
-   if(stage!=='final'&&rows.length){try{
+   if(league==='cfb'&&stage!=='final'&&rows.length){try{
     const broadcast=await fetch(`/api/broadcast-availability?${new URLSearchParams({league:league.toUpperCase(),gameIds:rows.map(game=>game.id).join(',')})}`,{signal:controller.signal});
     if(!broadcast.ok)throw Error();const data=await broadcast.json();
     for(const game of rows){const match=data.availability?.find((row:{gameId:number})=>String(row.gameId)===game.id);game.platforms=match?.platforms??[];}
