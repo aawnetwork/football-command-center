@@ -96,3 +96,16 @@ test('NFL UK destinations are uncapped, escaped, deduplicated and absent when no
 test('supplied navy branding has no temporary backing or generated replacement',()=>{const html=render({...fixture(),stage:'final'});assert.match(html,/aaw-network-navy.png/);assert.doesNotMatch(html,/temporary-brand/);const css=readFileSync(path.join(root,'app/features/exports/export-studio.css'),'utf8');assert.match(css,/scorebug__branding \.game-overlay__network-logo[^}]*background:transparent/);assert.doesNotMatch(css,/scorebug__temporary-brand/);});
 
 test('brand crop retains its layout height when the PNG engine normalises wrapper heights to auto',()=>{const css=readFileSync(path.join(root,'app/features/exports/export-studio.css'),'utf8');assert.match(css,/scorebug__brand-artwork[^}]*min-height:22px/);});
+test('actual Iowa single cards retain the black and use its supplied dark-surface mark in both treatments',()=>{
+ const {projectOverlayGames}=load(path.join(root,'app/features/exports/game-overlay.ts'));
+ const feed=JSON.parse(readFileSync(path.join(root,'tests/fixtures/cfb-export-owner-examples.json'),'utf8'));
+ const g=projectOverlayGames(feed,'CFB','2026-10-25T17:00:00Z').find(g=>g.id==='401858497');
+ for(const treatment of ['dark','light']){const html=render(g,treatment);assert.match(html,/src="https:\/\/a.espncdn.com\/i\/teamlogos\/ncaa\/500-dark\/2294.png"/);assert.match(html,/--team-ink:#000000/);assert.match(html,/Iowa–Minnesota Rivalry · RANKED UPSET/);assert.match(html,/Iowa Hawkeyes/);}
+});
+test('actual results roundup shows the USC upset and preserves ranked-upset and ranked-matchup rows; Iowa also uses the correct variant',()=>{
+ const {projectOverlayGames}=load(path.join(root,'app/features/exports/game-overlay.ts')),{MultiGameGraphic}=load(path.join(root,'app/features/exports/MultiGameGraphic.tsx'));
+ const feed=JSON.parse(readFileSync(path.join(root,'tests/fixtures/cfb-export-owner-examples.json'),'utf8')),rows=projectOverlayGames(feed,'CFB','2026-10-25T17:00:00Z');
+ const games=['401858500','401856732','401856837'].map(id=>rows.find(g=>g.id===id));
+ const html=renderToStaticMarkup(createElement(MultiGameGraphic,{games,mode:'final'}));assert.equal((html.match(/RANKED UPSET/g)||[]).length,2);assert.equal((html.match(/RANKED MATCHUP/g)||[]).length,1);assert.ok(html.indexOf('USC Trojans')<html.indexOf('Ole Miss Rebels'));assert.ok(html.indexOf('Ole Miss Rebels')<html.indexOf('Houston Cougars'));
+ const iowa=rows.find(g=>g.id==='401858497');const extra=renderToStaticMarkup(createElement(MultiGameGraphic,{games:[iowa,games[0]],mode:'final'}));assert.match(extra,/500-dark\/2294.png/);assert.match(extra,/--away-surface:#000000/);
+});

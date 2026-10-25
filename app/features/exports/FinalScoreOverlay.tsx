@@ -1,14 +1,15 @@
 import {GameOverlayHeader} from './GameOverlayHeader';
 /* eslint-disable @next/next/no-img-element -- Native brand and team images are embedded by the existing PNG engine. */
 import type {CSSProperties} from 'react';
-import {overlaySurfaceInk,type OverlayGame,type OverlayTeam} from './game-overlay';
+import {logoForSurface,type OverlayGame,type OverlayTeam} from './game-overlay';
 export function FinalScoreOverlay({game,treatment}:{game:OverlayGame;treatment:'dark'|'light'}){
  function team(t:OverlayTeam,opponent:OverlayTeam,side:'away'|'home'){
   const winner=game.stage==='final'&&t.score!==null&&opponent.score!==null&&t.score>opponent.score;
+  const logo=logoForSurface(t,t.color&&/^#[0-9a-f]{6}$/i.test(t.color)?t.color:'#0b1f33');
   const style=t.color&&/^#[0-9a-f]{6}$/i.test(t.color)?{'--team-ink':t.color} as CSSProperties:undefined;
   return <div className={`game-overlay__team game-overlay__team--${side}${winner?' game-overlay__team--winner':''}`} style={style}>
    <div className="scorebug__identity">
-    {(t.primarySurfaceLogo??t.darkLogo??t.logo)&&<span className="game-overlay__logo-slot"><img src={t.primarySurfaceLogo??(overlaySurfaceInk(t.color??'#0b1f33')==='#fffaf0'?t.darkLogo:null)??t.logo!} alt="" className="game-overlay__logo"/></span>}
+    {logo&&<span className="game-overlay__logo-slot"><img src={logo} alt="" className="game-overlay__logo"/></span>}
     <div className="game-overlay__identity"><div className="scorebug__details">{t.rank!==null&&<span className="game-overlay__rank">#{t.rank}</span>}{t.record&&<span className="scorebug__record">{t.record}</span>}</div><h2>{t.name}</h2></div>
    </div>
    <strong aria-label={`${t.name} ${game.stage==='live'?'live':'final'} score`} className={`game-overlay__score${t.score!==null&&String(t.score).length>2?' game-overlay__score--wide':''}`}>{t.score}</strong>

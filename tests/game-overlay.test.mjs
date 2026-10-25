@@ -155,3 +155,38 @@ test('NFL neutral venue and Thursday date alone never invent an international or
  assert.equal(project(e,'NFL')[0].context,null);
  e.competitions[0].broadcasts=[{names:['Prime Video']}];assert.equal(project(e,'NFL')[0].context,'THURSDAY NIGHT FOOTBALL');
 });
+test('owner examples: unranked winners upset ranked USC and Iowa; ranked outcomes keep their existing distinctions',()=>{
+ const feed=JSON.parse(readFileSync(new URL('fixtures/cfb-export-owner-examples.json',import.meta.url),'utf8'));
+ const rows=projectOverlayGames(feed,'CFB','2026-10-25T17:00:00Z'),byId=id=>rows.find(g=>g.id===id);
+ assert.equal(byId('401858500').context,'RANKED UPSET');
+ assert.match(byId('401858497').context,/RIVALRY.*Iowa–Minnesota.*RANKED UPSET/);
+ assert.equal(byId('401856732').context,'RANKED UPSET');
+ assert.equal(byId('401856837').context,'RANKED MATCHUP');
+ assert.equal(byId('401858500').away.rank,16);assert.equal(byId('401858500').home.rank,null);
+ assert.equal(byId('401858497').away.score,10);assert.equal(byId('401858497').home.score,13);
+});
+test('upsets work for either winning side, require a ranked loser and a final non-tied result',()=>{
+ for(const awayWins of [true,false]){const e=scheduled(),c=e.competitions[0];c.status={type:{name:'STATUS_FINAL',state:'post',completed:true}};const winner=c.competitors[awayWins?0:1],loser=c.competitors[awayWins?1:0];winner.curatedRank.current=99;winner.score='24';loser.curatedRank.current=16;loser.score='7';assert.equal(project(e)[0].context,'RANKED UPSET');winner.score='7';assert.doesNotMatch(project(e)[0].context??'',/UPSET/);winner.score='24';loser.curatedRank.current=99;assert.doesNotMatch(project(e)[0].context??'',/UPSET/);loser.curatedRank.current=16;winner.curatedRank.current=2;assert.equal(project(e)[0].context,'RANKED MATCHUP');}
+});
+test('explicit provider logoDark is retained and selected ahead of an unsuitable primary-colour mark on dark surfaces',async()=>{
+ const {pregameTeamAppearance,logoForSurface}=await import(await compileLocalModule(new URL('../app/features/exports/game-overlay.ts',import.meta.url)));
+ const feed=JSON.parse(readFileSync(new URL('fixtures/cfb-export-owner-examples.json',import.meta.url),'utf8'));
+ const iowa=projectOverlayGames(feed,'CFB','2026-10-25T17:00:00Z').find(g=>g.id==='401858497').away;
+ assert.equal(iowa.darkLogo,'https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2294.png');
+ assert.equal(logoForSurface(iowa,'#000000'),iowa.darkLogo);
+ const appearance=pregameTeamAppearance(iowa);assert.equal(appearance.surface,'#000000');assert.equal(appearance.logo,iowa.darkLogo);
+ const light={...iowa,color:'#fffaf0',primarySurfaceLogo:null};assert.equal(logoForSurface(light,'#fffaf0'),iowa.logo);
+});
+
+test('export brand colour correction is shared, league-scoped and leaves other team colours intact',async()=>{
+ const {exportTeamColour,pregameTeamAppearance}=await import(await compileLocalModule(new URL('../app/features/exports/game-overlay.ts',import.meta.url)));
+ assert.equal(exportTeamColour('CFB','2294','231f20'),'#000000');
+ assert.equal(exportTeamColour('NFL','2294','231f20'),'#231f20');
+ for(const colour of ['#231f20','#000000','#154734','#461d7c','#ffb81c','#ffffff','#9d2235']){
+  assert.equal(exportTeamColour('CFB','other',colour),colour);
+  for(const darkLogo of [null,'/dark.png']){
+   const appearance=pregameTeamAppearance({id:'other',color:colour,logo:'/default.png',darkLogo,primarySurfaceLogo:'/primary.png'});
+   assert.equal(appearance.surface,colour);assert.ok(appearance.logo);
+  }
+ }
+});
