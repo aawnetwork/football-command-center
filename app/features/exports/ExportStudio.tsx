@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { OverlayStudio } from "./OverlayStudio";
 import { StatisticalStudio } from "./StatisticalStudio";
 import { MultiGameStudio } from "./MultiGameStudio";
+import { VideoStudio } from "./VideoStudio";
 import { captureCard } from "./capture-card";
 import "./export-studio.css";
 
@@ -80,9 +81,9 @@ export function ExportStudio() {
   }
 
   return <main className="export-studio">
-    <header><p>AAW · PRIVATE EXPORTS</p><h1>Export Studio</h1><p>Transparent PNGs for your photography in Canva. Nothing is uploaded or published.</p><a href="/admin/decks">Deck Manager</a></header>
-    <section className="export-studio__controls" aria-label="Output selection"><label>Output<select value={mode} disabled={busy} onChange={e=>{setMode(e.target.value);setResult(null);}}><option value="original">Existing cards and tables</option><option value="statistics">Statistical leaderboard</option><option value="multi">Multi-game publishing</option><option value="pregame">Pregame matchup overlay</option><option value="live">Live score overlay</option><option value="final">Final score overlay</option></select></label>{mode !== "original" && <label>League<select value={league} onChange={e=>setLeague(e.target.value)}><option value="cfb">College football</option><option value="nfl">NFL</option></select></label>}</section>
-    {mode === "statistics" ? <StatisticalStudio key={league} league={league}/> : mode === "multi" ? <MultiGameStudio league={league}/> : mode !== "original" ? <OverlayStudio key={`${league}:${mode}`} league={league} stage={mode as 'pregame'|'live'|'final'} /> : <>
+    <header><p>AAW · PRIVATE EXPORTS</p><h1>Export Studio</h1><p>Transparent PNGs and photo-led MP4 Reels for AAW publishing. Nothing is uploaded or published.</p><a href="/admin/decks">Deck Manager</a></header>
+    <section className="export-studio__controls" aria-label="Output selection"><label>Output<select value={mode} disabled={busy} onChange={e=>{setMode(e.target.value);setResult(null);}}><option value="original">Existing cards and tables</option><option value="statistics">Statistical leaderboard</option><option value="multi">Multi-game publishing</option><option value="pregame">Pregame matchup overlay</option><option value="live">Live score overlay</option><option value="final">Final score overlay</option><option value="video">Video Reels (MP4)</option></select></label>{mode !== "original" && mode !== "video" && <label>League<select value={league} onChange={e=>setLeague(e.target.value)}><option value="cfb">College football</option><option value="nfl">NFL</option></select></label>}</section>
+    {mode === "video" ? <VideoStudio/> : mode === "statistics" ? <StatisticalStudio key={league} league={league}/> : mode === "multi" ? <MultiGameStudio league={league}/> : mode !== "original" ? <OverlayStudio key={`${league}:${mode}`} league={league} stage={mode as 'pregame'|'live'|'final'} /> : <>
     <section className="export-studio__controls" aria-label="Export controls">
       <label>League <select value={league} disabled={busy} onChange={(event) => {
         setCards([]); setSelected(""); setResult(null); setLeague(event.target.value);

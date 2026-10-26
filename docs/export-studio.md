@@ -18,6 +18,22 @@ Development loopback access remains available without a password. All other acce
 
 Contained logos are decoded and drawn directly onto the output canvas at their existing positions, bypassing browser-dependent SVG foreignObject image rendering. The card design is unchanged.
 
+## Video Reels — new browser-side MP4 workflow
+
+Choose **Video Reels (MP4)** in Export Studio. Select College or NFL, Pregame or Final, the week and the verified source game. Optionally choose a JPEG/PNG/WebP background photograph from the local computer (up to 20 MB); it stays in the browser and is never uploaded. Select the Navy or Cream treatment and Full HD (1080×1920) or the lighter 720×1280 setting. Use **Play preview** to review the nine-second motion composition; select **Generate MP4**, wait for H.264 encoding/finalization, watch the resulting video preview, then **Download MP4**. The exported file is 9:16, 30 fps, H.264 MP4 and silent, with official team logos and the supplied AAW wordmark. It is not a WebM renamed as MP4.
+
+The Reel deliberately does not reproduce the PNG scorebug as a tall static card. It starts with animated photo/graphic motion, brings the selected game's teams and scores (or upcoming kickoff) onto an AAW-branded composition, and closes on the supplied AAW identity. It never fabricates a score for a pregame fixture. Source values are captured at selection time; refresh and check them before publishing.
+
+All frames are drawn and encoded locally using browser WebCodecs and Mediabunny's MP4 muxer. No server render, remote encoding, subscription, photo upload, or public data mutation is involved. The browser must support AVC/H.264 encoding; unsupported browsers report a failure. The encoder respects backpressure to avoid collecting hundreds of full-size raw frames in memory. 720p is provided for older computers, but browser/device compatibility and actual playable downloads must still be verified on AAW's machines before production deployment. Existing PNG exporters are not modified.
+
+### Video release verification
+
+- [x] Next production build, TypeScript, focused export access/PNG regression tests and Reel timeline unit tests pass locally.
+- [ ] Produce a complete playable MP4, check its duration/frames and decode it independently.
+- [ ] Verify 1080p on the Windows 10 tower and the 2019 Intel MacBook Air; try 720p on the 2015 MacBook Pro.
+- [ ] Review a real NFL final and CFB pregame with official logos and a locally uploaded photograph.
+- [ ] Receive normal production deployment approval after those checks.
+
 ## Historical local verification — 9 October 2026 (previous local-only gate)
 
 Generated and visually inspected real CFB game, performance, weekly stats, conference standings and All-Time PNGs, plus NFL All-Time with ACTIVE rows and season stats. Verified full-table capture, transparent outer pixels and an actual PNG download. Type checking and the six deck/access tests passed. Export-specific lint has no errors (one intentional plain-image preview warning).
