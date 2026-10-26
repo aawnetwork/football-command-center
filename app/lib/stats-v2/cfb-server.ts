@@ -60,7 +60,16 @@ async function GET(request: Request) {
     const mode=params.get('mode')??'weekly', view=params.get('view')??'leaders', category=params.get('category') as Category;
     if (!['weekly','season'].includes(mode) || !['leaders','details','export','status'].includes(view)) return Response.json({error:'Invalid selection'},{status:400,headers});
     if(mode==='season'&&(params.has('week')||view==='leaders'&&(!['QB','Rush','Rec','Def'].includes(category)||params.has('snapshot')||params.has('players'))))return Response.json({error:'Invalid season selection'},{status:400,headers});
-    if(mode==='season'&&view!=='status')return cfbSeasonResponse(params,view,category,params.get('conference'),view==='leaders'?await load(null):undefined);
+    if(mode==='season'&&view!=='status'){
+      // A provider failure must not hide fingerprint-validated retained history.
+      // Weekly and team statistics keep their existing independent behavior.
+      let current:Model|undefined,updateFailure:string|undefined;
+      if(view==='leaders'){
+        try{current=await load(null);}
+        catch{updateFailure='Live provider update is unavailable.';}
+      }
+      return cfbSeasonResponse(params,view,category,params.get('conference'),current,updateFailure);
+    }
     if(view==='export')return Response.json({error:'CFB league ranking coverage is not verified'},{status:409,headers});
     const raw=params.get('week'), week=raw===null?null:Number(raw);
     if(mode==='season'&&raw!==null)return Response.json({error:'Invalid season selection'},{status:400,headers});

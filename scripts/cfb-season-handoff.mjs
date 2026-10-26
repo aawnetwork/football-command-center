@@ -15,8 +15,17 @@ export function prepareHandoff({base,metadata,manifest,manifestHash,report,prove
  assert.equal(base.season,2026);assert.equal(metadata.season,base.season);assert.ok(Number.isInteger(metadata.throughWeek)&&metadata.throughWeek>=1);assert.ok(Number.isInteger(manifest.week)&&manifest.week<=30);
  assert.equal(manifestHash,hash(manifest),'Pinned manifest mismatch');
  assert.equal(manifest.season,base.season);assert.equal(manifest.season_type,'regular');assert.equal(base.phase,'REG');
- assert.equal(manifest.coreIdSetEqual,true,'Independent game sets must agree');
- assert.equal(manifest.coreReportedCount,manifest.count);assert.ok(manifest.count>0);
+ if(manifest.reconciliation?.kind==='all-fbs-team-schedules'){
+  assert.equal(manifest.reconciliation.idSetEqual,true,'Independent game sets must agree');
+  assert.equal(manifest.reconciliation.gameCount,manifest.count);
+  assert.equal(manifest.reconciliation.checkedTeams,manifest.reconciliation.expectedTeams);
+  assert.ok(manifest.reconciliation.checkedTeams>=130,'Incomplete FBS schedule reconciliation');
+  assert.match(manifest.reconciliation.sha256,/^[a-f0-9]{64}$/);
+ }else{
+  assert.equal(manifest.coreIdSetEqual,true,'Independent game sets must agree');
+  assert.equal(manifest.coreReportedCount,manifest.count);
+ }
+ assert.ok(manifest.count>0);
  assert.equal(manifest.games.length,manifest.count);assert.equal(new Set(manifest.games.map(g=>g.id)).size,manifest.count,'Duplicate games');
  assert.match(manifest.fbsMembershipEvidence?.sha256??'',/^[a-f0-9]{64}$/);
  assert.equal(provenance.manifest_hash,manifestHash);

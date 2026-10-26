@@ -21,8 +21,10 @@ async function compile(file) {
 }
 const file = path => new URL('../' + path, import.meta.url);
 
-const {buildCfbSeason,cfbSeasonTotals,cfbSeasonResponse}=await import(await compile(file('app/lib/stats-v2/cfb-season.ts')));
+const {buildCfbSeason,cfbSeasonTotals,cfbSeasonResponse,withCfbSeasonLive}=await import(await compile(file('app/lib/stats-v2/cfb-season.ts')));
 const {statsUpdateStatus}=await import(await compile(file('app/preview/nfl-stats/update-status.ts')));
+const retained=JSON.parse(await readFile(file('app/lib/stats-v2/cfb-player-history.json'),'utf8'));
+const retainedMeta=JSON.parse(await readFile(file('app/lib/stats-v2/cfb-season-metadata.json'),'utf8'));
 const id='espn:cfb:athlete:123';
 const cols=['completions','attempts','passing_yards','passing_tds','passing_interceptions','carries','rushing_yards','rushing_tds','rushing_long','receptions','receiving_yards','receiving_tds','receiving_long','tackles','def_sacks','def_tackles_for_loss','def_interceptions'];
 const cells=patch=>cols.map(k=>patch[k]??null);
@@ -70,10 +72,10 @@ test('future weeks cannot enter the snapshot and invalid identities fail closed'
 test('real fixed snapshot serves all categories without fetches; unsupported season metrics have no ranks',async()=>{
  const saved=globalThis.fetch;globalThis.fetch=()=>{throw Error('No provider requests authorised');};
  try{for(const category of ['QB','Rush','Rec','Def']){
-  const response=cfbSeasonResponse(new URLSearchParams(),'leaders',category,null);assert.equal(response.status,200);const body=await response.json();assert.equal(body.coveredGames,510);assert.equal(body.retainedAppearances,29483);assert.equal(body.period.week,null);assert.equal(body.throughWeek,7);assert.equal(body.complete,false);assert.equal(body.independentNationalCertification,false);assert.equal(body.lines.length,({QB:170,Rush:1475,Rec:1980,Def:5397})[category]);assert.equal(body.confidence[body.columns[0]].supportedPlayers,({QB:151,Rush:1001,Rec:1357,Def:4931})[category]);assert.equal(body.scope,'retained-espn-season');
+  const response=cfbSeasonResponse(new URLSearchParams(),'leaders',category,null);assert.equal(response.status,200);const body=await response.json();assert.equal(body.coveredGames,retained.games.length);assert.equal(body.retainedAppearances,retained.rows.length);assert.equal(body.period.week,null);assert.equal(body.throughWeek,retainedMeta.throughWeek);assert.equal(body.complete,false);assert.equal(body.independentNationalCertification,false);assert.ok(body.lines.length>0);assert.ok(body.confidence[body.columns[0]].supportedPlayers>0);assert.equal(body.scope,'retained-espn-season');
   assert.equal(new Set(body.lines.map(r=>r.id)).size,body.lines.length);assert.ok(body.lines.every(r=>!r.playingNow));
   if(category==='Def'){assert.equal(body.confidence.def_interceptions.status,'unverified');assert.equal(body.confidence.def_interceptions.supportedPlayers,0);assert.ok(body.lines.every(r=>r.values[body.columns.indexOf('def_interceptions')]===null));}
-  const params=new URLSearchParams({snapshot:body.snapshot,players:body.lines[0].id});const detail=await cfbSeasonResponse(params,'details',category,null).json();assert.ok(detail.lines[0].games.length<=5);assert.ok(detail.lines[0].games.every(g=>g.week<=7));
+  const params=new URLSearchParams({snapshot:body.snapshot,players:body.lines[0].id});const detail=await cfbSeasonResponse(params,'details',category,null).json();assert.ok(detail.lines[0].games.length<=5);assert.ok(detail.lines[0].games.every(g=>g.week<=retainedMeta.throughWeek));
   for(let i=1;i<detail.lines[0].games.length;i++)assert.ok(detail.lines[0].games[i-1].week>=detail.lines[0].games[i].week);
   assert.deepEqual(detail.lines[0].metrics[body.columns[0]].value,body.lines[0].values[0]);
  }}finally{globalThis.fetch=saved;}
@@ -110,4 +112,41 @@ test('CFB Season includes existing exact-team logos for every category without c
   for(const row of response.lines)for(const team of row.teams)if(directory[team]?.logo)assert.equal(response.logos[team],directory[team].logo);
  }
  assert.equal(await readFile(file('app/lib/stats-v2/cfb-player-history.json'),'utf8'),historyText);
+});
+
+function currentWeek(week,value=40){
+ const metrics={passing_yards:{state:'value',value},completions:{state:'value',value:2},attempts:{state:'value',value:4}};
+ return {period:{season:2026,phase:'REG',week},checkedAt:'2026-10-28T12:00:00Z',collection:{observedGames:1},teams:{'1':{name:'A',logo:null,fbs:true,conferenceId:'A'}},events:[{id:String(week),date:'2026-10-27T12:00Z',competitions:[{status:{type:{state:'post',completed:true}},competitors:[{homeAway:'home',team:{id:'1'}},{homeAway:'away',team:{id:'2'}}]}]}],lines:[{id,name:'Same Name',games:[{gameId:'espn:cfb:game:'+week,week,team:'1',opponent:'2',kickoff:'2026-10-27T12:00Z',observedAt:'2026-10-28T12:00Z',position:'QB',metrics,playingNow:false}]}]};
+}
+test('Week 8 to 9 and 9 to 10 rebuild exact contributions without double counting or mutating retained evidence',()=>{
+ for(const week of [8,9,10]){
+  const {data,meta}=fixture();meta.throughWeek=week-1;const before=JSON.stringify({data,meta});
+  const first=withCfbSeasonLive(data,meta,currentWeek(week));
+  assert.equal(first.lines.find(l=>l.id===id).metrics.passing_yards.value,150);
+  assert.equal(withCfbSeasonLive(data,meta,currentWeek(week)).lines.find(l=>l.id===id).metrics.passing_yards.value,150);
+  assert.equal(withCfbSeasonLive(data,meta,currentWeek(week,60)).lines.find(l=>l.id===id).metrics.passing_yards.value,170);
+  assert.equal(JSON.stringify({data,meta}),before);
+ }
+});
+test('missed week blocks live aggregation; actual API serves retained totals with explicit cutoff and usable details',async()=>{
+ const {data,meta}=fixture();assert.throws(()=>withCfbSeasonLive(data,meta,currentWeek(9)),/intervening/);
+ const fixed=await cfbSeasonResponse(new URLSearchParams(),'leaders','Rush',null).json();
+ const gap=await cfbSeasonResponse(new URLSearchParams(),'leaders','Rush',null,currentWeek(retainedMeta.throughWeek+2)).json();
+ assert.deepEqual(gap.lines,fixed.lines);assert.equal(gap.throughWeek,retainedMeta.throughWeek);assert.equal(gap.liveWeek,undefined);assert.equal(gap.updateUnavailable,true);
+ assert.equal(gap.observationAt,fixed.observationAt);assert.match(gap.coverage.warnings[0],new RegExp(`through Week ${retainedMeta.throughWeek}.*intervening.*not current`));
+ const detail=await cfbSeasonResponse(new URLSearchParams({snapshot:gap.snapshot,players:gap.lines[0].id}),'details','Rush',null).json();assert.ok(detail.lines.length);assert.ok(detail.lines[0].games.every(g=>g.week<=retainedMeta.throughWeek));
+});
+test('provider failure preserves the exact retained values, cutoff, missing cells and timestamps',async()=>{
+ const base=await cfbSeasonResponse(new URLSearchParams(),'leaders','Def',null).json();
+ const failed=await cfbSeasonResponse(new URLSearchParams(),'leaders','Def',null,undefined,'Live provider update is unavailable.').json();
+ assert.deepEqual(failed.lines,base.lines);assert.equal(failed.observationAt,base.observationAt);assert.equal(failed.updateUnavailable,true);assert.match(failed.coverage.warnings[0],new RegExp(`through Week ${retainedMeta.throughWeek}.*provider update is unavailable.*not current`));
+ assert.ok(failed.lines.every(l=>l.values[failed.columns.indexOf('def_interceptions')]===null));
+});
+
+test('empty upcoming week does not masquerade as fresh observations; wholly missing started-week data falls back with warning',async()=>{
+ const base=await cfbSeasonResponse(new URLSearchParams(),'leaders','Rush',null).json();
+ const current=currentWeek(retainedMeta.throughWeek+1);current.lines=[];current.events=[];current.collection={observedGames:0,expectedGames:0};
+ const upcoming=await cfbSeasonResponse(new URLSearchParams(),'leaders','Rush',null,current).json();assert.deepEqual(upcoming.lines,base.lines);assert.equal(upcoming.liveWeek,undefined);assert.equal(upcoming.observationAt,base.observationAt);assert.equal(upcoming.updateUnavailable,false);
+ current.collection.expectedGames=1;
+ const missing=await cfbSeasonResponse(new URLSearchParams(),'leaders','Rush',null,current).json();assert.deepEqual(missing.lines,base.lines);assert.equal(missing.updateUnavailable,true);assert.match(missing.cutoffWarning,/No current-week player observations could be validated/);
 });

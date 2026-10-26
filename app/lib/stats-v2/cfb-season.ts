@@ -155,7 +155,7 @@ const observed=history.games.map(game=>game.observedAt).sort();
 const observationAt=observed.at(-1)!;
 const revision=createHash('sha256').update(JSON.stringify(metadata)).digest('hex');
 const headers={'Cache-Control':'no-store'};
-export function cfbSeasonResponse(params:URLSearchParams,view:string,category:Category,conference:string|null,current?:CurrentModel):Response {
+export function cfbSeasonResponse(params:URLSearchParams,view:string,category:Category,conference:string|null,current?:CurrentModel,updateFailure?:string):Response {
   if(!validHistory)return Response.json({error:'Season history fingerprint mismatch'},{status:503,headers});
   if(params.has('week')||conference&&!conferences.some(c=>c.id===conference))return Response.json({error:'Invalid season selection'},{status:400,headers});
   if(view==='export')return Response.json({error:'Season national ranking certification is not established'},{status:409,headers});
@@ -168,7 +168,21 @@ export function cfbSeasonResponse(params:URLSearchParams,view:string,category:Ca
   }
   const key=conference??'all';
   let model=models.get(key);
-  if(current)model=withCfbSeasonLive(dataset,meta,current,conference);
+  let cutoffWarning=updateFailure;
+  if(current){
+    if(current.period.season!==meta.season||current.period.phase!=='REG'||current.period.week===null||current.period.week>meta.throughWeek+1){
+      cutoffWarning=`Current provider period cannot be added: intervening completed weeks are not retained.`;current=undefined;
+    }else if(current.period.week<=meta.throughWeek){
+      // Fixed history already includes these games; never relabel it as freshly observed.
+      current=undefined;
+    }else if(current.collection.observedGames===0){
+      if(current.collection.expectedGames>0)cutoffWarning='No current-week player observations could be validated.';
+      current=undefined;
+    }else{
+      try{model=withCfbSeasonLive(dataset,meta,current,conference);}
+      catch{cutoffWarning='Current observations could not be validated.';current=undefined;}
+    }
+  }
   if(!model){model=buildCfbSeason(dataset,meta,conference);if(models.size>=16)models.delete(models.keys().next().value!);models.set(key,model);}
   const snapshot=current?crypto.randomUUID():`cfb-season-week${meta.throughWeek}-${revision}:${key}`;
   if(current){while(liveObservations.size>=4)liveObservations.delete(liveObservations.keys().next().value!);liveObservations.set(snapshot,{model,conference,week:current.period.week!,observedAt:current.checkedAt});}
@@ -184,8 +198,8 @@ export function cfbSeasonResponse(params:URLSearchParams,view:string,category:Ca
     const supportedPlayers=candidates.filter(line=>line.metrics[metric].state==='value').length,notApplicablePlayers=candidates.filter(line=>line.metrics[metric].state==='not-applicable').length;
     return [metric,{status:supportedPlayers?'reported-values':'unverified',supportedPlayers,candidatePlayers:candidates.length,missingPlayers:candidates.length-supportedPlayers-notApplicablePlayers,notApplicablePlayers}];
   }));
-  const warnings=[`Totals require a reported value in every retained player appearance; missing game lines are not zeros. This is not national leaderboard certification.`,`${model.unresolvedPassers} observed passers have unverified positions; ${model.nonQbPassers} are verified non-QBs and excluded from QB rankings. Position evidence is season-qualified, not archived game-time evidence.`,`Defensive interception season totals are unavailable: absent interception rows do not establish zero. Targets, assisted tackles and unsupported breakdowns remain unavailable.`];
-  return Response.json({version:1,snapshot,period,throughWeek:meta.throughWeek,liveWeek:current?.period.week,observationAt:current?.checkedAt??observationAt,observationRange:{from:observed[0],through:current?.checkedAt??observationAt},scope:'retained-espn-season',complete:false,rankScope:'reported-values',independentNationalCertification:false,
+  const warnings=[...(cutoffWarning?[`Latest retained totals through Week ${meta.throughWeek}. ${cutoffWarning} Later games are not included; these totals are not current.`]:[]),`Totals require a reported value in every retained player appearance; missing game lines are not zeros. This is not national leaderboard certification.`,`${model.unresolvedPassers} observed passers have unverified positions; ${model.nonQbPassers} are verified non-QBs and excluded from QB rankings. Position evidence is season-qualified, not archived game-time evidence.`,`Defensive interception season totals are unavailable: absent interception rows do not establish zero. Targets, assisted tackles and unsupported breakdowns remain unavailable.`];
+  return Response.json({version:1,snapshot,period,throughWeek:meta.throughWeek,updateUnavailable:Boolean(cutoffWarning),cutoffWarning:cutoffWarning?`Latest retained totals through Week ${meta.throughWeek}. ${cutoffWarning} Later games are not included; these totals are not current.`:undefined,liveWeek:current?.period.week,observationAt:current?.checkedAt??observationAt,observationRange:{from:observed[0],through:current?.checkedAt??observationAt},scope:'retained-espn-season',complete:false,rankScope:'reported-values',independentNationalCertification:false,
     sourceAttribution:current?`ESPN retained season base through Week ${meta.throughWeek} + reported Week ${current.period.week} observations (in-progress games provisional; collection may be incomplete)`:`ESPN retained appearances · Season snapshot through Week ${meta.throughWeek} · ${history.games.length} completed games (Weeks 1–${meta.throughWeek})`,
     coveredGames:history.games.length+(current&&current.period.week!>meta.throughWeek?current.collection.observedGames:0),currentCollection:current?.collection,retainedAppearances:model.appearances,confidence,columns,displayColumns:columns,teams:seasonTeams,conferences,logos:Object.fromEntries(Object.entries(seasonTeams).map(([id,team])=>[id,team.logo])),coverage:{warnings},sources:{live:{status:current?'partial':'completed-snapshot'}},
     lines:candidates.map(line=>({id:line.id,name:line.name,teams:line.teams,playingNow:line.playingNow,values:columns.map(metric=>line.metrics[metric].value),notApplicable:columns.filter(metric=>line.metrics[metric].state==='not-applicable')}))},{headers});

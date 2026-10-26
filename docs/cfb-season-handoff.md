@@ -37,11 +37,17 @@ live additions when an intervening week is absent. Process memory is not storage
    pair together; if that creates a gap, the server fails closed instead of
    presenting incomplete Season totals as current.
 
-## Current limitation
+## Scheduled retention and safe serving
 
-The retained deployment base remains through Week 7. The new builder has not
-promoted an incomplete Week 8. The current scoreboard is not an independently
-verified collection manifest. After Week 8 completes, separately authorise a
-bounded manifest reconciliation and retrieval of only missing final summaries
-using the established runner. Pin the exact IDs/count/budgets before collection.
-No unattended rollover, provider collection or Utility Room import is added here.
+The checked-in candidate base now includes verified Week 8. The original offline
+handoff remains available for explicit correction review. The additive scheduled
+collector reuses this validation contract and the pure source normaliser, recovers
+missing completed weeks in order, and proposes a matched pair through a review
+pull request. It never activates a deployment or writes to Utility's database.
+See [CFB Season retention and rollover repair](cfb-season-retention.md) for source
+reconciliation, evidence retention, failure behavior and operational limits.
+
+If the deployed baseline lags or a provider fails, Season serves its latest
+fingerprint-validated retained totals with the actual cutoff warning, rather than
+adding across a missing week or failing the entire view. Public activation and
+deployment still require owner approval.

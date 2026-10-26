@@ -207,7 +207,7 @@ test('Current Week uses current discovery, agrees with explicit week and advance
   assert.ok(boards.every(u=>u.searchParams.get('limit')==='100'));
   currentWeek=9;const next=await (await request()).json();assert.equal(next.period.week,9);assert.ok(next.lines.length>0);
   const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');
-  assert.match(ui,/league !== 'CFB' && !rankingAvailable/);assert.match(ui,/catch \{ if \(active\) setError/);assert.match(ui,/expandedRef.current.filter/);assert.match(ui,/setInterval\(refresh, 30_000\)/);
+  assert.match(ui,/league === 'CFB'/);assert.match(ui,/<StatsCoverage/);assert.match(ui,/catch \{ if \(active\) setError/);assert.match(ui,/expandedRef.current.filter/);assert.match(ui,/setInterval\(refresh, 30_000\)/);
  }finally{globalThis.fetch=saved;if(flag===undefined)delete process.env.AAW_STATS_V2_LOCAL_PREVIEW;else process.env.AAW_STATS_V2_LOCAL_PREVIEW=flag;}
 });
 
@@ -232,7 +232,7 @@ test('Week 7 Def ranks only reported observations while retaining every candidat
   const filtered=await (await route.GET(new Request('http://local/?week=7&category=Def&conference='+conf))).json();assert.ok(filtered.lines.every(r=>body.teams[r.teams[0]].conferenceId===conf));assert.equal(filtered.confidence.tackles.candidatePlayers,filtered.lines.length);
   const {reviewedCfbWeek7}=await import(await compile(file('app/lib/stats-v2/cfb-week7-reviewed.ts')));for(const week of [null,8])assert.equal(reviewedCfbWeek7(new URLSearchParams(),week,'leaders','Def',null),null);
   assert.equal((await route.GET(new Request('http://local/?mode=season&week=7&category=Def'))).status,400);
-  const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');assert.match(ui,/Ranks cover reported values only/);assert.match(ui,/data.rankScope === 'reported-values'/);
+  const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');const coverage=await readFile(file('app/preview/nfl-stats/StatsCoverage.tsx'),'utf8');assert.match(coverage,/Rankings reflect reported statistics only/);assert.match(ui,/data.rankScope === 'reported-values'/);
  }finally{globalThis.fetch=saved;if(flag===undefined)delete process.env.AAW_STATS_V2_LOCAL_PREVIEW;else process.env.AAW_STATS_V2_LOCAL_PREVIEW=flag;}
 });
 
@@ -240,11 +240,11 @@ test('CFB details combine current verified game with retained multiweek history 
  const {withReviewedCfbHistory,reviewedCfbWeek7,reviewedCfbHistoryTeams}=await import(await compile(file('app/lib/stats-v2/cfb-week7-reviewed.ts')));
  const response=await reviewedCfbWeek7(new URLSearchParams(),7,'leaders','QB',null).json();const first=response.lines[0];const snapshot=await reviewedCfbWeek7(new URLSearchParams({snapshot:response.snapshot,players:first.id}),7,'details','QB',null).json();const old=snapshot.lines[0];assert.ok(old.games.length>=1&&old.games.length<=5);
  const current={...old,metrics:{passing_yards:{state:'value',value:400}},games:[{...old.games[0],gameId:'espn:cfb:game:900000001',week:8,metrics:{passing_yards:{state:'value',value:400}}}]};
- const before=JSON.stringify(current);const combined=withReviewedCfbHistory(current,8);assert.equal(combined.games.length,Math.min(5,old.games.length+1));assert.deepEqual(combined.games.slice(0,2).map(g=>g.week),[8,7]);assert.equal(combined.metrics,current.metrics);assert.equal(JSON.stringify(current),before);assert.equal(combined.games[1].metrics.passing_yards.value,old.metrics.passing_yards.value);assert.ok(reviewedCfbHistoryTeams[combined.games[1].opponent].name);
+ const before=JSON.stringify(current);const combined=withReviewedCfbHistory(current,8);const retainedIds=retainedHistory.rows.filter(r=>retainedHistory.players[r[0]]===current.id&&retainedHistory.games[r[1]].week<=8).map(r=>retainedHistory.games[r[1]].id);assert.equal(combined.games.length,Math.min(5,new Set([...retainedIds,current.games[0].gameId]).size));assert.equal(combined.games[0].week,8);assert.equal(combined.metrics,current.metrics);assert.equal(JSON.stringify(current),before);assert.equal(combined.games.find(g=>g.week===7).metrics.passing_yards.value,old.metrics.passing_yards.value);assert.ok(reviewedCfbHistoryTeams[combined.games[1].opponent].name);
  const duplicate=withReviewedCfbHistory(combined,8);assert.deepEqual(duplicate.games,combined.games);
  assert.deepEqual(withReviewedCfbHistory(old,7).games,old.games,'historical cutoff must not add Week 8');
  const missing=withReviewedCfbHistory({...current,id:'espn:cfb:athlete:999999999'},8);assert.equal(missing.games.length,1);
- const noCurrent=withReviewedCfbHistory({...current,games:[]},8);assert.deepEqual(noCurrent.games.map(g=>g.gameId),old.games.map(g=>g.gameId));assert.equal(noCurrent.games[0].metrics.passing_yards.value,old.games[0].metrics.passing_yards.value);
+ const noCurrent=withReviewedCfbHistory({...current,games:[]},7);assert.deepEqual(noCurrent.games.map(g=>g.gameId),old.games.map(g=>g.gameId));assert.equal(noCurrent.games[0].metrics.passing_yards.value,old.games[0].metrics.passing_yards.value);
  const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');assert.match(ui,/expandedRef.current.filter/);assert.match(ui,/setInterval\(refresh, 30_000\)/);
 });
 
@@ -299,19 +299,19 @@ test('reviewed Week 7 card coverage preserves all original ranking evidence and 
 
  const qb=await reviewedCfbWeek7(new URLSearchParams(),7,'leaders','QB',null).json();const qid='espn:cfb:athlete:4870971';
  const q=await reviewedCfbWeek7(new URLSearchParams({snapshot:qb.snapshot,players:qid}),7,'details','QB',null).json();assert.equal(q.lines[0].metrics.rushing_long.value,11);
- const history=withReviewedCfbHistory({id:qid,games:[]},8);assert.equal(history.games[0].metrics.rushing_long.value,11);assert.equal(history.games.length,5);assert.ok(history.games.every(g=>g.week<=7));
+ const history=withReviewedCfbHistory({id:qid,games:[]},7);assert.equal(history.games[0].metrics.rushing_long.value,11);assert.equal(history.games.length,5);assert.ok(history.games.every(g=>g.week<=7));
 });
 
 const historyModule = await import(await compile(file('app/lib/stats-v2/cfb-player-history.ts')));
 const retainedHistory = JSON.parse(await readFile(file('app/lib/stats-v2/cfb-player-history.json'),'utf8'));
 test('retained CFB history has exact FBS identities, unique appearances and measured Week 7 coverage',async()=>{
  const data=retainedHistory,seen=new Set(),depth=new Map();
- assert.equal(data.games.length,510);assert.equal(data.rows.length,29483);assert.equal(data.players.length,7611);
+ assert.equal(data.games.length,data.sourceManifests.reduce((n,m)=>n+m.games,0));assert.equal(data.rows.filter(r=>data.games[r[1]].week<=7).length,29483);assert.equal(new Set(data.rows.filter(r=>data.games[r[1]].week<=7).map(r=>data.players[r[0]])).size,7611);
  for(const [player,game,team,opponent,values] of data.rows){
   const key=data.players[player]+'|'+data.games[game].id;assert.ok(!seen.has(key));seen.add(key);
   assert.equal(data.teams[team].fbs,true);assert.ok([data.games[game].home,data.games[game].away].includes(team));assert.notEqual(team,opponent);
   assert.ok([data.games[game].home,data.games[game].away].includes(opponent));assert.equal(values.length,data.columns.length);
-  depth.set(data.players[player],(depth.get(data.players[player])??0)+1);
+  if(data.games[game].week<=7)depth.set(data.players[player],(depth.get(data.players[player])??0)+1);
  }
  const reviewed=JSON.parse(await readFile(file('app/lib/stats-v2/cfb-week7-reviewed.json'),'utf8'));
  const ids=new Set(reviewed.rows.map(row=>row[0]));assert.equal(ids.size,3720);
@@ -397,7 +397,7 @@ test('Current confidence follows the selected own-team conference, supports N/A 
  const js=ts.transpileModule(ui.slice(start,end),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
  const run=new Function('data','value','metric','ascending',js+';return {ranked,ranks};');
  for(const ascending of [false,true]){const data={lines:[{id:'b',n:0},{id:'a',n:0},{id:'c',n:null},{id:'d',n:1}]};const result=run(data,row=>row.n,'def_sacks',ascending);assert.equal(result.ranks.get('a'),result.ranks.get('b'));assert.equal(result.ranks.get('c'),'—');assert.equal(result.ranked.at(-1).id,'c');}
- assert.match(ui,/\['reviewed-espn-week','supplied-games','retained-espn-season'\]\.includes/);assert.match(ui,/reportedCoverage.missingPlayers/);assert.match(ui,/collection.observedTeamObservations/);
+ assert.match(ui,/\['reviewed-espn-week','supplied-games','retained-espn-season'\]\.includes/);const coverage=await readFile(file('app/preview/nfl-stats/StatsCoverage.tsx'),'utf8');assert.match(coverage,/c.missingPlayers/);assert.match(coverage,/collection.observedTeamObservations/);
 });
 test('real Current route exposes guarded reported-value scopes, excludes opponent athletes and expands without upstream calls',async()=>{
  const routeModule=await import(await compile(file('app/lib/stats-v2/cfb-server.ts'))),route={GET:routeModule.createCfbStatsV2Route(board=>board)},saved=globalThis.fetch,flag=process.env.AAW_STATS_V2_LOCAL_PREVIEW;
@@ -419,11 +419,22 @@ test('Current exact athlete/game identity conflicts across FBS and FCS teams are
 });
 
 test('actual UI admits Current reported-value ranks only for supported metrics and preserves NFL and reviewed rank gates',async()=>{
- const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');const source=ui.slice(ui.indexOf('  const rankingAvailable ='),ui.indexOf('  const reportedCoverage ='));
+ const ui=await readFile(file('app/preview/nfl-stats/stats-preview.tsx'),'utf8');const source=ui.slice(ui.indexOf('  const rankingAvailable ='),ui.indexOf('  const visibleColumns ='));
  const run=new Function('data','error','fixture','league','metric',source+';return rankingAvailable;');
  const data={lines:[{id:'player'}],scope:'supplied-games',rankScope:'reported-values',confidence:{tackles:{status:'reported-values'}}};
  assert.equal(run(data,'',false,'CFB','tackles'),true);assert.equal(run(data,'',false,'CFB','def_interceptions'),false);
  assert.equal(run(data,'failed',false,'CFB','tackles'),false);assert.equal(run({...data,lines:[]},'',false,'CFB','tackles'),false);
  assert.equal(run(data,'',false,'NFL','tackles'),false);assert.equal(run({...data,confidence:{tackles:{status:'verified'}}},'',false,'NFL','tackles'),true);
  assert.equal(run({...data,scope:'reviewed-espn-week'},'',false,'CFB','tackles'),true);
+});
+
+test('Season route returns retained cutoff instead of 503 when current scoreboard provider fails',async()=>{
+ const module=await import(await compile(file('app/lib/stats-v2/cfb-server.ts'))),route=module.createCfbStatsV2Route(board=>board);
+ const saved=globalThis.fetch,flag=process.env.AAW_STATS_V2_LOCAL_PREVIEW;process.env.AAW_STATS_V2_LOCAL_PREVIEW='1';
+ globalThis.fetch=async()=>{throw Error('Provider failure');};
+ try{
+  const response=await route(new Request('https://local/?mode=season&category=Rush'));assert.equal(response.status,200);
+  const body=await response.json();assert.equal(body.throughWeek,Math.max(...retainedHistory.games.map(g=>g.week)));assert.ok(body.lines.length>0);assert.equal(body.updateUnavailable,true);assert.match(body.coverage.warnings[0],/provider update is unavailable/);
+  assert.equal((await route(new Request('https://local/?category=Rush&week=9'))).status,503,'weekly failure semantics stay unchanged');
+ }finally{globalThis.fetch=saved;if(flag===undefined)delete process.env.AAW_STATS_V2_LOCAL_PREVIEW;else process.env.AAW_STATS_V2_LOCAL_PREVIEW=flag;}
 });
