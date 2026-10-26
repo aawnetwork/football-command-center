@@ -1,7 +1,7 @@
 import type { MetricKey } from '../../lib/stats-v2/nfl-statlines';
 import styles from './stats-preview.module.css';
 type Confidence = {status:string;supportedPlayers?:number;candidatePlayers?:number;missingPlayers?:number;notApplicablePlayers?:number};
-export type CoverageData = {lines?:readonly {playingNow:boolean|null}[];period:{season:number;week:number|null};throughWeek?:number;liveWeek?:number;scope?:string;rankScope?:string;coveredGames?:number;independentNationalCertification?:boolean;sourceAttribution?:string;confidence?:Partial<Record<MetricKey,Confidence>>;coverage:{warnings:string[]};collection?:{expectedGames:number;observedGames:number;missingGames:number;expectedTeamObservations:number;observedTeamObservations:number;missingCategoryTeamObservations:number;unverifiedMembershipPlayers:number;unresolvedPassers:number;validationWarnings:number;ambiguousPlayers:number}};
+export type CoverageData = {cutoffWarning?:string;lines?:readonly {playingNow:boolean|null}[];period:{season:number;week:number|null};throughWeek?:number;liveWeek?:number;scope?:string;rankScope?:string;coveredGames?:number;independentNationalCertification?:boolean;sourceAttribution?:string;confidence?:Partial<Record<MetricKey,Confidence>>;coverage:{warnings:string[]};collection?:{expectedGames:number;observedGames:number;missingGames:number;expectedTeamObservations:number;observedTeamObservations:number;missingCategoryTeamObservations:number;unverifiedMembershipPlayers:number;unresolvedPassers:number;validationWarnings:number;ambiguousPlayers:number}};
 const number=(n:number)=>n.toLocaleString('en-GB');
 export function cfbPeriodLabel(data:CoverageData|null,mode:string,selectedWeek:string){
  const season=data?.period.season===undefined?'':`${data.period.season} `;
@@ -26,6 +26,7 @@ export function StatsCoverage({data,metric,metricLabel,category,rankingAvailable
  return <aside className={styles.coverage} aria-label="Statistics coverage">
   <div className={styles.coverageSummary}><strong className={styles.coverageBadge}>{incomplete?'Partial coverage':certified?'Verified scope':'Reported data'}</strong><span>{live?'In-progress statistics are provisional. ':''}{certified&&!incomplete?'Rankings cover the verified statistical scope.':'Rankings reflect reported statistics only and may not include every eligible player.'}</span></div>
 
+  {league==='CFB'&&data.scope==='retained-espn-season'&&data.cutoffWarning&&<p role="status" className={styles.coverageImportant}>{data.cutoffWarning}</p>}
   {!rankingAvailable&&<p className={styles.coverageImportant}>Numerical rankings are unavailable for this selection; displayed observations are not a complete leaderboard.</p>}
   {c?.supportedPlayers===0&&limitation&&<p className={styles.coverageImportant}>{limitation}</p>}
 

@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 const compile=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const schools=JSON.parse(await readFile(new URL('../app/lib/cfb-ncaa-season-schools.json',import.meta.url),'utf8'));
 const helper=compile((await readFile(new URL('../app/lib/cfb-season-team-stats.ts',import.meta.url),'utf8')).replace("import schools from './cfb-ncaa-season-schools.json';",'const schools='+JSON.stringify(schools)+';'));
-const source=(await readFile(new URL('../app/api/season-stats/route.ts',import.meta.url),'utf8')).replace('"../../lib/cfb-season-team-stats"',JSON.stringify(helper)).replace('import { NextResponse } from "next/server";','const NextResponse={json:Response.json};');
+const source=(await readFile(new URL('../app/api/season-stats/route.ts',import.meta.url),'utf8')).replace('import { statsV2Access } from "../../lib/stats-v2/release-access";', 'const statsV2Access=()=>false;').replace('"../../lib/cfb-season-team-stats"',JSON.stringify(helper)).replace('import { NextResponse } from "next/server";','const NextResponse={json:Response.json};');
 const {GET}=await import(compile(source));
 const updated='Saturday, October 17, 2026 12:10 am - Through games Friday, October 16, 2026';
 test('Season API preserves NCAA cutoff, exact average numerators and every player page',async()=>{

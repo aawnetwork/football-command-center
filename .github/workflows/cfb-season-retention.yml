@@ -1,0 +1,58 @@
+name: Retain completed CFB weeks
+on:
+  schedule:
+    - cron: '15 12 * 9-12 *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: cfb-season-retention
+  cancel-in-progress: false
+jobs:
+  retain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Recover every missing completed week into a private candidate
+        run: node scripts/cfb-season-retain.mjs "$RUNNER_TEMP/cfb-retention"
+      - name: Apply only a fully validated pair to this checkout
+        run: |
+          if [ -f "$RUNNER_TEMP/cfb-retention/retention-review.json" ]; then
+            cp "$RUNNER_TEMP/cfb-retention/cfb-player-history.json" app/lib/stats-v2/
+            cp "$RUNNER_TEMP/cfb-retention/cfb-season-metadata.json" app/lib/stats-v2/
+          fi
+      - name: Validate the candidate
+        run: |
+          node --test tests/cfb-season*.test.mjs tests/cfb-stats-v2.test.mjs
+          npx next typegen
+          npx tsc --noEmit
+      - name: Retain original evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfb-season-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/cfb-retention
+          retention-days: 90
+          if-no-files-found: error
+      - name: Propose retained totals; never merge or deploy
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/cfb-season-retention
+          commit-message: 'Retain verified completed CFB weeks'
+          title: 'Retain verified completed CFB season weeks'
+          body: |
+            Reconciles the explicit weekly scoreboard with every retained FBS team's season schedule and validates every final box score using the existing archival contract. Recovers missing completed weeks in order; never fills missing cells with zero or infers QB positions.
+
+            Original responses, hashes and cutoff review are in this workflow run's private evidence artifact. National leaderboard certification remains false. Review before merge and deployment.
+          add-paths: |
+            app/lib/stats-v2/cfb-player-history.json
+            app/lib/stats-v2/cfb-season-metadata.json
