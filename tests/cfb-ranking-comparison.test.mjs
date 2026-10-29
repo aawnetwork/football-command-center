@@ -92,6 +92,8 @@ test('Three-card render contains each source’s 25 ordered teams, compact colum
   const html=renderToStaticMarkup(React.createElement(CfbRankings,{teams:[],season:2026}));
   assert.equal((html.match(/class="cfb-polls__card"/g)||[]).length,3);assert.equal((html.match(/<li /g)||[]).length,50);
   assert.ok(html.indexOf('AP School 1<')<html.indexOf('AP School 25<'));assert.ok(html.indexOf('AP Top 25')<html.indexOf('UK &amp; Ireland Top 25'));
+  assert.match(html,/Source: week 4 - The Touchdown/);
+  assert.match(html,/Source week 5/); // AP retains its separate source attribution.
   assert.match(html,/CFP rankings begin later/);assert.doesNotMatch(html,/8-0|999|First-place|<th/);
   delete globalThis.__pollRenderStates;
 });
