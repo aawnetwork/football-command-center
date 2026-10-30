@@ -385,7 +385,7 @@ const rivalries = [
     trophy: "Iron Skillet",
   },
   {
-    teams: ["Appalachian State", "Georgia Southern"],
+    teams: ["App State", "Georgia Southern"],
     name: "Appalachian State–Georgia Southern Rivalry",
     trophy: null,
   },
