@@ -22,7 +22,7 @@ export function DeckControls({ season, week, decks, games, tiers, activeDeckId, 
   const [message, setMessage] = useState("");
   const available = availableDecks(decks, season, week);
   const groups = groupDeckGames(games, tiers, included);
-  const caption = `My CFB Week ${week} watchlist (${season}) — ${groups.map((group) => `${group.tier}: ${group.games.map((game) => `${game.awayTeam} @ ${game.homeTeam}`).join("; ")}`).join(" | ")}. Build yours: https://hub.aawnetwork.co.uk/cfb`;
+  const caption = `My CFB Week ${week} watchlist (${season}) on The Hub (via @AAW_Network) — . Build yours: https://hub.aawnetwork.co.uk/cfb`;
 
   async function download() {
     setBusy(true);
