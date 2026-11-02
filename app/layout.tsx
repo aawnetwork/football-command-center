@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Montserrat } from "next/font/google";
 import "./globals.css";
-import { HubPreferencesProvider } from "./features/preferences/HubPreferences";
+import { HubPreferencesBoundary } from "./features/preferences/HubPreferencesBoundary";
 import { analyticsConfig } from './lib/analytics-consent';
 
 const montserrat = Montserrat({
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${montserrat.variable} ${bebasNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><HubPreferencesProvider analyticsConfig={analyticsConfig(process.env)}>{children}</HubPreferencesProvider></body>
+      <body className="min-h-full flex flex-col"><HubPreferencesBoundary analyticsConfig={analyticsConfig(process.env)}>{children}</HubPreferencesBoundary></body>
     </html>
   );
 }

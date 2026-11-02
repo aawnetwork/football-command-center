@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:presets": "node --test tests/preset-invitations.test.mjs tests/preset-invitations-db.test.mjs tests/preset-invitations-api.test.mjs tests/deck-manager.test.mjs tests/curated-decks.test.mjs tests/admin-centre.test.mjs tests/tester-access.test.mjs",
+    "test:presets:browser": "node tests/preset-contributors.browser.mjs"
   },
   "dependencies": {
     "html-to-image": "1.11.13",
@@ -16,6 +18,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.14",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

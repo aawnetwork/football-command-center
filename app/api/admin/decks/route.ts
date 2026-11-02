@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       const { season, week } = deckSlate(params.has("season") ? Number(params.get("season")) : null, params.has("week") ? Number(params.get("week")) : null);
       return reply({ games: await deckGames(season, week) });
     }
-    return reply({ decks: await deckDb("select=id,draft,published,revision,updated_at,published_at&order=updated_at.desc&limit=1000") });
+    return reply({ decks: await deckDb("select=id,draft,published,revision,updated_at,published_at,contributor_link_id,review_state,submitted_at,review_note&order=updated_at.desc&limit=1000") });
   } catch (error) { return failure(error); }
 }
 export async function POST(request: Request) {

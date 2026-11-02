@@ -9,6 +9,15 @@ export function proxy(request: NextRequest) {
   const privateMonitorRead = path === "/api/all-time/refresh" && ["GET", "HEAD"].includes(request.method);
   const admin = privateMonitorRead || path === "/admin" || path.startsWith("/admin/") && !broadcast || path.startsWith("/api/admin/");
   if (!admin) {
+    // These two exact routes provide only a contributor shell and independently
+    // bearer-authenticated APIs. Never exempt the rest of the Hub or Admin.
+    if (path === "/contribute/presets" || path === "/api/contributor/presets") {
+      const response = NextResponse.next();
+      response.headers.set("Cache-Control", "private, no-store");
+      response.headers.set("Referrer-Policy", "no-referrer");
+      response.headers.set("X-Robots-Tag", "noindex, nofollow");
+      return response;
+    }
     if (!testerGateEnabled(process.env) || testerMachineRoute(path, request.method)) return NextResponse.next();
     if (!validTesterPassword(request.headers.get("authorization"), process.env)) {
       return new NextResponse("AAW Hub is available to invited testers only. Username: aaw.", {

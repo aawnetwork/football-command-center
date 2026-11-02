@@ -17,3 +17,10 @@ test('Writes require exact origin and reject missing, foreign and cross-site ori
   assert.equal(sameDeckOrigin(req({origin:'https://desk.aawnetwork.co.uk'})),true);
   for (const headers of [{},{origin:'null'},{origin:'https://evil.example'},{origin:'http://desk.aawnetwork.co.uk'},{origin:'https://desk.aawnetwork.co.uk','sec-fetch-site':'cross-site'}]) assert.equal(sameDeckOrigin(req(headers)),false);
 });
+
+test('Same-origin writes use the HTTP Host when Next provides an internal routing URL', () => {
+  const request = (origin, host = 'hub.example') => new Request('https://localhost/api/admin/decks', { headers: { origin, host } });
+  assert.equal(sameDeckOrigin(request('https://hub.example')), true);
+  for (const origin of ['https://evil.example', 'http://hub.example', 'https://hub.example/path', 'https://user@hub.example']) assert.equal(sameDeckOrigin(request(origin)), false);
+  assert.equal(sameDeckOrigin(new Request('https://localhost/api/admin/decks', { headers: { origin: 'https://evil.example', host: 'hub.example', 'x-forwarded-host': 'evil.example' } })), false);
+});

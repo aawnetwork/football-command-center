@@ -2,8 +2,8 @@ import "server-only";
 import { DeckError, validateDraft, type DeckDraft } from "./deck-validation";
 import { GET as scoreboard } from "../api/scoreboard/route";
 
-export type StoredDeck = { id: string; draft: DeckDraft; published: DeckDraft | null; revision: number; updated_at: string; published_at: string | null };
-const fields = "id,draft,published,revision,updated_at,published_at";
+export type StoredDeck = { id: string; draft: DeckDraft; published: DeckDraft | null; revision: number; updated_at: string; published_at: string | null; contributor_link_id: string | null; review_state: "draft" | "submitted" | "returned" | "approved"; submitted_at: string | null; review_note: string | null };
+const fields = "id,draft,published,revision,updated_at,published_at,contributor_link_id,review_state,submitted_at,review_note";
 export async function deckDb(query: string, init: RequestInit = {}) {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secret = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -32,6 +32,7 @@ export async function saveDeck(action: "create" | "save" | "publish" | "unpublis
   let changes: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (action === "unpublish") changes = { ...changes, published: null, published_season: null, published_week: null, published_at: null };
   else {
+    if (action === "publish" && current?.contributor_link_id && !["submitted", "approved"].includes(current.review_state)) throw new DeckError("The contributor must submit this preset before it can be published.", 409);
     const candidate = action === "publish" ? current!.draft : draft;
     // Validate basic shape before requesting a slate.
     const input = candidate as DeckDraft;
@@ -40,7 +41,7 @@ export async function saveDeck(action: "create" | "save" | "publish" | "unpublis
     deckSlate(input.season, input.week);
     const games = await deckGames(input.season, input.week);
     const valid = validateDraft(candidate, games.map((game) => game.id), action === "publish");
-    if (action === "publish") changes = { ...changes, published: valid, published_season: valid.season, published_week: valid.week, published_at: new Date().toISOString() };
+    if (action === "publish") changes = { ...changes, published: valid, published_season: valid.season, published_week: valid.week, published_at: new Date().toISOString(), ...(current?.contributor_link_id ? { review_state: "approved" } : {}) };
     else changes.draft = valid;
   }
   if (current) changes.revision = revision! + 1;

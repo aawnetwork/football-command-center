@@ -26,6 +26,13 @@ export function validateDraft(value: unknown, gameIds: readonly number[], publis
 }
 export function sameDeckOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  try { return Boolean(origin && new URL(origin).origin === new URL(request.url).origin && request.headers.get("sec-fetch-site") !== "cross-site"); }
-  catch { return false; }
+  try {
+    if (!origin || request.headers.get("sec-fetch-site") === "cross-site") return false;
+    const source = new URL(origin);
+    const target = new URL(request.url);
+    // Next may construct an internal localhost URL behind its routing layer.
+    // Host is the browser's actual HTTP target; do not trust forwarded-host input.
+    const host = request.headers.get("host")?.toLowerCase() ?? target.host;
+    return origin === source.origin && source.protocol === target.protocol && source.host === host;
+  } catch { return false; }
 }
