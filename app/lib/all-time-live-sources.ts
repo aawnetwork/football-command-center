@@ -274,7 +274,13 @@ export async function loadNflActiveCareerSource(prior?:NflLiveCareerSource): Pro
         // Some profiles omit leading career seasons. Never sum that partial
         // history: require a second, exact-ID lifetime aggregate to agree with
         // the advertised regular-season career total. Other conflicts fail.
-        if(!(error instanceof Error)||error.message!=="ESPN career rows disagree with published career total."||Math.min(...years)<=candidate.identity!.firstSeason)throw error;
+        const missingAnnualValue = error instanceof Error && error.message === "ESPN career statistic is missing or invalid; not converted to zero.";
+        const truncatedHistory = error instanceof Error && error.message === "ESPN career rows disagree with published career total." && Math.min(...years)>candidate.identity!.firstSeason;
+        // A dash in a season row is unknown, never zero. A separately identified
+        // lifetime aggregate may corroborate the valid regular-season headline
+        // total even when one annual value is absent. Conflicting numeric rows
+        // still fail; absent/invalid headline totals still fail below.
+        if((!missingAnnualValue&&!truncatedHistory)||!years.length||years.some(year=>!Number.isInteger(year)))throw error;
         if(!aggregate) {
           if(++budget.requests>64)throw new Error('Career request budget exceeded.');
           verificationUrl=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/${candidate.espnId}/statistics/0?lang=en&region=us`;

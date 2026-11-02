@@ -28,6 +28,24 @@ test('Empty/malformed roster or missing ranked categories rejects; valid zeroes 
  await mockedSource({categories:[{...passing,names:['other']}]},()=>assert.rejects(loadNflActiveCareerSource(),/Missing (ranked|discovered)/));
  await mockedSource({},async()=>{const loaded=await loadNflActiveCareerSource();assert.equal(loaded.categories['passing-yards'][0].value,120);assert.equal(loaded.categories['passing-td'][0].value,12);});
 });
+test('an absent annual value requires an independently identified lifetime total; a dash is never converted to zero',async()=>{
+ const old=globalThis.fetch,categories=currentRodgers.categories.map(category=>category.name==='passing'?{...passing,statistics:[passing.statistics[0],{...passing.statistics[1],stats:['-','2']}]}:category);
+ let aggregateValue=120,aggregateIdentity='8439',aggregateReads=0;
+ globalThis.fetch=async url=>{
+  const u=String(url);
+  if(u.includes('/rosters/'))return new Response('full_name,espn_id,team,week\nAaron Rodgers,8439,PIT,6');
+  if(u.includes('/leaders/0'))return Response.json(JSON.parse(await readFile(new URL('./fixtures/nfl-career-discovery-leaders.json',import.meta.url))));
+  if(u.includes('/athletes/8439/stats'))return Response.json({categories,filters:[{name:'seasontype',value:'2'}]});
+  if(u.includes('/athletes/8439/statistics/0')){aggregateReads++;return Response.json({athlete:{$ref:`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/${aggregateIdentity}`},$ref:'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/8439/statistics/0',splits:{id:'0',categories:[{name:'passing',stats:[{name:'passingYards',value:aggregateValue}]}]}});}
+  throw Error('Unexpected source request');
+ };
+ try{
+  const result=await loadNflActiveCareerSource();assert.equal(result.categories['passing-yards'][0].value,120);assert.equal(aggregateReads,1);assert.match(result.categories['passing-yards'][0].verificationUrl,/statistics\/0/);
+  aggregateValue=119;await assert.rejects(loadNflActiveCareerSource(),/aggregates disagree/);
+  aggregateValue=120;aggregateIdentity='999';await assert.rejects(loadNflActiveCareerSource(),/identity\/scope/);
+  assert.throws(()=>calculateNflCareer(categories,'passing-yards'),/missing or invalid/,'The annual-row calculator itself must remain strict');
+ }finally{globalThis.fetch=old;}
+});
 async function monitorTest(run){
  const saved={...process.env},old=globalThis.fetch;process.env.SUPABASE_URL='https://storage.invalid';process.env.SUPABASE_SECRET_KEY='test-only';
  let writes=0;const state={version:1,catalogVersion:'espn-active-career-v3',lastCheckedAt:'2026-10-13',signals:[],snapshots:[{id:'CFB:individual:career:passing-yards',league:'CFB',audience:'individual',period:'career',category:'passing-yards',checkedAt:'2026-10-12',entries:[]},{id:'NFL:individual:career:passing-yards',league:'NFL',audience:'individual',period:'career',category:'passing-yards',checkedAt:'2026-10-13',entries:[]}]};

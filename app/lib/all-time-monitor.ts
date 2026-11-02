@@ -285,12 +285,12 @@ export async function getAllTimeMonitorStatus() {
   };
 }
 
-export async function getAllTimeLeaderboardFeed(league: AllTimeLeague) {
+export async function getAllTimeLeaderboardFeed(league: AllTimeLeague, pinnedStore?: MonitorStore) {
   // Fixed record-book corrections travel with the deployment. A stale monitor
   // copy must not overwrite them or require a database refresh to become visible.
   let store = emptyStore();
   let publicationAvailable = true;
-  try { store = await readStore(); }
+  try { store = pinnedStore ?? await readStore(); }
   catch (error) {
     // A storage outage must not roll a published NFL ledger back to its base.
     if (league === "NFL" && isSupabaseConfigured()) throw error;
@@ -395,7 +395,7 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
   const previousSnapshots = new Map(store.snapshots.map((snapshot) => [snapshot.id, snapshot]));
   const needsNflRebaseline =
     (league === undefined || league === "NFL") && !careerError && store.catalogVersion !== monitorCatalogVersion;
-  const signals = needsNflRebaseline
+  const signals = process.env.BASEMENT_MILESTONES_MOVED === "true" || needsNflRebaseline
     ? []
     : currentSnapshots.flatMap((snapshot) =>
         compareSnapshot(previousSnapshots.get(snapshot.id), snapshot),
@@ -439,3 +439,5 @@ export async function refreshAllTimeMonitor(league?: AllTimeLeague) {
     ),
   };
 }
+
+export const getPinnedRecordStore = readStore;

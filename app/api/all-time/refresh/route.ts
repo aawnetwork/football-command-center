@@ -10,6 +10,7 @@ import {
 } from "../../../lib/all-time-monitor";
 
 export const runtime = "nodejs";
+export const maxDuration = 180;
 
 const validLeague = (value: string | null): value is AllTimeLeague =>
   value === "CFB" || value === "NFL";

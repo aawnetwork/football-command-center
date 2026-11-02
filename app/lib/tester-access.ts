@@ -6,7 +6,8 @@ export function testerGateEnabled(env: Record<string, string | undefined>) {
 }
 export function testerMachineRoute(path: string, method: string) {
   // These endpoints retain their existing server-side bearer/secret checks.
-  return method === "GET" && ["/api/cron/all-time/cfb", "/api/cron/all-time/nfl"].includes(path)
+  return method === "GET" && path === "/api/basement/records"
+    || method === "GET" && ["/api/cron/all-time/cfb", "/api/cron/all-time/nfl"].includes(path)
     || method === "POST" && path === "/api/all-time/refresh";
 }
 export function validTesterPassword(header: string | null, env: Record<string, string | undefined>) {
