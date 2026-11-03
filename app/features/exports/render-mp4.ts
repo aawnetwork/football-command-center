@@ -1,4 +1,4 @@
-import { REEL_FPS, REEL_SECONDS } from './reel-renderer';
+
 
 /** H.264 in a real MP4 container, generated entirely on the operator's computer. */
 export async function renderMp4(
@@ -6,7 +6,10 @@ export async function renderMp4(
   paint: (seconds: number) => void,
   onProgress: (fraction: number) => void,
   signal?: AbortSignal,
+  settings: { fps: number; seconds: number } = { fps: 30, seconds: 9 },
 ): Promise<Blob> {
+  const { fps, seconds } = settings;
+  if (fps !== 30 || !Number.isFinite(seconds) || seconds < 1 || seconds > 120) throw new Error('Unsupported video duration or frame rate.');
   if (typeof VideoEncoder === 'undefined') {
     throw new Error('This browser cannot encode H.264 video. Try an up-to-date Chrome or Edge on the Windows PC.');
   }
@@ -18,17 +21,17 @@ export async function renderMp4(
     quality: new Quality({ bitrate: canvas.width === 1080 ? 9_000_000 : 5_000_000 }),
     keyFrameInterval: 2,
   });
-  output.addVideoTrack(video, { frameRate: REEL_FPS });
+  output.addVideoTrack(video, { frameRate: fps });
   let done = false;
   try {
     if (signal?.aborted) throw new DOMException('Video export cancelled.', 'AbortError');
     await output.start();
-    const frames = REEL_SECONDS * REEL_FPS;
+    const frames = Math.ceil(seconds * fps);
     for (let index = 0; index < frames; index++) {
       if (signal?.aborted) throw new DOMException('Video export cancelled.', 'AbortError');
-      paint(index / REEL_FPS);
+      paint(index / fps);
       // Await backpressure: do not queue hundreds of raw 1080p frames on an older Mac.
-      await video.add(index / REEL_FPS, 1 / REEL_FPS, { keyFrame: index % (2 * REEL_FPS) === 0 });
+      await video.add(index / fps, 1 / fps, { keyFrame: index % (2 * fps) === 0 });
       if (index % 6 === 0) {
         onProgress(index / frames);
         // Give React a chance to paint progress without tying video duration to wall time.

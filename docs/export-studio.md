@@ -18,21 +18,19 @@ Development loopback access remains available without a password. All other acce
 
 Contained logos are decoded and drawn directly onto the output canvas at their existing positions, bypassing browser-dependent SVG foreignObject image rendering. The card design is unchanged.
 
-## Video Reels — new browser-side MP4 workflow
+## Bar chart races — replaces Video Reels
 
-Choose **Video Reels (MP4)** in Export Studio. Select College or NFL, Pregame or Final, the week and the verified source game. Optionally choose a JPEG/PNG/WebP background photograph from the local computer (up to 20 MB); it stays in the browser and is never uploaded. Select the Navy or Cream treatment and Full HD (1080×1920) or the lighter 720×1280 setting. Use **Play preview** to review the nine-second motion composition; select **Generate MP4**, wait for H.264 encoding/finalization, watch the resulting video preview, then **Download MP4**. The exported file is 9:16, 30 fps, H.264 MP4 and silent, with official team logos and the supplied AAW wordmark. It is not a WebM renamed as MP4.
+Select **Bar chart races (MP4)**. Choose CFB or NFL, passing/rushing/receiving yards or touchdowns, the first displayed week and the last completed week. Select **Load season**, review the qualified source coverage, play or scrub the fixed Top 10 preview on AAW cream. **Generate MP4** produces a real H.264, 1080×1920, 30fps silent video; watch the finished file before downloading. Cancel works during source loading and encoding. Existing PNG exports are unchanged.
 
-The Reel deliberately does not reproduce the PNG scorebug as a tall static card. It starts with animated photo/graphic motion, brings the selected game's teams and scores (or upcoming kickoff) onto an AAW-branded composition, and closes on the supplied AAW identity. It never fabricates a score for a pregame fixture. Source values are captured at selection time; refresh and check them before publishing.
+The background is fixed AAW cream with navy typography and orange/yellow league trim.
 
-All frames are drawn and encoded locally using browser WebCodecs and Mediabunny's MP4 muxer. No server render, remote encoding, subscription, photo upload, or public data mutation is involved. The browser must support AVC/H.264 encoding; unsupported browsers report a failure. The encoder respects backpressure to avoid collecting hundreds of full-size raw frames in memory. 720p is provided for older computers, but browser/device compatibility and actual playable downloads must still be verified on AAW's machines before production deployment. Existing PNG exporters are not modified.
+The race accumulates actual weekly records by stable player ID. It always loads from Week 1, even if the first displayed checkpoint is later. Every requested week must match its source period and pass the Hub's metric checks; the status endpoint must confirm all games in that week are complete. A missing week, a failed source, or an unfinished slate stops the load rather than creating a zero checkpoint. There is no synthetic zero-to-final animation. Interpolation between observed weekly checkpoints is for visual motion only.
 
-### Video release verification
+Where the existing Hub source supplies partial/reported statistics, the video is labelled **Reported season totals** and **incomplete coverage** throughout. These are accumulated observed records, not a claim of verified national completeness. Null/unreported values are omitted; explicit reported zeros are retained. New players enter using their first observed total. Rates and percentages are deliberately excluded from summation. The current statistics endpoints support the 2026 season.
 
-- [x] Next production build, TypeScript, focused export access/PNG regression tests and Reel timeline unit tests pass locally.
-- [ ] Produce a complete playable MP4, check its duration/frames and decode it independently.
-- [ ] Verify 1080p on the Windows 10 tower and the 2019 Intel MacBook Air; try 720p on the 2015 MacBook Pro.
-- [ ] Review a real NFL final and CFB pregame with official logos and a locally uploaded photograph.
-- [ ] Receive normal production deployment approval after those checks.
+Bar lengths scale smoothly to the current leader so all ten logos remain readable as the totals grow. Leaders move between positions; values count smoothly, with an opening hold and a three-second final hold. Top-10 membership is recomputed at every checkpoint. Ties use stable player IDs for display ordering. Team bars use official team colours, with the respective logo on a cream badge inside each bar. The Hub’s existing team directory and retained colour metadata are reused. A missing Top 10 identity, colour or logo stops the export; there is no generic orange-bar fallback. Each checkpoint must have at least ten reported competitors.
+
+No photo-upload control, matchup cards or branded outro remains in this output. Frames are rendered and encoded on the operator's computer using the existing Mediabunny dependency, with encoder backpressure. Browser H.264 support remains required. No data is uploaded or published by an export.
 
 ## Historical local verification — 9 October 2026 (previous local-only gate)
 
