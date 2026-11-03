@@ -9,7 +9,7 @@ type Result = { url: string; filename: string };
 export function VideoStudio() {
   const [league, setLeague] = useState<'CFB' | 'NFL'>('CFB');
   const [metric, setMetric] = useState<RaceMetric>('passing_yards');
-  const [start, setStart] = useState(1), [end, setEnd] = useState(9);
+  const [start, setStart] = useState(0), [end, setEnd] = useState(9);
   const [series, setSeries] = useState<RaceSeries | null>(null);
   const [moment, setMoment] = useState(0), [playing, setPlaying] = useState(false);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState('Choose the statistic and weeks, then load the season.');
@@ -45,7 +45,7 @@ export function VideoStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, duration]);
   async function load() {
-    clearResult(); setSeries(null); setBusy(true); setMoment(0); setMessage(`Loading Weeks 1–${end}…`);
+    clearResult(); setSeries(null); setBusy(true); setMoment(0); setMessage(`Loading Weeks ${league === 'CFB' ? 0 : 1}–${end}…`);
     const abort = new AbortController(); controller.current = abort;
     try {
       const loaded = await loadRaceSeries(league, metric, start, end, abort.signal, week => setMessage(`Loading Week ${week} of ${end}…`));
@@ -98,15 +98,15 @@ export function VideoStudio() {
   return <section className="race-studio" aria-label="Bar chart race studio">
     <header><h2>Bar chart races</h2><p>Top 10 season leaders, week by week. Team colours and logos, on AAW cream.</p></header>
     <div className="export-studio__controls">
-      <label>League<select disabled={busy} value={league} onChange={event => { resetSource(); setLeague(event.target.value as 'CFB' | 'NFL'); }}><option value="CFB">College football</option><option value="NFL">NFL</option></select></label>
+      <label>League<select disabled={busy} value={league} onChange={event => { resetSource(); setLeague(event.target.value as 'CFB' | 'NFL'); setStart(event.target.value === 'CFB' ? 0 : 1); }}><option value="CFB">College football</option><option value="NFL">NFL</option></select></label>
       <label>Statistic<select disabled={busy} value={metric} onChange={event => { resetSource(); setMetric(event.target.value as RaceMetric); }}>{Object.entries(RACE_METRICS).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}</select></label>
-      <label>First displayed week<input disabled={busy} type="number" min={1} max={end} value={start} onChange={event => { resetSource(); setStart(Number(event.target.value)); }}/></label>
+      <label>First displayed week<input disabled={busy} type="number" min={league === 'CFB' ? 0 : 1} max={end} value={start} onChange={event => { resetSource(); setStart(Number(event.target.value)); }}/></label>
       <label>Through week<input disabled={busy} type="number" min={start} max={league === 'NFL' ? 18 : 16} value={end} onChange={event => { resetSource(); setEnd(Number(event.target.value)); }}/></label>
-      <button disabled={busy || !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start || end > (league === 'NFL' ? 18 : 16)} onClick={load}>Load season</button>
+      <button disabled={busy || !Number.isInteger(start) || !Number.isInteger(end) || start < (league === 'CFB' ? 0 : 1) || end < start || end > (league === 'NFL' ? 18 : 16)} onClick={load}>Load season</button>
 
     </div>
     <p role="status">{message}</p>
-    {series?.reportedOnly && <p className="race-studio__coverage">These are <strong>reported season totals</strong>. Some weeks have incomplete source coverage. The video carries that qualification throughout; it is not labelled a complete national ranking.</p>}
+    {series?.reportedOnly && <p className="race-studio__coverage">These are <strong>reported season totals</strong>. Some weeks have incomplete source coverage. Check the source data before exporting. This notice is shown only in the editor.</p>}
     {series && <div className="race-studio__workspace">
       <div><canvas ref={canvas} width={540} height={960} aria-label={`Top 10 ${series.metric} season bar chart race preview`}/>
         <div className="race-studio__playback"><button disabled={busy} onClick={() => { if (!playing && moment >= duration) setMoment(0); setPlaying(value => !value); }}>{playing ? 'Pause' : 'Play preview'}</button>

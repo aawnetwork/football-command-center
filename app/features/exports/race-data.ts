@@ -19,15 +19,16 @@ export type WeeklyRaceSource = {
 
 /** Sum observed weekly records by stable player ID. Missing records are never
  * claimed as zero performances: any incomplete source marks the whole output
- * as reported totals. Load from Week 1 even when playback begins later. */
+ * as reported totals. Load from the season opener even when playback begins later. */
 export function buildRaceSeries(sources: WeeklyRaceSource[], league: 'CFB' | 'NFL', metric: RaceMetric, start: number, end: number): RaceSeries {
-  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start || end > (league === 'NFL' ? 18 : 16) || sources.length !== end) throw Error('Load every week from Week 1 through the selected end week.');
+  const first = league === 'CFB' ? 0 : 1;
+  if (!Number.isInteger(start) || !Number.isInteger(end) || start < first || end < start || end > (league === 'NFL' ? 18 : 16) || sources.length !== end - first + 1) throw Error(`Load every week from Week ${first} through the selected end week.`);
   const totals = new Map<string, RaceEntry>();
   const checkpoints: RaceCheckpoint[] = [];
   const season = sources[0]?.period?.season;
   let reportedOnly = false;
   sources.forEach((source, index) => {
-    const week = index + 1;
+    const week = index + first;
     if (!season || source.period?.season !== season || source.period.week !== week) throw Error(`The source returned the wrong season or week for Week ${week}.`);
     const column = source.columns?.indexOf(metric) ?? -1;
     if (column < 0 || !Array.isArray(source.lines) || !source.lines.length) throw Error(`Week ${week} has no ${RACE_METRICS[metric].label.toLowerCase()} records.`);
@@ -58,9 +59,10 @@ export function buildRaceSeries(sources: WeeklyRaceSource[], league: 'CFB' | 'NF
 
 export async function loadRaceSeries(league: 'CFB' | 'NFL', metric: RaceMetric, start: number, end: number, signal: AbortSignal, progress: (week: number) => void): Promise<RaceSeries> {
   const sources: WeeklyRaceSource[] = [];
-  for (let week = 1; week <= end; week++) {
+  for (let week = league === 'CFB' ? 0 : 1; week <= end; week++) {
     const query = new URLSearchParams({ mode: 'weekly', view: 'leaders', category: RACE_METRICS[metric].category, week: String(week) });
     const statusQuery = new URLSearchParams({ view: 'status', mode: 'weekly', week: String(week) });
+    if (league === 'CFB') { query.set('calendar', '1'); statusQuery.set('calendar', '1'); }
     const [response, statusResponse] = await Promise.all([
       fetch(`/api/${league.toLowerCase()}/stats-v2?${query}`, { signal: AbortSignal.any([signal, AbortSignal.timeout(90_000)]), cache: 'no-store' }),
       fetch(`/api/${league.toLowerCase()}/stats-v2?${statusQuery}`, { signal: AbortSignal.any([signal, AbortSignal.timeout(90_000)]), cache: 'no-store' }),

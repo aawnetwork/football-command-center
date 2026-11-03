@@ -13,28 +13,36 @@ export function createCfbStatsV2Route(discover:typeof stableGameDiscovery=stable
 const observations = new Map<string, { model: Model; expires: number; conference: string | null }>();
 const pending = new Map<string, Promise<Model>>();
 async function json(url: string) { return (await publicSource(url)).value as { season?: {year?:number;type?:number}; leagues?: {season?: {year?:number;type?:{type?:number}}}[]; week?:{number?:number}; events?:EspnEvent[] }; }
-async function scoreboard(week: number | null) {
+async function scoreboard(week: number | null, calendar = false) {
       // Keep limit=100. A year-wide dates query without an explicit week can return
       // older events rather than the current slate; let ESPN resolve its current period.
-      const board = await json(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=100&seasontype=2${week ? `&dates=2026&week=${week}` : ''}`);
+      const upstreamWeek = week === 0 ? 1 : week;
+      const board = await json(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=100&seasontype=2${upstreamWeek !== null ? `&dates=2026&week=${upstreamWeek}` : ''}`);
       const selected = week ?? board.week?.number ?? 0;
       const sourceSeason = board.season ?? {year:board.leagues?.[0]?.season?.year,type:board.leagues?.[0]?.season?.type?.type};
-      if (!Number.isSafeInteger(selected) || selected < 1 || selected > 16 || sourceSeason.year !== 2026 || sourceSeason.type !== 2) throw Error('Season or week unavailable');
-      const events = (board.events as (EspnEvent & { week?: {number?:number} })[] ?? []).filter(event => event.season?.year === 2026 && event.season.type === 2 && event.week?.number === selected);
+      if (!Number.isSafeInteger(selected) || selected < (calendar ? 0 : 1) || selected > 16 || sourceSeason.year !== 2026 || sourceSeason.type !== 2) throw Error('Season or week unavailable');
+      const events = (board.events as (EspnEvent & { week?: {number?:number} })[] ?? []).filter(event => event.season?.year === 2026 && event.season.type === 2 && event.week?.number === (selected === 0 ? 1 : selected));
       if (events.length > 100 || new Set(events.map(e => e.id)).size !== events.length) throw Error('Game coverage ambiguous');
-      return { selected, events:discover({...board,season:{year:2026,type:2},week:{number:selected},events},'CFB').events! };
+      const discovered = discover({...board,season:{year:2026,type:2},week:{number:selected === 0 ? 1 : selected},events},'CFB').events!;
+      // Match Games: ESPN Week 1 contains both calendar slates. Filter before
+      // reading box scores; never subtract aggregate leaderboard totals.
+      const split = calendar && selected <= 1 ? discovered.filter(event => {
+        if (!Number.isFinite(Date.parse(event.date ?? ''))) throw Error('Invalid game date');
+        return selected === 0 ? event.date! < '2026-09-01T00:00:00.000Z' : event.date! >= '2026-09-01T00:00:00.000Z';
+      }) : discovered;
+      return { selected, events: split };
 }
-async function load(week: number | null) {
-  const key = String(week); let operation = pending.get(key);
+async function load(week: number | null, calendar = false) {
+  const key = `${week}:${calendar}`; let operation = pending.get(key);
   if (!operation) {
     if (pending.size >= 4) throw Error('Too many active selections');
     operation = (async () => {
-      const { selected, events } = await scoreboard(week);
+      const { selected, events } = await scoreboard(week, calendar);
       // Small batches bound provider concurrency. No history downloads or card requests.
       const summaries: (EspnSummary|null)[] = [];
       for (let i=0;i<events.length;i+=6) summaries.push(...await Promise.all(events.slice(i,i+6).map(async event => {
         if (!shouldReadGame(event)) return null;
-        try { const summary=(await publicSource(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${event.id}`)).value as EspnSummary;const observed=observedGame(event,summary,2026,selected);Object.assign(event,observed);return summary; } catch { return null; }
+        try { const summary=(await publicSource(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${event.id}`)).value as EspnSummary;const observed=observedGame(event,summary,2026,selected === 0 ? 1 : selected);Object.assign(event,observed);return summary; } catch { return null; }
       })));
       const retainedPositions=retainedCfbPositions();
       const teamIds=[...new Set(summaries.flatMap(summary=>summary?.boxscore?.players?.filter(box=>isVerifiedCfbFbsTeam(box.team?.id)&&box.statistics?.some(group=>group.name==='passing'&&group.athletes?.some(row=>/^[1-9]\d*$/.test(row.athlete?.id??'')&&!row.athlete?.position?.abbreviation&&!retainedPositions.some(p=>p.teamId===box.team?.id&&p.athleteId===row.athlete?.id)))).map(box=>box.team?.id).filter((id):id is string=>Boolean(id&&/^[1-9]\d*$/.test(id)))??[]))];
@@ -44,7 +52,8 @@ async function load(week: number | null) {
       positions.push(...(await batches([...missing],async([id,team])=>{try{return (await publicSource(`https://site.web.api.espn.com/apis/common/v3/sports/football/college-football/athletes/${id}?season=2026`,true,input=>cfbAthletePosition(input,id,team,2026),'position:'+team)).value as ReturnType<typeof cfbAthletePosition>;}catch{return [];} })).flat());
       let memberships:ReturnType<typeof cfbConferenceMemberships>=[];
       try{memberships=cfbConferenceMemberships((await publicSource('https://site.api.espn.com/apis/v2/sports/football/college-football/standings?season=2026&type=0',true)).value,2026);}catch{throw Error('Conference evidence unavailable; retain the previous leaderboard');}
-      return {...buildReportedCfbModel({positions,memberships,period:{season:2026,phase:'REG',week:selected},observedAt:new Date().toISOString(),events,summaries}),events};
+      const model = buildReportedCfbModel({positions,memberships,period:{season:2026,phase:'REG',week:selected === 0 ? 1 : selected},observedAt:new Date().toISOString(),events,summaries});
+      return {...model,period:{...model.period,week:selected},events};
     })().finally(() => pending.delete(key)); pending.set(key, operation);
   }
   return operation;
@@ -55,10 +64,12 @@ async function GET(request: Request) {
   const headers = {'Cache-Control':'no-store'};
   try {
     const params = new URL(request.url).searchParams;
-    if ([...params.keys()].some(key => !['mode','week','view','category','snapshot','players','conference'].includes(key) || params.getAll(key).length!==1)) return Response.json({error:'Invalid selection'},{status:400,headers});
+    if ([...params.keys()].some(key => !['mode','week','view','category','snapshot','players','conference','calendar'].includes(key) || params.getAll(key).length!==1)) return Response.json({error:'Invalid selection'},{status:400,headers});
     if(params.has('conference')&&!/^[1-9]\d*$/.test(params.get('conference')!))return Response.json({error:'Invalid conference'},{status:400,headers});
     const mode=params.get('mode')??'weekly', view=params.get('view')??'leaders', category=params.get('category') as Category;
     if (!['weekly','season'].includes(mode) || !['leaders','details','export','status'].includes(view)) return Response.json({error:'Invalid selection'},{status:400,headers});
+    const calendar = params.get('calendar') === '1';
+    if (params.has('calendar') && (!calendar || mode !== 'weekly' || !['leaders','status'].includes(view) || !params.has('week'))) return Response.json({error:'Invalid calendar selection'},{status:400,headers});
     if(mode==='season'&&(params.has('week')||view==='leaders'&&(!['QB','Rush','Rec','Def'].includes(category)||params.has('snapshot')||params.has('players'))))return Response.json({error:'Invalid season selection'},{status:400,headers});
     if(mode==='season'&&view!=='status'){
       // A provider failure must not hide fingerprint-validated retained history.
@@ -73,12 +84,12 @@ async function GET(request: Request) {
     if(view==='export')return Response.json({error:'CFB league ranking coverage is not verified'},{status:409,headers});
     const raw=params.get('week'), week=raw===null?null:Number(raw);
     if(mode==='season'&&raw!==null)return Response.json({error:'Invalid season selection'},{status:400,headers});
-    if(raw!==null&&(!/^[1-9]\d*$/.test(raw)||week!>16))return Response.json({error:'Invalid week'},{status:400,headers});
+    if(raw!==null&&(!/^(0|[1-9]\d*)$/.test(raw)||week!>16||(!calendar&&week===0)))return Response.json({error:'Invalid week'},{status:400,headers});
     const conference=params.get('conference');
     if(conference!==null&&!/^[1-9]\d*$/.test(conference))return Response.json({error:'Invalid conference'},{status:400,headers});
     if (view === 'status') {
       if (params.has('players') || params.has('snapshot')) return Response.json({error:'Invalid status selection'},{status:400,headers});
-      const { selected, events } = await scoreboard(week);
+      const { selected, events } = await scoreboard(week, calendar);
       const games = events.map(event => {
         const status = event.competitions?.[0]?.status?.type;
         if (!event.id || !Number.isFinite(Date.parse(event.date ?? '')) || !status || !['pre','in','post'].includes(status.state ?? '') || (status.state === 'post' && !status.completed)) throw Error('Unverified game status');
@@ -96,7 +107,7 @@ async function GET(request: Request) {
       return Response.json({snapshot:params.get('snapshot'),observationAt:stored.model.checkedAt,period:stored.model.period,lines:stored.model.lines.filter(line=>ids.includes(line.id)).map(line=>withReviewedCfbHistory(line, stored.model.period.week!, stored.model.period))},{headers});
     }
     if(!['QB','Rush','Rec','Def'].includes(category)||params.has('snapshot')||params.has('players'))return Response.json({error:'Invalid category'},{status:400,headers});
-    const full=await load(week), model=conference?{...full,lines:filterCfbConference(full,conference)}:full, snapshot=crypto.randomUUID();
+    const full=await load(week, calendar), model=conference?{...full,lines:filterCfbConference(full,conference)}:full, snapshot=crypto.randomUUID();
     while(observations.size>=4)observations.delete(observations.keys().next().value!);
     observations.set(snapshot,{model,conference,expires:Date.now()+30000});
     const columns=[...Object.keys(NFL_METRICS),...Object.keys(NFL_RATES),...Object.keys(NFL_DERIVED)] as (keyof typeof model.lines[number]['metrics'])[];

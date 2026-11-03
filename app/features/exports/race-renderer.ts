@@ -54,7 +54,7 @@ export function drawRaceFrame(ctx: CanvasRenderingContext2D, series: RaceSeries,
   ctx.fillStyle = accent; ctx.fillRect(0, 0, 1080, 10);
   ctx.fillStyle = muted; fit(ctx, `AAW HUB / ${series.league} ${series.season}`, 64, 130, 952, 28);
   ctx.fillStyle = ink; fit(ctx, series.metric, 64, 230, 952, 65, 800);
-  ctx.fillStyle = muted; fit(ctx, series.reportedOnly ? 'TOP 10 · REPORTED SEASON TOTALS' : 'TOP 10 · SEASON TOTALS', 64, 290, 952, 26);
+  ctx.fillStyle = muted; fit(ctx, 'TOP 10 · SEASON TOTALS', 64, 290, 952, 26);
   const frame = raceFrame(series, seconds, limit);
   ctx.fillStyle = accent;
   fit(ctx, frame.fromWeek === frame.toWeek || frame.progress === 0 ? `WEEK ${frame.fromWeek}` : `WEEK ${frame.fromWeek} → ${frame.toWeek}`, 64, 390, 952, 52, 800);
@@ -83,7 +83,7 @@ export function drawRaceFrame(ctx: CanvasRenderingContext2D, series: RaceSeries,
     ctx.fillStyle = ink; ctx.textAlign = 'right'; fit(ctx, Math.round(entry.value).toLocaleString('en-GB'), 1016, y + 55, 130, 34, 800); ctx.textAlign = 'left';
   }
   ctx.restore(); ctx.globalAlpha = 1;
-  ctx.fillStyle = muted; fit(ctx, series.reportedOnly ? 'Reported records only · incomplete coverage' : 'Source: AAW Hub statistics', 64, 1750, 952, 23, 500);
+  ctx.fillStyle = muted; fit(ctx, 'Source: AAW Hub statistics', 64, 1750, 952, 23, 500);
   fit(ctx, 'AAWNETWORK.CO.UK', 64, 1820, 952, 26);
   ctx.fillStyle = accent; ctx.fillRect(64, 1860, 952 * Math.min(1, Math.max(0, seconds / raceDuration(series))), 5);
   ctx.restore();

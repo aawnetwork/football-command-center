@@ -438,3 +438,34 @@ test('Season route returns retained cutoff instead of 503 when current scoreboar
   assert.equal((await route(new Request('https://local/?category=Rush&week=9'))).status,503,'weekly failure semantics stay unchanged');
  }finally{globalThis.fetch=saved;if(flag===undefined)delete process.env.AAW_STATS_V2_LOCAL_PREVIEW;else process.env.AAW_STATS_V2_LOCAL_PREVIEW=flag;}
 });
+
+test('race calendar splits ESPN Week 1 game boxscores into distinct Week 0 and Week 1 totals',async()=>{
+ const routeModule=await import(await compile(file('app/lib/stats-v2/cfb-server.ts'))),route=routeModule.createCfbStatsV2Route(board=>board);
+ const saved=globalThis.fetch,flag=process.env.AAW_STATS_V2_LOCAL_PREVIEW;
+ const early=fixture(1,'2390','901'),late=fixture(1,'2390','902');
+ early.event.date='2026-08-29T17:00:00.000Z';late.event.date='2026-09-05T17:00:00.000Z';
+ for(const f of [early,late])f.event.competitions[0].status.type={state:'post',completed:true};
+ early.summary.boxscore.players[0].statistics[1].athletes[0].stats[1]='100';
+ late.summary.boxscore.players[0].statistics[1].athletes[0].stats[1]='200';
+ try {
+  process.env.AAW_STATS_V2_LOCAL_PREVIEW='1';
+  globalThis.fetch=async url=>{
+   const text=String(url);
+   if(text.includes('scoreboard')){assert.equal(new URL(text).searchParams.get('week'),'1');return Response.json({season:{year:2026,type:2},week:{number:1},events:[early.event,late.event]});}
+   if(text.includes('summary'))return Response.json(text.includes('901')?early.summary:late.summary);
+   if(text.includes('standings'))return Response.json({season:{year:2026},children:[]});
+   return Response.json({season:{year:2026},team:{id:'2390'},athletes:[{items:[{id:'123',position:{abbreviation:'QB'}}]}]});
+  };
+  const req=query=>route(new Request('http://fixture/?'+query));
+  for(const [week,value,id] of [[0,100,'901'],[1,200,'902']]){
+   const response=await req(`calendar=1&week=${week}&category=Rush`);assert.equal(response.status,200);
+   const body=await response.json();assert.equal(body.period.week,week);
+   assert.equal(body.lines.find(p=>p.id.endsWith(':123')).values[body.columns.indexOf('rushing_yards')],value);
+   const status=await(await req(`calendar=1&week=${week}&view=status`)).json();
+   assert.equal(status.period.week,week);assert.deepEqual(status.games.map(g=>g.id),[id]);
+  }
+  const original=await(await req('week=1&category=Rush')).json();
+  assert.equal(original.lines.find(p=>p.id.endsWith(':123')).values[original.columns.indexOf('rushing_yards')],300);
+  assert.equal((await req('week=0&category=Rush')).status,400);
+ } finally {globalThis.fetch=saved;if(flag===undefined)delete process.env.AAW_STATS_V2_LOCAL_PREVIEW;else process.env.AAW_STATS_V2_LOCAL_PREVIEW=flag;}
+});

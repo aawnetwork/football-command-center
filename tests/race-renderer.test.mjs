@@ -23,7 +23,7 @@ test('builds season totals before trimming playback range; source identities, no
   assert.equal(result.reportedOnly, false);
 });
 test('missing data is qualified rather than silently treated as verified zero; explicit zero is accepted', () => {
-  const result = buildRaceSeries([week(1, [['1','Player A',null],['2','Player B',0]], {complete:false,confidence:{passing_yards:{status:'reported-values'}}})], 'CFB', 'passing_yards', 1, 1);
+  const result = buildRaceSeries([week(0, [['1','Player A',null],['2','Player B',0]], {complete:false,confidence:{passing_yards:{status:'reported-values'}}})], 'CFB', 'passing_yards', 0, 0);
   assert.equal(result.reportedOnly, true);
   assert.equal(result.checkpoints[0].entries.length, 1);
   assert.equal(result.checkpoints[0].entries[0].value, 0);
@@ -53,7 +53,8 @@ test('draws the race with stable identity text, current week and coverage qualif
   assert.ok(text.includes('Player A'));
   assert.ok(text.includes('WEEK 3'));
   assert.ok(text.includes('700'));
-  assert.ok(text.includes('TOP 10 · REPORTED SEASON TOTALS'));
+  assert.ok(text.includes('TOP 10 · SEASON TOTALS'));
+  assert.ok(!text.some(s=>/reported|incomplete/i.test(s)));
 });
 test('loader verifies a completed slate before accepting a weekly checkpoint', async () => {
   const original = globalThis.fetch;
@@ -115,4 +116,13 @@ test('cream artwork always draws ten team-coloured bars with their logos inside'
   assert.equal(bars.length,10);
   assert.deepEqual([...new Set(bars.map(bar=>bar.color))].sort(),['#00338d','#a71930']);
   assert.equal(images.length,10);
+});
+
+test('CFB accumulates Week 0 once, including when playback starts later; NFL starts at 1', () => {
+  const cfb = [week(0, [['1','Jayden',300]]), week(1, [['1','Jayden',335]])];
+  const result = buildRaceSeries(cfb,'CFB','passing_yards',0,1);
+  assert.deepEqual(result.checkpoints.map(c=>c.week),[0,1]);
+  assert.deepEqual(result.checkpoints.map(c=>c.entries[0].value),[300,635]);
+  assert.equal(buildRaceSeries(cfb,'CFB','passing_yards',1,1).checkpoints[0].entries[0].value,635);
+  assert.throws(()=>buildRaceSeries(cfb,'NFL','passing_yards',0,1));
 });
