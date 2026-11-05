@@ -1,16 +1,16 @@
 name: Retain completed CFB weeks
 on:
   schedule:
-    - cron: '15 12 * 9-12 *'
+    - cron: '15 12 * 8-12 *'
   workflow_dispatch:
 permissions:
   contents: write
-  pull-requests: write
 concurrency:
   group: cfb-season-retention
   cancel-in-progress: false
 jobs:
   retain:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -43,16 +43,44 @@ jobs:
           path: ${{ runner.temp }}/cfb-retention
           retention-days: 90
           if-no-files-found: error
-      - name: Propose retained totals; never merge or deploy
-        uses: peter-evans/create-pull-request@v7
-        with:
-          branch: automation/cfb-season-retention
-          commit-message: 'Retain verified completed CFB weeks'
-          title: 'Retain verified completed CFB season weeks'
-          body: |
-            Reconciles the explicit weekly scoreboard with every retained FBS team's season schedule and validates every final box score using the existing archival contract. Recovers missing completed weeks in order; never fills missing cells with zero or infers QB positions.
+      - name: Publish validated stats and request a production build
+        env:
+          DEPLOY_HOOK: ${{ secrets.CFB_STATS_VERCEL_DEPLOY_HOOK }}
+        run: |
+          set -euo pipefail
+          history=app/lib/stats-v2/cfb-player-history.json
+          metadata=app/lib/stats-v2/cfb-season-metadata.json
+          week=$(jq -er '.throughWeek' "$metadata")
+          live_week=$(curl -fsS --max-time 60 'https://hub.aawnetwork.co.uk/api/cfb/stats-v2?mode=season&category=QB' |
+            jq -er '.throughWeek | numbers' || true)
 
-            Original responses, hashes and cutoff review are in this workflow run's private evidence artifact. National leaderboard certification remains false. Review before merge and deployment.
-          add-paths: |
-            app/lib/stats-v2/cfb-player-history.json
-            app/lib/stats-v2/cfb-season-metadata.json
+          if git diff --quiet -- "$history" "$metadata" && [[ -n "$live_week" ]] && (( live_week >= week )); then
+            echo "Production already serves verified totals through Week $live_week."
+            exit 0
+          fi
+
+          if [[ "$DEPLOY_HOOK" != https://api.vercel.com/v1/integrations/deploy/* ]]; then
+            echo "::error::Configure CFB_STATS_VERCEL_DEPLOY_HOOK as a GitHub Actions secret for the production main branch."
+            exit 1
+          fi
+
+          if ! git diff --quiet -- "$history" "$metadata"; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- "$history" "$metadata"
+            git commit -m "Retain verified CFB player stats through Week $week"
+            git push origin HEAD:refs/heads/main
+          fi
+
+          curl -fsS --max-time 30 -X POST "$DEPLOY_HOOK" | jq -e '.job.id | strings' >/dev/null
+          for attempt in {1..24}; do
+            sleep 15
+            live_week=$(curl -fsS --max-time 30 'https://hub.aawnetwork.co.uk/api/cfb/stats-v2?mode=season&category=QB' |
+              jq -er '.throughWeek | numbers' || true)
+            if [[ -n "$live_week" ]] && (( live_week >= week )); then
+              echo "Production serves verified totals through Week $live_week."
+              exit 0
+            fi
+          done
+          echo "::error::Production did not confirm Week $week. The next scheduled run will retry publication."
+          exit 1
