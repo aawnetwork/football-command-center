@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { type LogoTeam } from "../../lib/team-logos";
 import { pollTeamLogo } from "./poll-team";
 import { comparisonPoll, comparisonSource, comparisonSnapshots, latestPollWeek, parsePollWeek, pollKinds, pollLabel, pollMovement, pollTitles, pollWeekButtonLabel, pollWeekKey, pollWeekOptions, type PollKind, type PollMetadata, type PollResponse } from "./poll-model";
@@ -12,7 +12,7 @@ export function CfbRankings({ teams, season }: { teams: LogoTeam[]; season?: num
   const [errors, setErrors] = useState<Partial<Record<PollKind, string>>>({});
   const [loading, setLoading] = useState(true);
   // Keep a historical selection fixed across the existing five-minute refresh.
-  // AP regular W(n+1) aligns with UKI W(n), without rewriting archive records.
+  // AP/CFP regular W(n+1) aligns with UKI W(n), without rewriting archive records.
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
@@ -78,7 +78,7 @@ export function CfbRankings({ teams, season }: { teams: LogoTeam[]; season?: num
   const selected = parsePollWeek(selection) ?? latestPollWeek(alignedCatalog, season);
   const selectedSeason = selected?.season ?? season;
   const seasons = [...new Set([...catalog.map(p => p.season), ...(season ? [season] : [])])].sort((a,b) => b-a);
-  const weeks = useMemo(() => selectedSeason === undefined ? [] : pollWeekOptions(comparisonSnapshots(catalog), selectedSeason), [catalog, selectedSeason]);
+  const weeks = selectedSeason === undefined ? [] : pollWeekOptions(comparisonSnapshots(catalog), selectedSeason);
   return <div className="standings-panel__rankings">
     <div className="standings-panel__rankings-controls">
       <label className="standings-panel__week-switch">Season <select aria-label="Rankings season" value={selectedSeason ?? ""} disabled={!seasons.length} onChange={event => {
@@ -89,7 +89,7 @@ export function CfbRankings({ teams, season }: { teams: LogoTeam[]; season?: num
         {weeks.map(week => <button key={pollWeekKey(week)} type="button" aria-label={pollLabel({ ...week, kind: "ap" })} aria-pressed={selected !== null && pollWeekKey(selected) === pollWeekKey(week)} onClick={() => setSelection(pollWeekKey(week))}>{pollWeekButtonLabel(week)}</button>)}
       </div>
     </div>
-    <p className="cfb-polls__context">{loading ? "Loading stored polls…" : selected ? selected.phase === "preseason" ? `${selected.season} · Preseason` : pollLabel({ ...selected, kind: "uki" }) : "No rankings archived for this season"} · AP source weeks run one ahead of UKI.</p>
+    <p className="cfb-polls__context">{loading ? "Loading stored polls…" : selected ? selected.phase === "preseason" ? `${selected.season} · Preseason` : pollLabel({ ...selected, kind: "uki" }) : "No rankings archived for this season"} · AP and CFP source weeks run one ahead of UKI.</p>
     <div className="cfb-polls__grid" aria-busy={loading}>
       {pollKinds.map(kind => {
         const poll = comparisonPoll(results[kind]?.poll, kind, selected, catalog);

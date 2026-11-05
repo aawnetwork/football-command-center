@@ -106,3 +106,13 @@ unless supplied by a later import or safely supported by archived history.
 - tests/cfb-ranking-comparison.test.mjs
 - tests/cfb-polls.test.mjs
 - docs/cfb-ranking-comparison.md
+
+## CFP release alignment — 5 November 2026
+
+The archive now contains the 3 November 2026 CFP release: native regular-season
+week 10, 25 entries. Like AP source week 10 (published 1 November), it compares
+with UKI week 9. Regular CFP source weeks therefore use the same minus-one
+display mapping as AP. Stored weeks and historical poll identities remain
+unchanged. The previous unconditional exclusion of regular CFP releases is
+removed. Postseason weeks retain their native phase/week mapping; missing
+releases still never substitute another week's poll.

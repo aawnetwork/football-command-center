@@ -28,7 +28,7 @@ test('Shared football weeks align AP W7 with UKI W6 and collapse preseason and l
   assert.equal(comparisonSource(catalog,'uki',parsePollWeek('2026:regular:6')).week,6);
   assert.equal(comparisonSource(catalog,'uki',parsePollWeek('2026:regular:1')).week,1);
   assert.equal(comparisonSource(catalog,'uki',parsePollWeek('2026:preseason:0')).week,0);
-  assert.equal(comparisonWeek(meta('cfp',7)),null);
+  assert.deepEqual(comparisonWeek(meta('cfp',7)),{season:2026,phase:'regular',week:6});
   assert.equal(comparisonPoll(poll('ap',7),'ap',parsePollWeek('2026:regular:6'),catalog)?.week,7);
   assert.equal(comparisonPoll(poll('ap',6),'ap',parsePollWeek('2026:regular:6'),catalog),null);
   assert.equal(comparisonSource(catalog,'ap',parsePollWeek('2026:regular:5')),undefined);
@@ -82,7 +82,7 @@ test('Logos prefer stable identity; UNC/Pitt aliases resolve exactly and unknown
 });
 
 let componentSource=await readFile(new URL('../app/features/standings/CfbRankings.tsx',import.meta.url),'utf8');
-componentSource=componentSource.replace('import { useEffect, useMemo, useState } from "react";','const useEffect=()=>{};const useMemo=f=>f();const useState=initial=>[globalThis.__pollRenderStates.length?globalThis.__pollRenderStates.shift():initial,()=>{}];')
+componentSource=componentSource.replace('import { useEffect, useState } from "react";','const useEffect=()=>{};const useMemo=f=>f();const useState=initial=>[globalThis.__pollRenderStates.length?globalThis.__pollRenderStates.shift():initial,()=>{}];')
   .replace('"./poll-model"',JSON.stringify(file('app/features/standings/poll-model.ts')))
   .replace('"./poll-team"',JSON.stringify(compile((await readFile(new URL('../app/features/standings/poll-team.ts',import.meta.url),'utf8')).replace('"../../lib/team-logos"',JSON.stringify(file('app/lib/team-logos.ts'))))));
 const {CfbRankings}=await import(compile(componentSource));
@@ -103,10 +103,16 @@ test('Shared week mismatch never renders another source’s older poll',()=>{
   assert.match(html,/AP School 25/);assert.doesNotMatch(html,/UKI School/);assert.match(html,/No published poll is archived for this week/);
   delete globalThis.__pollRenderStates;
 });
-test('CFP is not silently aligned before its mapping is confirmed',()=>{
-  const results=Object.fromEntries(['ap','uki','cfp'].map(kind=>[kind,{kind,poll:poll(kind,10)}]));
-  globalThis.__pollRenderStates=['2026:regular:10',results,['ap','uki','cfp'].map(kind=>meta(kind,10)),{},false];
+test('the archived November CFP release aligns with AP source W10 and UKI W9 and renders all 75 teams',()=>{
+  const ap=poll('ap',10),uki=poll('uki',9),cfp={...poll('cfp',10),publishedAt:'2026-11-03T08:00:00Z'};
+  const catalog=[meta('ap',10),meta('uki',9),{...meta('cfp',10),publishedAt:cfp.publishedAt}];
+  const selected=parsePollWeek('2026:regular:9');
+  assert.equal(comparisonSource(catalog,'cfp',selected).week,10);
+  assert.equal(comparisonPoll(cfp,'cfp',selected,catalog),cfp);
+  assert.equal(comparisonPoll(cfp,'cfp',parsePollWeek('2026:regular:8'),catalog),null);
+  globalThis.__pollRenderStates=['2026:regular:9',{ap:{poll:ap},uki:{poll:uki},cfp:{poll:cfp}},catalog,{},false];
   const html=renderToStaticMarkup(React.createElement(CfbRankings,{teams:[],season:2026}));
-  assert.equal((html.match(/<li /g)||[]).length,25);assert.doesNotMatch(html,/CFP School 25/);
+  assert.equal((html.match(/<li /g)||[]).length,75);assert.match(html,/CFP School 25/);assert.match(html,/Source week 10/);
+  assert.doesNotMatch(html,/No published poll is archived/);
   delete globalThis.__pollRenderStates;
 });

@@ -31,10 +31,10 @@ export type PollWeek = Omit<PollIdentity, "kind">;
 // Display weeks follow UKI numbering. Archive identities remain untouched.
 export function comparisonWeek(p: PollIdentity): PollWeek | null {
   if (p.phase === "preseason") return { season: p.season, phase: "preseason", week: 0 };
-  if (p.kind === "cfp") return null; // Its cross-source mapping has not been confirmed.
   if (p.phase === "postseason") return { season: p.season, phase: p.phase, week: p.week };
-  if (p.kind === "ap" && p.week < 2) return null;
-  return { season: p.season, phase: "regular", week: Math.max(1, p.week - (p.kind === "ap" ? 1 : 0)) };
+  // ESPN AP/CFP source weeks label the upcoming slate; UKI labels the completed week.
+  if ((p.kind === "ap" || p.kind === "cfp") && p.week < 2) return null;
+  return { season: p.season, phase: "regular", week: Math.max(1, p.week - (["ap", "cfp"].includes(p.kind) ? 1 : 0)) };
 }
 export function comparisonSnapshots(snapshots: PollMetadata[]): PollMetadata[] {
   return snapshots.flatMap(p => { const week = comparisonWeek(p); return week ? [{ ...p, ...week }] : []; });
@@ -45,7 +45,7 @@ export function comparisonSource(snapshots: PollMetadata[], kind: PollKind, sele
     return p.kind === kind && week && pollWeekKey(week) === pollWeekKey(selected);
   }).sort((a,b) => {
     // Prefer canonical stored releases over legacy W0 / extra preseason aliases.
-    const preferred = (p: PollMetadata) => p.phase === "preseason" ? p.week === 0 : p.week === selected.week + (kind === "ap" ? 1 : 0);
+    const preferred = (p: PollMetadata) => p.phase === "preseason" ? p.week === 0 : p.week === selected.week + (["ap", "cfp"].includes(kind) ? 1 : 0);
     return Number(preferred(b)) - Number(preferred(a)) || b.revision-a.revision;
   })[0];
 }
