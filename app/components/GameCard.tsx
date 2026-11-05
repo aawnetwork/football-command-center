@@ -19,6 +19,7 @@ type GameCardProps = {
     label: string;
     color: string;
   } | null;
+  rivalryLabel?: string;
   headerRight?: ReactNode;
   footer: ReactNode;
   details?: ReactNode;
@@ -40,6 +41,7 @@ export function GameCard({
   homeScore,
   time,
   indicator,
+  rivalryLabel,
   headerRight,
   footer,
   details,
@@ -51,6 +53,11 @@ export function GameCard({
           <div className={`game-card__status game-card__status--${statusKind}`}>{status}</div>
           {statusDetail && <span className="game-card__clock">{statusDetail}</span>}
           {favourite && <span data-export-omit style={{ color: "var(--cc-accent-text)", fontSize: "12px", fontWeight: 700 }} aria-label="Features your favourite team">★ Favourite</span>}
+          {rivalryLabel && (
+            <div className="game-card__indicator" style={{ color: "var(--cc-accent-text)" }}>
+              {rivalryLabel}
+            </div>
+          )}
           {indicator && (
             <div className="game-card__indicator" style={{ color: indicator.color }}>
               {indicator.label}

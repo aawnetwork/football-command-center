@@ -94,27 +94,22 @@ export function CfbGamesGrid({
       {games.map((game) => {
         const upsetSignal = upsets.find((upset) => upset.gameId === game.id);
         const rivalryGame = rivalryGames.find((item) => item.game.id === game.id);
+        const rivalryLabel = rivalryGame
+          ? `🏆 RIVALRY — ${rivalryGame.rivalry.name}${rivalryGame.rivalry.trophy ? ` · ${rivalryGame.rivalry.trophy}` : ""}`
+          : undefined;
         const indicator = upsetSignal
-          ? {
-              label: upsetLabel(upsetSignal, game.completed),
-              color: "#f87171",
-            }
-          : rivalryGame
-            ? {
-                label: `🏆 RIVALRY — ${rivalryGame.rivalry.name}${rivalryGame.rivalry.trophy ? ` · ${rivalryGame.rivalry.trophy}` : ""}`,
-                color: "var(--cc-accent-text)",
-              }
-            : game.top10Matchup
-              ? { label: "🔥 TOP-10 SHOWDOWN", color: "var(--cc-accent-text)" }
-              : game.rankedMatchup
-                ? { label: "📈 RANKED MATCHUP", color: "var(--cc-accent-text)" }
-                : game.rankedTeamLost
-                  ? { label: "🚨 RANKED UPSET", color: "var(--cc-accent-text)" }
-                  : null;
+          ? { label: upsetLabel(upsetSignal, game.completed), color: "#f87171" }
+          : game.top10Matchup
+            ? { label: "🔥 TOP-10 SHOWDOWN", color: "var(--cc-accent-text)" }
+            : game.rankedMatchup
+              ? { label: "📈 RANKED MATCHUP", color: "var(--cc-accent-text)" }
+              : game.rankedTeamLost
+                ? { label: "🚨 RANKED UPSET", color: "var(--cc-accent-text)" }
+                : null;
 
         return (
           <GameCard
-            details={<GameDetails context={game.context} status={game.completed ? "final" : game.live ? "live" : "scheduled"} matchupContext={indicator?.label} />}
+            details={<GameDetails context={game.context} status={game.completed ? "final" : game.live ? "live" : "scheduled"} matchupContext={rivalryLabel ?? indicator?.label} />}
             favourite={Object.values(favouriteSides(game.context, "CFB", favourites.CFB)).some(Boolean)}
             key={game.id}
             possession={game.possession}
@@ -130,6 +125,7 @@ export function CfbGamesGrid({
             homeMeta={formatRecord(game.homeRecord, game.homeConferenceRecord)}
             homeScore={game.homePoints}
             time={formatGameTime(game.startDate)}
+            rivalryLabel={rivalryLabel}
             indicator={indicator}
             headerRight={
               broadcastAvailability[game.id]?.length ? (
