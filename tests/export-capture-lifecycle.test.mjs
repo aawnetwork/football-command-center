@@ -40,3 +40,21 @@ test('multi-game fonts are embedded from the live source; legacy captures do not
  globalThis.document=h.document;globalThis.captureHarness=h;
  try{await captureCard(h.source);assert.equal(calls,1);}finally{delete globalThis.document;delete globalThis.captureHarness;}
 });
+
+test('bracket snapshots preserve the fixed geometry while embedding fonts',async()=>{
+ const h=harness();h.source.classList.contains=name=>name==='bracket-overlay';let clone;
+ const original=h.document.importNode;h.document.importNode=(...args)=>{clone=original(...args);clone.style.height='900px';return clone;};
+ h.getFontEmbedCSS=async()=> '@font-face{font-family:bracket-font}';
+ const render=h.toCanvas;h.toCanvas=(node,options)=>{assert.equal(clone.style.height,'900px');assert.match(options.fontEmbedCSS,/bracket-font/);return render(node,options);};
+ globalThis.document=h.document;globalThis.captureHarness=h;
+ try{await captureCard(h.source);assert.equal(h.calls,1);}finally{delete globalThis.document;delete globalThis.captureHarness;}
+});
+
+test('social overlays export exact target pixels without the wide export bleed or 2x scaling',async()=>{
+ const h=harness(),box=()=>({width:1080,height:1350,left:0,top:0});
+ h.source.getBoundingClientRect=box;h.source.classList.contains=name=>name==='bracket-overlay';h.getFontEmbedCSS=async()=>'';
+ const create=h.document.createElement;h.document.createElement=(...args)=>{const node=create(...args);node.getBoundingClientRect=box;return node;};
+ h.toCanvas=async(node,options)=>{assert.equal(options.width,1080);assert.equal(options.height,1350);assert.equal(options.pixelRatio,1);assert.match(node.style.cssText,/padding:0px/);return {getContext:()=>({}),toDataURL:()=> 'data:image/png;base64,verified'};};
+ globalThis.document=h.document;globalThis.captureHarness=h;
+ try{const result=await captureCard(h.source,{pixelRatio:1,padding:0});assert.equal(result.width,1080);assert.equal(result.height,1350);}finally{delete globalThis.document;delete globalThis.captureHarness;}
+});

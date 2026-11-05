@@ -1,7 +1,8 @@
 import { toCanvas, getFontEmbedCSS } from "html-to-image";
 import { compactStats } from "./compact-stats";
 
-export async function captureCard(source: HTMLElement) {
+export async function captureCard(source: HTMLElement, options: {pixelRatio?:number;padding?:number} = {}) {
+  const pixelRatio=options.pixelRatio??2,padding=options.padding??12;
   const sourceWindow = source.ownerDocument.defaultView;
   if (!sourceWindow || !source.isConnected) throw new Error("This card is no longer available. Select it again.");
   await source.ownerDocument.fonts.ready;
@@ -12,7 +13,8 @@ export async function captureCard(source: HTMLElement) {
   // Next-generated font aliases must be resolved on the live artwork. Resolving
   // them after the renderer has cloned it can lose the condensed heading face.
   // Keep the approved individual/legacy capture path unchanged.
-  const multiGame = source.classList.contains("multi-graphic") || source.classList.contains("statistical-graphic");
+  const bracket = source.classList.contains("bracket-overlay");
+  const multiGame = bracket || source.classList.contains("multi-graphic") || source.classList.contains("statistical-graphic");
   const fontEmbedCSS = multiGame ? await getFontEmbedCSS(source, { preferredFontFormat: "woff2" }) : undefined;
   if (!source.isConnected) throw new Error("This card changed. Select it again before exporting.");
   const sourceWidth = Math.ceil(source.getBoundingClientRect().width);
@@ -25,7 +27,7 @@ export async function captureCard(source: HTMLElement) {
     const copy = copies[index];
     const computed = sourceWindow.getComputedStyle(original);
     for (const property of Array.from(computed)) copy.style.setProperty(property, computed.getPropertyValue(property));
-    if (original.tagName !== "IMG" && original.tagName !== "SVG") copy.style.height = "auto";
+    if (!bracket && original.tagName !== "IMG" && original.tagName !== "SVG") copy.style.height = "auto";
   });
   clone.querySelectorAll("[data-export-omit], button, input, select, textarea").forEach((node) => node.remove());
   clone.style.width = `${sourceWidth}px`;
@@ -57,7 +59,7 @@ export async function captureCard(source: HTMLElement) {
   const host = document.createElement("div");
   host.style.cssText = "position:fixed;left:-100000px;top:0;pointer-events:none;background:transparent;";
   const canvasArea = document.createElement("div");
-  canvasArea.style.cssText = "padding:12px;width:max-content;background:transparent;";
+  canvasArea.style.cssText = `padding:${padding}px;width:max-content;background:transparent;`;
   canvasArea.appendChild(clone);
   host.appendChild(canvasArea);
   document.body.appendChild(host);
@@ -65,14 +67,14 @@ export async function captureCard(source: HTMLElement) {
     const width = Math.ceil(canvasArea.getBoundingClientRect().width);
     const height = Math.ceil(canvasArea.getBoundingClientRect().height);
     if (width < sourceWidth || height < 1) throw new Error("The export layout is not ready. Please generate it again.");
-    if (width * height * 4 > 32_000_000 || height * 2 > 16_000) throw new Error("This table is too large for one PNG at 2× resolution.");
+    if (width * height * 4 > 32_000_000 || height * pixelRatio > 16_000) throw new Error("This table is too large for one PNG at 2× resolution.");
     const logos = Array.from(clone.querySelectorAll<HTMLImageElement>("img")).filter(
       (image) => !image.hidden && image.style.display !== "none" && image.style.visibility !== "hidden" && image.style.objectFit === "contain"
     );
     // Reserve their space but render these once, directly, to avoid doubling
     // translucent edges in browsers whose foreignObject images do work.
     logos.forEach((image) => { image.style.visibility = "hidden"; });
-    const canvas = await toCanvas(canvasArea, { width, height, pixelRatio: 2, preferredFontFormat: "woff2", ...(fontEmbedCSS !== undefined ? { fontEmbedCSS } : {}) });
+    const canvas = await toCanvas(canvasArea, { width, height, pixelRatio, preferredFontFormat: "woff2", ...(fontEmbedCSS !== undefined ? { fontEmbedCSS } : {}) });
     logos.forEach((image) => { image.style.visibility = "visible"; });
     // WebKit can omit decoded images inside the library's SVG foreignObject.
     // Paint contained team logos directly onto the final canvas at the same
@@ -85,10 +87,10 @@ export async function captureCard(source: HTMLElement) {
       if (!bounds.width || !bounds.height || !image.naturalWidth) throw new Error("A logo has no visible export area. Refresh the card before exporting.");
       const scale = Math.min(bounds.width / image.naturalWidth, bounds.height / image.naturalHeight);
       const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
-      context.drawImage(image, (bounds.left - area.left + (bounds.width - w) / 2) * 2,
-        (bounds.top - area.top + (bounds.height - h) / 2) * 2, w * 2, h * 2);
+      context.drawImage(image, (bounds.left - area.left + (bounds.width - w) / 2) * pixelRatio,
+        (bounds.top - area.top + (bounds.height - h) / 2) * pixelRatio, w * pixelRatio, h * pixelRatio);
     }
     const dataUrl = canvas.toDataURL("image/png");
-    return { dataUrl, width: width * 2, height: height * 2 };
+    return { dataUrl, width: width * pixelRatio, height: height * pixelRatio };
   } finally { host.remove(); }
 }
