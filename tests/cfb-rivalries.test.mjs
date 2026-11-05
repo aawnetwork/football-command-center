@@ -40,3 +40,10 @@ test("Received 2026 Notre Dame–Navy scoreboard names match in both orientation
  assert.equal(find("Navy Midshipmen","Ohio State Buckeyes"),undefined);
  assert.equal(findCfbRivalry({...game,neutralSite:true},rivalries)?.name,"Notre Dame–Navy Rivalry");
 });
+
+test('Western Kentucky and Middle Tennessee display 100 Miles of Hate', () => {
+  const home = 'Middle Tennessee Blue Raiders';
+  const away = 'Western Kentucky Hilltoppers';
+  assert.equal(find(home, away)?.name, '100 Miles of Hate');
+  assert.equal(find(away, home)?.name, '100 Miles of Hate');
+});
