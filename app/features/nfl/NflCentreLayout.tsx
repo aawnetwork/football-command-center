@@ -56,6 +56,7 @@ export function NflCentreLayout({ activeTab, onTabChange, children }: {
           style={{
             display: "flex",
             gap: "10px",
+            flexWrap: "wrap",
             marginBottom: "32px",
             borderBottom:
               "1px solid var(--cc-border)",
@@ -67,6 +68,7 @@ export function NflCentreLayout({ activeTab, onTabChange, children }: {
               ["games", "Games"],
 ["performances", "Performances"],
 ["stats", "Stats"],
+["compare", "Compare"],
 ["standings", "Standings"],
 ["all-time", "All-Time"],
 

@@ -1,5 +1,8 @@
 "use client";
 
+import type { GameContext } from "../lib/game-context";
+import { SeasonGames } from "../features/football/SeasonGames";
+import { PlayerComparison } from "../features/football/PlayerComparison";
 import { seasonTeamValue, seasonTeamCoverage } from "../lib/nfl-season-team-stats";
 import { weeklyTeamValue } from "../lib/nfl-weekly-team-stats";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -486,14 +489,14 @@ function NFLPageContent() {
     );
   }
 
-  function setGameTier(gameId: number, tier: NFLTier) {
+  function setGameTier(gameId: number, tier: NFLTier, context?: GameContext) {
     analytics.action('tier_interaction');
     const next = { ...personalTiers.current };
     const chosen = next[gameId] === tier ? null : tier;
     if (chosen === null) delete next[gameId]; else next[gameId] = chosen;
     personalTiers.current = next;
     setGameTiers(next);
-    void audience.contribute(personalTierChange(games.find(game => game.id === gameId)?.context, "NFL", chosen));
+    void audience.contribute(personalTierChange(context ?? games.find(game => game.id === gameId)?.context, "NFL", chosen));
   }
 
   function clearGameTiers() {
@@ -1101,6 +1104,7 @@ function getPerformanceReason(
     <NflCentreLayout activeTab={activeTab} onTabChange={setActiveTab}>
         {activeTab === "games" && (
           <section className="nfl-games-section" aria-label="NFL games">
+            <SeasonGames league="NFL" tiers={gameTiers} onSetTier={setGameTier}>
             <div className="centre-section-header"
               style={{
                 display: "flex",
@@ -1340,6 +1344,7 @@ function getPerformanceReason(
                 onSetTier={setGameTier}
               />
             )}
+          </SeasonGames>
           </section>
         )}
 
@@ -2282,6 +2287,7 @@ function getPerformanceReason(
         {activeTab === "standings" && <StandingsPanel sport="NFL" />}
 
 
+        {activeTab === "compare" && <PlayerComparison league="NFL" />}
         {activeTab === "stats" && statsPreview.available && <StatsPreviewSwitch league="NFL" teams={statsPreview.teams} enabled={statsPreview.enabled} onPreview={() => statsPreview.select(true)} onExisting={() => { statsPreview.select(false); setStatsView("players"); }} onTeams={() => { statsPreview.selectTeams(); setStatsView("teams"); }} />}
         {activeTab === "stats" && statsPreview.enabled && <StatsPreview league="NFL" />}
         {activeTab === "stats" && statsPreview.teams && <TeamStats league="NFL" />}

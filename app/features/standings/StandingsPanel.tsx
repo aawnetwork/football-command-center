@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 
 type League = "CFB" | "NFL";
-type CfbView = "conferences" | "rankings";
-type NflView = "divisions" | "playoffs";
+type CfbView = "conferences" | "rankings" | "bracket";
+type NflView = "divisions" | "playoffs" | "bracket";
+import { PlayoffBracket } from "../football/PlayoffBracket";
 import { CfbRankings } from "./CfbRankings";
 
 type StandingTeam = {
@@ -92,11 +93,13 @@ export function StandingsPanel({ sport }: { sport: League }) {
     {sport === "CFB" ? (
       <div className="centre-secondary-nav" role="group" aria-label="College football standings view">
         <button type="button" aria-pressed={cfbView === "conferences"} onClick={() => setCfbView("conferences")}>Conferences</button>
+        <button type="button" aria-pressed={cfbView === "bracket"} onClick={() => setCfbView("bracket")}>CFP Bracket</button>
         <button type="button" aria-pressed={cfbView === "rankings"} onClick={() => setCfbView("rankings")}>Rankings</button>
       </div>
     ) : (
       <div className="centre-secondary-nav" role="group" aria-label="NFL standings view">
         <button type="button" aria-pressed={nflView === "divisions"} onClick={() => setNflView("divisions")}>Divisions</button>
+        <button type="button" aria-pressed={nflView === "bracket"} onClick={() => setNflView("bracket")}>Playoff Bracket</button>
         {playoffPictureAvailable && <button type="button" aria-pressed={nflView === "playoffs"} onClick={() => setNflView("playoffs")}>Playoff Picture</button>}
       </div>
     )}
@@ -104,9 +107,9 @@ export function StandingsPanel({ sport }: { sport: League }) {
       <h2>Standings</h2>
       <p>{sport === "NFL" ? "NFL division races, updated from ESPN." : "FBS conference standings and national rankings."}</p>
     </header>
-    {sport === "CFB" ? <CfbStandings
+    {(sport === "CFB" ? cfbView === "bracket" : nflView === "bracket") ? <PlayoffBracket league={sport} season={season ?? null} /> : sport === "CFB" ? <CfbStandings
       season={season}
-      view={cfbView}
+      view={cfbView === "bracket" ? "conferences" : cfbView}
       sections={visibleSections}
       allSections={sections}
       selectedConference={selectedConference}
@@ -114,7 +117,7 @@ export function StandingsPanel({ sport }: { sport: League }) {
       loading={loading}
       error={error}
     /> : <NflStandings
-      view={nflView}
+      view={nflView === "bracket" ? "divisions" : nflView}
       playoffPictureAvailable={playoffPictureAvailable}
       sections={visibleSections}
       loading={loading}

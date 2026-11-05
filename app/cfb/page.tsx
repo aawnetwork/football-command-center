@@ -1,4 +1,7 @@
 "use client";
+import type { GameContext } from "../lib/game-context";
+import { SeasonGames } from "../features/football/SeasonGames";
+import { PlayerComparison } from "../features/football/PlayerComparison";
 import { cfbSeasonTeamLeaders, cfbSeasonTeamCoverage, formatCfbSeasonTeam } from "../lib/cfb-season-team-stats";
 
 import { cfbWeeklyTeamLeaders, cfbWeeklyTeamCoverage, type WeeklyTeams } from "../lib/cfb-weekly-team-stats";
@@ -717,10 +720,11 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
   function setGameTier(
     gameId: number,
-    tier: Tier
+    tier: Tier,
+    context?: GameContext
   ) {
     analytics.action('tier_interaction');
-    if (loadedDeck) {
+    if (loadedDeck && !context) {
       setActiveDeck({ ...loadedDeck, assignments: toggleDeckTier(loadedDeck.assignments, gameId, tier) });
       return;
     }
@@ -729,7 +733,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
     if (chosen === null) delete next[gameId]; else next[gameId] = chosen;
     personalTiers.current = next;
     setTiers(next);
-    void audience.contribute(personalTierChange(games.find(game => game.id === gameId)?.context, "CFB", chosen));
+    void audience.contribute(personalTierChange(context ?? games.find(game => game.id === gameId)?.context, "CFB", chosen));
   }
 
   function clearGameTiers() {
@@ -921,6 +925,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
   ["games", "Games"],
   ["performances", "Performances"],
   ["stats", "Stats"],
+["compare", "Compare"],
   ["standings", "Standings"],
   ["all-time", "All-Time"],
 
@@ -953,6 +958,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
 
         {activeTab === "games" && (
           <section className="cfb-games-section" aria-label="CFB games">
+            <SeasonGames league="CFB" tiers={tiers} onSetTier={setGameTier}>
             <div className="centre-section-header"
               style={{
                 display: "flex",
@@ -1203,6 +1209,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
               />
             )}
 
+          </SeasonGames>
           </section>
         )}
 
@@ -1610,6 +1617,7 @@ const [allTimePeriod, setAllTimePeriod] = useState<"season" | "career" | "single
           </section>
         )}
 
+        {activeTab === "compare" && <PlayerComparison league="CFB" />}
         {activeTab === "stats" && statsPreview.available && <StatsPreviewSwitch league="CFB" teams={statsPreview.teams} enabled={statsPreview.enabled} onPreview={() => statsPreview.select(true)} onExisting={() => { statsPreview.select(false); changeStatsView("individual"); }} onTeams={() => { statsPreview.selectTeams(); changeStatsView("team"); }} />}
         {activeTab === "stats" && statsPreview.enabled && <StatsPreview league="CFB" />}
         {activeTab === "stats" && statsPreview.teams && <TeamStats league="CFB" />}
