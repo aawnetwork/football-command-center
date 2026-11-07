@@ -15,6 +15,19 @@ test('Live contributions refresh without accumulating twice; final totals persis
  const caughtUp={...base,stat:1850,sourceUpdated:updated.replace('Friday, October 16','Saturday, October 17')};assert.equal(merge([caughtUp])[0].stat,1850);
  assert.equal(base.stat,1700);
 });
+test('Completed verified game contributions survive provider disappearance and page reload',()=>{
+ const original=globalThis.localStorage,values=new Map();
+ globalThis.localStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};
+ try{
+  const completed={...game,live:false,completed:true};
+  assert.equal(merge([base],[live],[completed])[0].stat,1850);
+  // Simulate a refreshed page: the scoreboard and live box-score feed no longer return the game.
+  assert.equal(merge([base],[],[])[0].stat,1850);
+  assert.equal(merge([base],[],[])[0].stat,1850,'repeated refreshes do not add the retained game twice');
+  const caughtUp={...base,stat:1850,sourceUpdated:updated.replace('Friday, October 16','Saturday, October 17')};
+  assert.equal(merge([caughtUp],[],[])[0].stat,1850,'NCAA catch-up excludes the previously retained game');
+ }finally{if(original===undefined)delete globalThis.localStorage;else globalThis.localStorage=original;}
+});
 test('Unverified dates, future/scheduled games, missing identity and duplicate athlete names fail closed',()=>{
  assert.equal(merge([{...base,sourceUpdated:undefined}])[0].stat,1700);
  assert.equal(merge([{...base,team:'Unknown'}])[0].stat,1700);
@@ -39,12 +52,12 @@ test('Team cumulative totals, exact points averages, defense yardage, sacks and 
 
 const pageSource=await readFile(new URL('../app/cfb/page.tsx',import.meta.url),'utf8');
 const ast=ts.createSourceFile('page.tsx',pageSource,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let callback;
-function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)==='useEffect'&&node.arguments[0]?.getText(ast).includes('const baselineInterval'))callback=node.arguments[0].getText(ast);ts.forEachChild(node,visit)}visit(ast);assert.ok(callback);
-const effectJs=ts.transpileModule(`export function run(env){const {statsPreview={enabled:false},activeTab,statsMode,window,fetch,setSeasonStats,setSeasonPlayerStats,setSeasonStatsLoading,setSeasonStatsError,statsView,selectedCategory,setStatsCheck,recordDataCheck}=env;return (${callback})();}`,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)==='useEffect'&&node.arguments[0]?.getText(ast).includes('const baselineInterval'))callback=node.arguments[0].getText(ast);ts.forEachChild(node,visit);}visit(ast);
+const effectJs=ts.transpileModule(`export function run(env){${callback}}`,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const {run}=await import(`data:text/javascript;base64,${Buffer.from(effectJs).toString('base64')}`);
 test('Actual season effect refreshes current-week totals every 30s independently of baseline and cancels on exit',async()=>{
  const intervals=new Map(),calls=[],published=[];let next=1;
- const env={activeTab:'stats',statsMode:'season',statsView:'individual',selectedCategory:'rushing',setSeasonStatsError(){},window:{setInterval(fn,ms){intervals.set(next,{fn,ms});return next++},clearInterval(id){intervals.delete(id)}},fetch:async url=>{calls.push(url);return {ok:true,json:async()=>url.includes('season-stats')?[base]:[live]}},setSeasonStats:data=>published.push(['base',data]),setSeasonPlayerStats:data=>published.push(['live',data]),setSeasonStatsLoading(){},setStatsCheck(){},recordDataCheck(){}};
+ const env={activeTab:'stats',statsMode:'season',statsView:'individual',selectedCategory:'rushing',setSeasonStatsError(){},window:{setInterval(fn,ms){intervals.set(next,{fn,ms});return next++},clearInterval(id){intervals.delete(id)}},fetch:async url=>{calls.push(url);return {ok:true,json:async()=>url.includes('season-stats')?[base]:[live]}},setSeasonStats(v){published.push(['base',v])},setSeasonPlayerStats(v){published.push(['live',v])},setSeasonStatsLoading(){},setStatsCheck(){}};
  const settle=()=>new Promise(r=>setImmediate(r));const cleanup=run(env);await settle();assert.deepEqual(calls,['/api/season-stats?view=individual&category=rushing','/api/player-stats']);
  const tick=[...intervals.values()].at(-1);assert.ok(tick);assert.ok([...intervals.values()].every(i=>i.ms===30000));
  tick.fn();await settle();assert.equal(calls.at(-1),'/api/player-stats');assert.equal(calls.filter(url=>url.startsWith('/api/season-stats')).length,1);
@@ -55,7 +68,7 @@ test('Actual season effect refreshes current-week totals every 30s independently
 
 test('Failed season loads show an error and keep automatic retries rather than silently presenting empty rows',async()=>{
  const errors=[],intervals=[],loading=[];
- const env={activeTab:'stats',statsMode:'season',statsView:'individual',selectedCategory:'rushing',window:{setInterval(fn){intervals.push(fn);return intervals.length},clearInterval(){}},fetch:async url=>({ok:!url.includes('season-stats'),json:async()=>[live]}),setSeasonStats(){assert.fail('failed response must not replace data')},setSeasonPlayerStats(){},setSeasonStatsLoading:value=>loading.push(value),setSeasonStatsError:value=>errors.push(value),setStatsCheck(){},recordDataCheck(){}};
+ const env={activeTab:'stats',statsMode:'season',statsView:'individual',selectedCategory:'rushing',window:{setInterval(fn){intervals.push(fn);return intervals.length},clearInterval(){}},fetch:async()=>({ok:false}),setSeasonStatsError(v){errors.push(v)},setSeasonStatsLoading(v){loading.push(v)},setSeasonStats(){},setSeasonPlayerStats(){},setStatsCheck(){}};
  const cleanup=run(env);await new Promise(r=>setImmediate(r));assert.match(errors.at(-1),/Retrying/);assert.deepEqual(loading,[true,false]);assert.equal(intervals.length,2);cleanup();
  assert.match(pageSource,/seasonStatsError \? \(\s*<p role="alert"/);
 });
