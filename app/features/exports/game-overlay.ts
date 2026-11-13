@@ -42,7 +42,7 @@ export function projectOverlayGames(feed:unknown,league:'CFB'|'NFL',observedAt:s
   const liveLabel=status.name==='STATUS_HALFTIME'?'LIVE | HALF':period!==null&&period>0?`LIVE | ${period>4?(period===5?'OT':`${period-4}OT`):['1st','2nd','3rd','4th'][period-1]}`:'LIVE';
   const clock=text(object(competition.status).displayClock)??text(object(event.status).displayClock);
   const statusLabel=stage==='live'&&status.name==='STATUS_IN_PROGRESS'&&(period!==null&&period<=4||league==='NFL')&&clock&&/^\d{1,2}:\d{2}$/.test(clock)?`${liveLabel} · ${clock}`:liveLabel;
-  const rivalry=league==='CFB'?findCfbRivalry({awayTeam:away.name,homeTeam:home.name},rivalries):undefined;
+  const rivalry=league==='CFB'?findCfbRivalry({awayTeam:away.name,homeTeam:home.name,awayTeamId:away.id,homeTeamId:home.id},rivalries):undefined;
   const cfbContext=[rivalry?`RIVALRY — ${rivalry.name}`:null,upset?'RANKED UPSET':ranked?'RANKED MATCHUP':null].filter(Boolean).join(' · ')||null;
   const venue=object(competition.venue),address=object(venue.address);
   const broadcasts=list(competition.broadcasts).flatMap(value=>list(object(value).names)).filter((name):name is string=>typeof name==='string');

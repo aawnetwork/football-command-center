@@ -99,7 +99,7 @@ test('live projection supports scores, period, clock, half and overtime without 
  c.competitors[0].score=null;assert.deepEqual(project(e),[]);
 });
 test('existing CFB rivalry catalogue applies to pregame, live and final overlays',()=>{
- const e=scheduled(),c=e.competitions[0];c.competitors[0].team.displayName='Akron Zips';c.competitors[1].team.displayName='Kent State Golden Flashes';
+ const e=scheduled(),c=e.competitions[0];Object.assign(c.competitors[0].team,{id:'2006',displayName:'Akron Zips'});Object.assign(c.competitors[1].team,{id:'2309',displayName:'Kent State Golden Flashes'});
  assert.match(project(e)[0].context,/RIVALRY — Akron–Kent State Rivalry/);
  e.date='2026-10-20T10:00Z';c.status={type:{state:'in',name:'STATUS_IN_PROGRESS',completed:false},period:1};assert.match(project(e)[0].context,/RIVALRY/);
  c.status.type={state:'post',name:'STATUS_FINAL',completed:true};assert.match(project(e)[0].context,/RIVALRY/);

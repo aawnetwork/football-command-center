@@ -47,3 +47,35 @@ test('Western Kentucky and Middle Tennessee display 100 Miles of Hate', () => {
   assert.equal(find(home, away)?.name, '100 Miles of Hate');
   assert.equal(find(away, home)?.name, '100 Miles of Hate');
 });
+
+test('Battle on the Bayou resolves from scoreboard names and stable IDs', () => {
+  const game = { homeTeam: "Louisiana Ragin' Cajuns", awayTeam: 'UL Monroe Warhawks' };
+  assert.equal(find(game.homeTeam, game.awayTeam)?.trophy, 'Wooden Boot');
+  assert.equal(find(game.awayTeam, game.homeTeam)?.name, 'Battle on the Bayou');
+  assert.equal(findCfbRivalry({
+    homeTeam: 'Renamed home display', awayTeam: 'Renamed away display',
+    homeTeamId: '309', awayTeamId: '2433',
+  }, rivalries)?.name, 'Battle on the Bayou');
+  assert.equal(findCfbRivalry({ ...game, awayTeamId: '333' }, rivalries), undefined);
+});
+
+test('Every catalogue pairing matches retained scoreboard identities and display names', async () => {
+  const { default: identities } = await import('../app/lib/cfb-school-identities.json', { with: { type: 'json' } });
+  const { default: display } = await import('../app/lib/cfb-team-display-2026.json', { with: { type: 'json' } });
+  const normalize = name => name.normalize('NFD').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const idFor = school => {
+    const matches = Object.entries(identities).filter(([, names]) => names.some(name => normalize(name) === normalize(school)));
+    assert.equal(matches.length, 1, school);
+    return matches[0][0];
+  };
+
+  for (const rivalry of rivalries) {
+    const ids = rivalry.teams.map(idFor);
+    for (const [homeTeamId, awayTeamId] of [ids, [...ids].reverse()]) {
+      const homeTeam = display.teams[homeTeamId].name;
+      const awayTeam = display.teams[awayTeamId].name;
+      assert.equal(find(homeTeam, awayTeam), rivalry);
+      assert.equal(findCfbRivalry({ homeTeam, awayTeam, homeTeamId, awayTeamId }, rivalries), rivalry);
+    }
+  }
+});
