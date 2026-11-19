@@ -68,7 +68,7 @@ export function evidenceReader(directory,request=fetch){
   const response=await request(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000)});
   assert.ok(response.ok,'Provider '+response.status+'; no retry');
   const chunks=[];let size=0;assert.ok(response.body,'Missing provider body');
-  for await(const chunk of response.body){size+=chunk.length;bytes+=chunk.length;if(size>12_000_000||bytes>100_000_000)throw Error('Provider byte budget exceeded');chunks.push(Buffer.from(chunk));}
+  for await(const chunk of response.body){size+=chunk.length;bytes+=chunk.length;if(size>12_000_000)throw Error('Individual provider response exceeded 12 MB');if(bytes>300_000_000)throw Error('Provider byte budget exceeded 300 MB; saved evidence can be reused on the next run');chunks.push(Buffer.from(chunk));}
   const value=JSON.parse(Buffer.concat(chunks).toString('utf8'));
   const saved={url,receivedAt:new Date().toISOString(),sha256:hash(value),value};
   await writeFile(path,JSON.stringify(saved)+'\n',{flag:'wx',mode:0o600});return saved;
