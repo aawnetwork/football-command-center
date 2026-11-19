@@ -64,11 +64,11 @@ export function evidenceReader(directory,request=fetch){
   try{
    const saved=await read(path);assert.equal(saved.url,url);assert.equal(saved.sha256,hash(saved.value));assert.ok(Number.isFinite(Date.parse(saved.receivedAt)));return saved;
   }catch(error){if(error.code!=='ENOENT')throw error;}
-  assert.ok(++requests<=400,'Request budget exceeded');
+  assert.ok(++requests<=1200,'Request budget exceeded (1200 requests)');
   const response=await request(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000)});
   assert.ok(response.ok,'Provider '+response.status+'; no retry');
   const chunks=[];let size=0;assert.ok(response.body,'Missing provider body');
-  for await(const chunk of response.body){size+=chunk.length;bytes+=chunk.length;if(size>12_000_000||bytes>100_000_000)throw Error('Provider byte budget exceeded');chunks.push(Buffer.from(chunk));}
+  for await(const chunk of response.body){size+=chunk.length;bytes+=chunk.length;if(size>12_000_000)throw Error('Individual provider response exceeded 12 MB');if(bytes>1_000_000_000)throw Error('Provider byte budget exceeded (1 GB)');chunks.push(Buffer.from(chunk));}
   const value=JSON.parse(Buffer.concat(chunks).toString('utf8'));
   const saved={url,receivedAt:new Date().toISOString(),sha256:hash(value),value};
   await writeFile(path,JSON.stringify(saved)+'\n',{flag:'wx',mode:0o600});return saved;
