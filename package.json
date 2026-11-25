@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:presets": "node --test tests/preset-invitations.test.mjs tests/preset-invitations-db.test.mjs tests/preset-invitations-api.test.mjs tests/deck-manager.test.mjs tests/curated-decks.test.mjs tests/admin-centre.test.mjs tests/tester-access.test.mjs",
-    "test:presets:browser": "node tests/preset-contributors.browser.mjs"
+    "test:presets:browser": "node tests/preset-contributors.browser.mjs",
+    "deploy:cloudflare": "npx @opennextjs/cloudflare build && node scripts/patch-opennext-cookie.mjs && npx @opennextjs/cloudflare deploy"
   },
   "dependencies": {
     "html-to-image": "1.11.13",
